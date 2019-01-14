@@ -6,5 +6,12 @@
 {% endblock %}
 {% block heading %} {{ heading }}{% endblock %}
 {% block body_block %}
-test
+    {{ message }}
+    <form action="/MusicAnalyzer/choice/" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if file_form %}
+            {{ file_form.as_p }}
+        {% endif %}
+        <input class="button" type="submit" value="Upload"/>
+    </form>
 {% endblock %}
