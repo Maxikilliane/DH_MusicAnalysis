@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title> MusicAnalyzer {% block title %}{% endblock %}</title>
+        <title> {% block title %} MusicAnalyzer {% endblock %}</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- UIkit CSS -->
@@ -15,12 +15,17 @@
     </head>
     <body>
         <header>
-            <nav class="uk-navbar-container uk-navbar blue">
+            <nav class="uk-navbar-container uk-navbar bgcolor">
                 <div class="uk-navbar-left">
-                    <h3>{% block heading %}MusicAnalyzer{% endblock %}</h3>
+                    <h3>MusicAnalyzer</h3>
+                </div>
+                <div class="uk-navbar-center">
+                    <h3>{% block heading %}{% endblock %}</h3>
                 </div>
             </nav>
         </header>
+        <div class="body">
         {% block body_block %}{% endblock %}
+        </div>
     </body>
 </html>
