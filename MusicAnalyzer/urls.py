@@ -6,7 +6,7 @@ app_name = 'MusicAnalyzer'
 
 # name nur bei Verwendung von Links aus anderen Seiten relevant
 urlpatterns = [
-    #re_path(r'^viewData/$', ViewData.as_view(), name="viewData"),  # example for connection views
+    re_path(r'^choice/$', Choice.as_view(), name="choice"),
 ]
 
 
