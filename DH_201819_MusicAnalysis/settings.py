@@ -22,6 +22,8 @@ STATIC_PATH = os.path.join(BASE_DIR, 'MusicAnalyzer', 'static/')
 STATIC_ROOT = STATIC_PATH
 STATIC_URL = '/static/'
 STATIC_FILES_DIRS = [STATIC_PATH,]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
