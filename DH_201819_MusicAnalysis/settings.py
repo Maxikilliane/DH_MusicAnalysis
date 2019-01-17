@@ -124,5 +124,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-
+# session related stuff
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+if SESSION_EXPIRE_AT_BROWSER_CLOSE:
+    max_age = None
+    expires = None
