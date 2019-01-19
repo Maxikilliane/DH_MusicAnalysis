@@ -10,21 +10,24 @@
      {# add static files here #}
     <link rel="stylesheet" type="text/css" href="{% static "/css/choice.css" %}"/>
     <script src="{% static 'js/upload_multiple_files.js' %}"></script>
+    <script src="{% static 'js/search_corpus.js' %}"></script>
+
 {% endblock %}
 {% block heading %} {{ heading }}{% endblock %}
 {% block body_block %}
     {{ message }}
-    <div class="upload_files_box">
-        <h3>Drop Files Here to Upload</h3>
-    </div>
-    <button type="button" class="upload_files">
-       Upload files
-    </button>
-    <input id="fileupload" type="file" name="files" multiple
-       style="display: none;"
-       data-url="{% url 'MusicAnalyzer:choice' %}"
-       data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
-
+    {% block upload_files %}
+        <div class="upload_files_box">
+            <h3>Drop Files Here to Upload</h3>
+        </div>
+        <button type="button" class="upload_files">
+           Upload files
+        </button>
+        <input id="fileupload" type="file" name="files" multiple
+           style="display: none;"
+           data-url="{% url 'MusicAnalyzer:choice' %}"
+           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+    {% endblock %}
     <table id="gallery">
       <thead>
         <tr>
@@ -34,10 +37,36 @@
       <tbody>
         {% for file in files %}
           <tr>
-            <td>{{ file }}</td>
+            <td></td>
           </tr>
         {% endfor %}
       </tbody>
     </table>
+
+    {% block search_corpus %}
+        {% if search_form %}
+            <form id="search_form" method="post" action="/MusicAnalyzer/choice/" data-search-corpus-url="/MusicAnalyzer/choice/">
+                {% csrf_token %}
+                <input type="hidden" name="state" value="search_corpus"/>
+                {{ search_form.as_p }}
+            </form>
+            <button id="search_corpus_button" onclick="search_corpus(event)">Search</button>
+
+        {% endif %}
+        <h3>search results</h3>
+        <table id="searchResults">
+            <thead>
+                <tr>
+                    <th>composer</th>
+                    <th>title</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
+
+    {% endblock %}
 
 {% endblock %}
