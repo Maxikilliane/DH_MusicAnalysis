@@ -1,5 +1,13 @@
 .upload_files_box {
+    margin-top: 8em;
     padding-top: 4rem;
     padding-bottom: 4rem;
     border: 2px black solid;
 }
+
+.upload_files_new {
+    margin-top: 2em;
+}
+
+h2 {
+    margin-top: 3em;}
