@@ -12,7 +12,16 @@ import music21 as m21
 
 from MusicAnalyzer.session_handling import *
 
+
 # TODO clear table before search
+
+class Index(View):
+    template_name = "MusicAnalyzer/Index.html"
+
+    def get(self, request):
+        on_session_start(request)
+        # information from the context dictionary can be referenced in the template
+        return render(request, "MusicAnalyzer/Index.html")
 
 
 class Choice(View):
@@ -61,8 +70,8 @@ def search_corpus(request):
         result_list = []
         for result in total_search_results:
             result_dict = {"composer": result.metadata.composer,
-                           "title":result.metadata.title,
-                           "year":result.metadata.date
+                           "title": result.metadata.title,
+                           "year": result.metadata.date
                            }
             result_list.append(result_dict)
         data = {"results": result_list}
@@ -77,7 +86,8 @@ def upload_files(self, request):
             path = os.path.join(request.session.session_key, f.name)
             final_path = os.path.join(MEDIA_ROOT, path)
             default_storage.save(final_path, f)
-            music = m21.converter.parse(os.path.join(MEDIA_ROOT, path))  # this line of code should possibly only be done, once user has decided to really analyze this piece of music
+            music = m21.converter.parse(os.path.join(MEDIA_ROOT,
+                                                     path))  # this line of code should possibly only be done, once user has decided to really analyze this piece of music
             # TODO: handle errors for wrong file formats
             data = {'is_valid': True, 'name': f.name}
             return JsonResponse(data)
@@ -125,7 +135,7 @@ def get_year_results(corpus, start_year, end_year):
     if start_year == -1 and end_year == -1:
         return metadata.bundles.MetadataBundle()
     results = corpus.search(str(start_year), "date")
-    for year in range(start_year+1, end_year):
+    for year in range(start_year + 1, end_year):
         result = corpus.search(str(year), "date")
         results.union(result)
     return results
