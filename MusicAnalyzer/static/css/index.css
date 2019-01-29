@@ -12,6 +12,16 @@
     text-transform: capitalize;
 }
 
+ .uk-button-default:focus, .uk-button-default:hover,  .uk-button-default:active {
+     background-color: rgba(255,255,255,.8) !important;
+    color: #262626;
+    border: 1px solid #e5e5e5;
+    margin: 12em;
+    font-family: 'Roboto Condensed', monospace;
+    text-transform: capitalize;
+}
+ 
+
 .uk-button-large {
     padding: 0 40px;
     line-height: 36px;
@@ -25,4 +35,5 @@
     text-decoration: none !important;
     cursor: pointer;
 }
+
 
