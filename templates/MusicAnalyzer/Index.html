@@ -1,0 +1,35 @@
+{% load staticfiles %}
+{% block head_block %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.19/css/uikit.min.css"/>
+    <!-- UIkit JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.19/js/uikit.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.19/js/uikit-icons.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Roboto+Mono" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="{% static "/css/index.css" %}"/>
+
+{% endblock %}
+{% block body_block %}
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+    <div class="uk-cover-container" uk-height-viewport>
+        <canvas width="" height=""></canvas>
+        <img src={% static "images/cover.jpg" %} alt="" uk-cover>
+        <div class="uk-position-small uk-position-cover uk-flex uk-flex-middle uk-overlay uk-overlay-default">
+            <div class="uk-position-center-left uk-flex uk-flex-middle">
+                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:choice' %}">Individual
+                    Analysis</a></button>
+            </div>
+            <div class="uk-position-center-right uk-flex uk-flex-middle">
+                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:choice' %}">Distant
+                    Hearing</a></button>
+            </div>
+        </div>
+
+    </div>
+    </body>
+{% endblock %}
+
