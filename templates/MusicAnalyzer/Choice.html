@@ -16,18 +16,7 @@
 {% block heading %} {{ heading }}{% endblock %}
 {% block body_block %}
     {{ message }}
-    {% block upload_files %}
-        <div class="upload_files_box">
-            <h3>Drop Files Here to Upload</h3>
-        </div>
-        <button type="button" class="upload_files">
-           Upload files
-        </button>
-        <input id="fileupload" type="file" name="files" multiple
-           style="display: none;"
-           data-url="{% url 'MusicAnalyzer:choice' %}"
-           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
-    {% endblock %}
+    {% include 'MusicAnalyzer\UploadFile.html' %}
     <table id="gallery">
       <thead>
         <tr>
@@ -35,11 +24,6 @@
         </tr>
       </thead>
       <tbody>
-        {% for file in files %}
-          <tr>
-            <td></td>
-          </tr>
-        {% endfor %}
       </tbody>
     </table>
 
