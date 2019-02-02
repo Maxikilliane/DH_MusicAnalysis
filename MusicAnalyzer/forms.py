@@ -1,8 +1,12 @@
 from django import forms
 
 
-class FileForm (forms.Form):
+class MultipleFilesForm (forms.Form):
     files = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}), label="Files", required=False)
+
+
+class FileForm(forms.Form):
+    file = forms.FileField(widget=forms.ClearableFileInput(), label="File", required=False)
 
 
 class SearchForm (forms.Form):

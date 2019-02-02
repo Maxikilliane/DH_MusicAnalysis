@@ -7,6 +7,7 @@ from django.views import View
 from music21 import metadata
 
 from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
+from MusicAnalyzer import constants
 from MusicAnalyzer.forms import *
 import music21 as m21
 
@@ -28,28 +29,49 @@ class Choice(View):
     file_form_class = FileForm
     search_form_class = SearchForm
     template_name = "MusicAnalyzer/Choice.html"
-    context_dict = {"heading": "Choose here"}
+    context_dict = {"heading": "Individual Analysis"}
+    state = ""
 
     def get(self, request):
-
         on_session_start(request)
         self.context_dict["file_form"] = self.file_form_class()
         self.context_dict["search_form"] = self.search_form_class()
-        # information from the context dictionary can be referenced in the template
-        return render(request, "MusicAnalyzer/Choice.html", self.context_dict)
+
 
     # handle data getting back from view
-    def post(self, request):
-        state = request.POST.get("state", "")
-        if state == "search_corpus":
-            print(request.is_ajax())
+    def post(self, request, context):
+        self.state = request.POST.get("state", "")
+        if self.state == "search_corpus":
             if request.is_ajax():
-                return search_corpus(request)
+                return search_corpus(request, context)
         else:
-            return upload_files(self, request)
+            return upload_files(self, request, context)
 
 
-def search_corpus(request):
+class IndividualChoice(Choice):
+    def get(self, request):
+        super(IndividualChoice, self).get(request)
+        self.context_dict["url"] = "MusicAnalyzer:individual_choice"
+        return render(request, self.template_name, self.context_dict)
+
+    def post(self, request):
+        return super(IndividualChoice, self).post(request, context=constants.INDIVIDUAL)
+
+
+class DistantHearingChoice(Choice):
+    file_form_class = MultipleFilesForm
+    context_dict = {"heading": "Distant Hearing"}
+
+    def get(self, request):
+        super(DistantHearingChoice, self).get(request)
+        self.context_dict["url"] = "MusicAnalyzer:distant_choice"
+        return render(request, self.template_name, self.context_dict)
+
+    def post(self, request):
+        return super(DistantHearingChoice, self).post(request, context=constants.DISTANT_HEARING)
+
+
+def search_corpus(request, context):
     print(request.POST)
     composer = request.POST.get('composer', "")
     title = request.POST.get('title', "")
@@ -71,15 +93,18 @@ def search_corpus(request):
         for result in total_search_results:
             result_dict = {"composer": result.metadata.composer,
                            "title": result.metadata.title,
-                           "year": result.metadata.date
+                           "year": result.metadata.date,
+                           "path": str(result.sourcePath)
                            }
+            print(result.metadata.sourcePath)
             result_list.append(result_dict)
-        data = {"results": result_list}
+        data = {"results": result_list, "context":context}
     return JsonResponse(data)
 
 
-def upload_files(self, request):
+def upload_files(self, request, context):
     file_form = self.file_form_class(request.POST, request.FILES)
+    print(self.file_form_class)
     files = request.FILES.getlist('files')
     if file_form.is_valid():
         for f in files:
@@ -89,7 +114,12 @@ def upload_files(self, request):
             music = m21.converter.parse(os.path.join(MEDIA_ROOT,
                                                      path))  # this line of code should possibly only be done, once user has decided to really analyze this piece of music
             # TODO: handle errors for wrong file formats
-            data = {'is_valid': True, 'name': f.name}
+            data = {'is_valid': True, 'name': f.name, 'path': final_path}
+            if context == constants.DISTANT_HEARING:
+                data["delete_last"] = False
+            else:
+                data["delete_last"] = True
+                print(data)
             return JsonResponse(data)
     else:
         self.context_dict.update({"message": "form not valid", "file_form": file_form})

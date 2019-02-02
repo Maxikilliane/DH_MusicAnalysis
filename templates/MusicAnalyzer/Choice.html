@@ -14,9 +14,8 @@
 
 {% endblock %}
 
-{% block heading %} {{ heading }}{% endblock %}
 {% block body_block %}
-    <h2 class="uk-text-center">Individual Analysis</h2>
+    <h2 class="uk-text-center">{{ heading }}</h2>
     {{ message }}
 
     {% block upload_files %}
@@ -24,9 +23,14 @@
             <span uk-icon="icon: cloud-upload"></span>
             <span class="uk-text-middle">Drop your file here to upload or</span>
             <div uk-form-custom>
-                  <input id="fileupload" type="file" name="files" multiple
+                  <input id="fileupload" type="file" name="files"
                style="display: none;"
-               data-url="{% url 'MusicAnalyzer:choice' %}"
+                          {% if type == "distant" %}
+                         multiple
+                         data-url="{% url 'MusicAnalyzer:distant_choice' %}"
+                          {% elif type == "individual" %}
+                         data-url="{% url 'MusicAnalyzer:individual_choice' %}"
+                          {% endif %}
                data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
                 <span class="uk-link upload_files">select from computer</span>
             </div>
@@ -52,8 +56,15 @@
 
     {% block search_corpus %}
         {% if search_form %}
-            <form id="search_form" method="post" action="/MusicAnalyzer/choice/"
-                  data-search-corpus-url="/MusicAnalyzer/choice/">
+            <form id="search_form" method="post"
+                    {% if type == "distant" %}
+                        action="{% url 'MusicAnalyzer:distant_choice' %}"
+                        data-search-corpus-url="{% url 'MusicAnalyzer:distant_choice' %}"
+                    {% elif type == "individual" %}
+                        action="{% url 'MusicAnalyzer:individual_choice' %}"
+                        data-search-corpus-url="{% url 'MusicAnalyzer:individual_choice' %}"
+                    {% endif %}
+            >
                 {% csrf_token %}
                 <input type="hidden" name="state" value="search_corpus"/>
                 {{ search_form.as_p }}

@@ -1,8 +1,6 @@
 /*
  Code from tutorial on SimpleIsBetterThanComplex,
  see: https://simpleisbetterthancomplex.com/tutorial/2016/11/22/django-multiple-file-upload-using-ajax.html
-
- TODO: discuss whether progress bar is necessary
  */
 $(function () {
   /* open file explorer window*/
@@ -15,9 +13,13 @@ $(function () {
     dataType: 'json',
     done: function (e, data) {  /* process server response */
       if (data.result.is_valid) {
+        if ( data.result.delete_last) {
+            $("#gallery tbody tr").remove();
+        }
         $("#gallery tbody").prepend(
-          "<tr><td>"+ data.result.name +"</td></tr>"
+            "<tr><td>"+ data.result.name +"</td></tr>"
         )
+
       }
     }
   });
