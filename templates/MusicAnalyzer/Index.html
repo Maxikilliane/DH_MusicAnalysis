@@ -20,13 +20,14 @@
         <img src={% static "images/cover.jpg" %} alt="" uk-cover>
         <div class="uk-position-small uk-position-cover uk-flex uk-flex-middle uk-overlay uk-overlay-default">
             <div class="uk-position-center-left uk-flex uk-flex-middle">
-                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:choice' %}">Individual
+                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:individual_choice' %}">Individual
                     Analysis</a></button>
             </div>
             <div class="uk-position-center-right uk-flex uk-flex-middle">
-                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:choice' %}">Distant
+                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant
                     Hearing</a></button>
             </div>
+
         </div>
 
     </div>
