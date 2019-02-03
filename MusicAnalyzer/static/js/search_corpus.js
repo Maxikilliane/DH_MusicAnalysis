@@ -1,6 +1,12 @@
 function search_corpus(){
     //event.preventDefault();
         let form = $("#search_form");
+        UIkit.notification({
+            message: 'searching...',
+            status: 'primary',
+            pos: 'bottom-center',
+            timeout: 5000000 // basically endless time, gets closed on success or error
+        });
         console.log(form);
         console.log(form.serialize());
         $.ajax({
@@ -9,6 +15,7 @@ function search_corpus(){
             type: "POST",
             dataType: 'json',
             success: function (json) {
+                UIkit.notification.closeAll();
                 console.log(json);
                 if (json.error) {
                     console.log(json.error);
@@ -33,6 +40,7 @@ function search_corpus(){
                 }
             },
             error:function(xhr,errmsg,err) {
+                UIkit.notification.closeAll();
                 console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
             }
         });
