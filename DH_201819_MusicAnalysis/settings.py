@@ -22,6 +22,8 @@ STATIC_PATH = os.path.join(BASE_DIR, 'MusicAnalyzer', 'static/')
 STATIC_ROOT = STATIC_PATH
 STATIC_URL = '/static/'
 STATIC_FILES_DIRS = [STATIC_PATH,]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -112,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'de-de'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
@@ -122,5 +124,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-
+# session related stuff
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+if SESSION_EXPIRE_AT_BROWSER_CLOSE:
+    max_age = None
+    expires = None

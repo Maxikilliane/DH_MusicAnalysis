@@ -2,9 +2,42 @@
 {% load staticfiles %}
 {% block title %}{{ title }}{% endblock %}
 {% block head_block %}
-    {# add static files here #}
+    {# JQUERY FILE UPLOAD SCRIPTS #}
+      <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
+      <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
+      <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+
+     {# add static files here #}
+    <link rel="stylesheet" type="text/css" href="{% static "/css/choice.css" %}"/>
+    <script src="{% static 'js/upload_multiple_files.js' %}"></script>
 {% endblock %}
 {% block heading %} {{ heading }}{% endblock %}
 {% block body_block %}
-test
+    {{ message }}
+    <div class="upload_files_box">
+        <h3>Drop Files Here to Upload</h3>
+    </div>
+    <button type="button" class="upload_files">
+       Upload files
+    </button>
+    <input id="fileupload" type="file" name="files" multiple
+       style="display: none;"
+       data-url="{% url 'MusicAnalyzer:choice' %}"
+       data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+
+    <table id="gallery">
+      <thead>
+        <tr>
+          <th>uploaded files</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in files %}
+          <tr>
+            <td>{{ file }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
 {% endblock %}
