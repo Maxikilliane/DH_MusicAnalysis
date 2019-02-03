@@ -73,6 +73,7 @@ class DistantHearingChoice(Choice):
 
 def search_corpus(request, context):
     print(request.POST)
+    free_search = request.POST.get("free_search", "")
     composer = request.POST.get('composer', "")
     title = request.POST.get('title', "")
     start_year = convert_str_to_int(request.POST.get('start_year', ""))
@@ -84,10 +85,11 @@ def search_corpus(request, context):
         }
     else:
         my_corpus = m21.corpus.corpora.CoreCorpus()
+        free_search_results = get_free_search_results(my_corpus, free_search)
         composer_results = get_composer_results(my_corpus, composer)
         title_results = get_title_results(my_corpus, title)
         year_results = get_year_results(my_corpus, start_year, end_year)
-        total_search_results = and_without_empty([composer_results, title_results, year_results])
+        total_search_results = and_without_empty([free_search_results, composer_results, title_results, year_results])
 
         result_list = []
         for result in total_search_results:
@@ -168,6 +170,21 @@ def get_year_results(corpus, start_year, end_year):
     for year in range(start_year + 1, end_year):
         result = corpus.search(str(year), "date")
         results.union(result)
+    return results
+
+# searches in whole corpus for given terms
+# returns the ORred results of the searches
+def get_free_search_results(corpus, free_search):
+    free_search = free_search.split()
+    if len(free_search) == 0:
+        return metadata.bundles.MetadataBundle()
+    else:
+        results = corpus.search(free_search[0])
+
+        for index, term in enumerate(free_search):
+            print(index)
+            if index != 0:
+                results.union(corpus.search(term))
     return results
 
 
