@@ -52,6 +52,7 @@ class IndividualChoice(Choice):
     def get(self, request):
         super(IndividualChoice, self).get(request)
         self.context_dict["url"] = "MusicAnalyzer:individual_choice"
+        self.context_dict["type"] = constants.INDIVIDUAL
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -65,6 +66,7 @@ class DistantHearingChoice(Choice):
     def get(self, request):
         super(DistantHearingChoice, self).get(request)
         self.context_dict["url"] = "MusicAnalyzer:distant_choice"
+        self.context_dict["type"] = constants.DISTANT_HEARING
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -98,7 +100,6 @@ def search_corpus(request, context):
                            "year": result.metadata.date,
                            "path": str(result.sourcePath)
                            }
-            print(result.metadata.sourcePath)
             result_list.append(result_dict)
         data = {"results": result_list, "context":context}
     return JsonResponse(data)

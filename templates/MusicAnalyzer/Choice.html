@@ -46,11 +46,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for file in files %}
-            <tr>
-                <td></td>
-            </tr>
-        {% endfor %}
+
         </tbody>
     </table>
 
@@ -66,24 +62,47 @@
                     {% endif %}
             >
                 {% csrf_token %}
-                <input type="hidden" name="state" value="search_corpus"/>
+                <input type="hidden" name="state" value="search_corpus" />
                 {{ search_form.as_p }}
             </form>
-            <button id="search_corpus_button" onclick="search_corpus(event)">Search</button>
+            <button id="search_corpus_button" class="uk-button uk-button-default" onclick="search_corpus(event)">Search</button>
 
         {% endif %}
-        <h3>search results</h3>
-        <table id="searchResults">
-            <thead>
-            <tr>
-                <th>composer</th>
-                <th>title</th>
-            </tr>
-            </thead>
-            <tbody>
+        <div id="searchResults" class="invisible">
+            <h3>search results</h3>
 
-            </tbody>
-        </table>
+        <form id="select_to_analyse_form" method="post"
+                        {% if type == "distant" %}
+                            action="{% url 'MusicAnalyzer:distant_choice' %}"
+                            data-search-corpus-url="{% url 'MusicAnalyzer:distant_choice' %}"
+                        {% elif type == "individual" %}
+                            action="{% url 'MusicAnalyzer:individual_choice' %}"
+                            data-search-corpus-url="{% url 'MusicAnalyzer:individual_choice' %}"
+                        {% endif %}
+        >
+            {% csrf_token %}
+            <input type="hidden" name="state" value="select_for_analysis"/>
+            <input class="uk-button uk-button-default" type="submit" value="Analyze!">
+            <table id="t_searchResults">
+                <thead>
+                <tr>
+                    <th>
+                        {% if type == "distant" %}
+                            <input type="checkbox" name="music_piece" id="select_all_music_pieces" value="select all" class="invisible" onclick="toggleSelectAll(this)">
+                        {% elif type == "individual" %}
+                            <button type="button" id="deselect_all_music_pieces" class="uk-button uk-button-small uk-button-default uk-disabled" name="music_piece" onclick="toggleSelectAll(this)">deselect</button>
+                        {% endif %}
+                    </th>
+                    <th>composer</th>
+                    <th>title</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        <input class="uk-button uk-button-default" type="submit" value="Analyze!">
+        </form>
+        </div>
 
 
     {% endblock %}
