@@ -1,7 +1,7 @@
 import os
 
 from django.core.files.storage import default_storage
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views import View
 from music21 import metadata
@@ -13,8 +13,6 @@ import music21 as m21
 
 from MusicAnalyzer.session_handling import *
 
-
-# TODO clear table before search
 
 class Index(View):
     template_name = "MusicAnalyzer/Index.html"
@@ -40,10 +38,17 @@ class Choice(View):
 
     # handle data getting back from view
     def post(self, request, context):
+        print(request.POST)
         self.state = request.POST.get("state", "")
-        if self.state == "search_corpus":
+        if self.state == constants.STATE_SEARCH_CORPUS:
             if request.is_ajax():
                 return search_corpus(request, context)
+        elif self.state == constants.STATE_SELECT_FOR_ANALYSIS:
+            # TODO: process analysis here:
+            # get paths to music_pieces from request.POST
+            # parse music with music21? or in different view?
+            # analyse? or in different view?
+            return HttpResponse("Todo: process analysis here: "+str(request.POST.get("music_piece", "")))
         else:
             return upload_files(self, request, context)
 

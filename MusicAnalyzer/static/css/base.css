@@ -14,3 +14,7 @@ header nav {
 .body {
     padding: 1em;
 }
+
+.invisible{
+    display: none;
+}

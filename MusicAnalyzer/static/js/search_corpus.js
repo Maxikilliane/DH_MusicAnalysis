@@ -1,5 +1,5 @@
 function search_corpus(){
-    //event.preventDefault();
+
         let form = $("#search_form");
         UIkit.notification({
             message: 'searching...',
@@ -22,19 +22,35 @@ function search_corpus(){
                 }else{
                     console.log("success");
                     let type_of_selection;
-                    if (json.context === "individual"){
-                        type_of_selection = "radio";
-                    } else if (json.context === "distant"){
-                        type_of_selection = "checkbox";
+                    if (json.results.length > 0){
+                        if(json.context === "distant"){
+                            type_of_selection = "checkbox";
+                            $("#select_all_music_pieces").removeClass("invisible");
+                        }else if (json.context ==="individual"){
+                            type_of_selection = "radio";
+                            $("#deselect_all_music_pieces").removeClass("uk-disabled");
+                        }
+                        $("#searchResults").removeClass("invisible");
+                    }else{
+                        if (json.context === "distant"){
+                            type_of_selection = "checkbox";
+                            $("#select_all_music_pieces").addClass("invisible");
+                        }else if (json.context ==="individual"){
+                            type_of_selection = "radio";
+                            $("#deselect_all_music_pieces").addClass("uk-disabled");
+                        }
+                        $("#searchResults").addClass("invisible");
+                        showNoSearchResultsMessage();
                     }
+
+                    $("#t_searchResults tbody tr").remove(); // delete all previous results
                     for (let i = 0; i < json.results.length; i++){
-                        console.log(json.results[i]);
                         let row = "<tr>\n" +
                             '<td><input type="'+type_of_selection+'" name="music_piece" value="'+json.results[i].path+'"></td>' +
                             "<td>"+json.results[i].composer+"</td>\n" +
                             "<td>"+json.results[i].title+"</td>\n" +
                             "</tr>" ;
-                        $("table#searchResults tbody").append(row);
+                        $("#t_searchResults tbody").append(row);
                     }
 
                 }
@@ -45,4 +61,22 @@ function search_corpus(){
             }
         });
 
+}
+
+
+function toggleSelectAll(source){
+    let name = source.name;
+    let checkboxes = document.getElementsByName(name);
+    for(let i=0; i< checkboxes.length; i++){
+        checkboxes[i].checked = source.checked;
+    }
+}
+
+function showNoSearchResultsMessage(){
+    UIkit.notification({
+            message: 'No results.',
+            status: 'warning',
+            pos: 'bottom-center',
+            timeout: 1000
+    });
 }

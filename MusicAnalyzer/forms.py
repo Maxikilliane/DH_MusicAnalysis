@@ -10,8 +10,8 @@ class FileForm(forms.Form):
 
 
 class SearchForm (forms.Form):
-    free_search = forms.CharField(max_length=500, required=False)
-    composer = forms.CharField(max_length=150, required=False)
-    title = forms.CharField(max_length=200, required=False)
-    start_year = forms.IntegerField(max_value=9999, min_value=0, required=False)
-    end_year = forms.IntegerField(max_value=9999, min_value=0, required=False)
+    free_search = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'class':'uk-input'}), required=False)
+    composer = forms.CharField(max_length=150, widget=forms.TextInput(attrs={'class':'uk-input'}), required=False)
+    title = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'class':'uk-input'}), required=False)
+    start_year = forms.IntegerField(max_value=9999, min_value=0, widget=forms.TextInput(attrs={'class':'uk-input'}), required=False)
+    end_year = forms.IntegerField(max_value=9999, min_value=0, widget=forms.TextInput(attrs={'class':'uk-input'}), required=False)
