@@ -17,94 +17,104 @@
 {% block body_block %}
     <h2 class="uk-text-center">{{ heading }}</h2>
     {{ message }}
+    <div class="uk-grid uk-child-width-1-2">
+        <div class="uk-container">
+            <h3 class="uk-text-center">Select your own file</h3>
+            {% block upload_files %}
+                <div class="js-upload uk-placeholder uk-text-center upload_files_new">
+                    <span uk-icon="icon: cloud-upload"></span>
+                    <span class="uk-text-middle">Drop your file here to upload or</span>
+                    <div uk-form-custom>
+                        <input id="fileupload" type="file" name="files"
+                               style="display: none;"
+                                {% if type == "distant" %}
+                               multiple
+                               data-url="{% url 'MusicAnalyzer:distant_choice' %}"
+                                {% elif type == "individual" %}
+                               data-url="{% url 'MusicAnalyzer:individual_choice' %}"
+                                {% endif %}
+                               data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+                        <span class="uk-link upload_files">select from computer</span>
+                    </div>
+                </div>
+                <progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>
 
-    {% block upload_files %}
-        <div class="js-upload uk-placeholder uk-text-center upload_files_new">
-            <span uk-icon="icon: cloud-upload"></span>
-            <span class="uk-text-middle">Drop your file here to upload or</span>
-            <div uk-form-custom>
-                  <input id="fileupload" type="file" name="files"
-               style="display: none;"
-                          {% if type == "distant" %}
-                         multiple
-                         data-url="{% url 'MusicAnalyzer:distant_choice' %}"
-                          {% elif type == "individual" %}
-                         data-url="{% url 'MusicAnalyzer:individual_choice' %}"
-                          {% endif %}
-               data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
-                <span class="uk-link upload_files">select from computer</span>
-            </div>
-        </div>
-        <progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>
+            {% endblock %}
 
-    {% endblock %}
-
-    <table id="gallery">
-        <thead>
-        <tr>
-            <th>uploaded files</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
-    </table>
-
-    {% block search_corpus %}
-        {% if search_form %}
-            <form id="search_form" method="post"
-                    {% if type == "distant" %}
-                        action="{% url 'MusicAnalyzer:distant_choice' %}"
-                        data-search-corpus-url="{% url 'MusicAnalyzer:distant_choice' %}"
-                    {% elif type == "individual" %}
-                        action="{% url 'MusicAnalyzer:individual_choice' %}"
-                        data-search-corpus-url="{% url 'MusicAnalyzer:individual_choice' %}"
-                    {% endif %}
-            >
-                {% csrf_token %}
-                <input type="hidden" name="state" value="search_corpus" />
-                {{ search_form.as_p }}
-            </form>
-            <button id="search_corpus_button" class="uk-button uk-button-default" onclick="search_corpus(event)">Search</button>
-
-        {% endif %}
-        <div id="searchResults" class="invisible">
-            <h3>search results</h3>
-
-        <form id="select_to_analyse_form" method="post"
-                        {% if type == "distant" %}
-                            action="{% url 'MusicAnalyzer:distant_choice' %}"
-                            data-search-corpus-url="{% url 'MusicAnalyzer:distant_choice' %}"
-                        {% elif type == "individual" %}
-                            action="{% url 'MusicAnalyzer:individual_choice' %}"
-                            data-search-corpus-url="{% url 'MusicAnalyzer:individual_choice' %}"
-                        {% endif %}
-        >
-            {% csrf_token %}
-            <input type="hidden" name="state" value="select_for_analysis"/>
-            <input class="uk-button uk-button-default" type="submit" value="Analyze!">
-            <table id="t_searchResults">
+            <table id="gallery">
                 <thead>
                 <tr>
-                    <th>
-                        {% if type == "distant" %}
-                            <input type="checkbox" name="music_piece" id="select_all_music_pieces" value="select all" class="invisible" onclick="toggleSelectAll(this)">
-                        {% elif type == "individual" %}
-                            <button type="button" id="deselect_all_music_pieces" class="uk-button uk-button-small uk-button-default uk-disabled" name="music_piece" onclick="toggleSelectAll(this)">deselect</button>
-                        {% endif %}
-                    </th>
-                    <th>composer</th>
-                    <th>title</th>
+                    <th>uploaded files</th>
                 </tr>
                 </thead>
                 <tbody>
+
                 </tbody>
             </table>
-        <input class="uk-button uk-button-default" type="submit" value="Analyze!">
-        </form>
         </div>
+        <div class="uk-container">
+            <h3 class="uk-text-center">Search file from corpus</h3>
+            {% block search_corpus %}
+                {% if search_form %}
+                    <form id="search_form" method="post"
+                            {% if type == "distant" %}
+                          action="{% url 'MusicAnalyzer:distant_choice' %}"
+                          data-search-corpus-url="{% url 'MusicAnalyzer:distant_choice' %}"
+                            {% elif type == "individual" %}
+                          action="{% url 'MusicAnalyzer:individual_choice' %}"
+                          data-search-corpus-url="{% url 'MusicAnalyzer:individual_choice' %}"
+                            {% endif %}
+                    >
+                        {% csrf_token %}
+                        <input type="hidden" name="state" value="search_corpus"/>
+                        {{ search_form.as_p }}
+                    </form>
+                    <button id="search_corpus_button" class="uk-button uk-button-default"
+                            onclick="search_corpus(event)">Search
+                    </button>
+
+                {% endif %}
+                <div id="searchResults" class="invisible">
+                    <h3>search results</h3>
+
+                    <form id="select_to_analyse_form" method="post"
+                            {% if type == "distant" %}
+                          action="{% url 'MusicAnalyzer:distant_choice' %}"
+                          data-search-corpus-url="{% url 'MusicAnalyzer:distant_choice' %}"
+                            {% elif type == "individual" %}
+                          action="{% url 'MusicAnalyzer:individual_choice' %}"
+                          data-search-corpus-url="{% url 'MusicAnalyzer:individual_choice' %}"
+                            {% endif %}
+                    >
+                        {% csrf_token %}
+                        <input type="hidden" name="state" value="select_for_analysis"/>
+                        <input class="uk-button uk-button-default" type="submit" value="Analyze!">
+                        <table id="t_searchResults">
+                            <thead>
+                            <tr>
+                                <th>
+                                    {% if type == "distant" %}
+                                        <input type="checkbox" name="music_piece" id="select_all_music_pieces"
+                                               value="select all" class="invisible" onclick="toggleSelectAll(this)">
+                                    {% elif type == "individual" %}
+                                        <button type="button" id="deselect_all_music_pieces"
+                                                class="uk-button uk-button-small uk-button-default uk-disabled"
+                                                name="music_piece" onclick="toggleSelectAll(this)">deselect
+                                        </button>
+                                    {% endif %}
+                                </th>
+                                <th>composer</th>
+                                <th>title</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <input class="uk-button uk-button-default" type="submit" value="Analyze!">
+                    </form>
+                </div>
 
 
-    {% endblock %}
-
+            {% endblock %}
+        </div>
 {% endblock %}
