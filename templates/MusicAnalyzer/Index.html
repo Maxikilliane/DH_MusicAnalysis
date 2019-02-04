@@ -16,20 +16,20 @@
     </head>
     <body>
     <div class="uk-cover-container" uk-height-viewport>
-        <canvas width="" height=""></canvas>
-        <img src={% static "images/cover.jpg" %} alt="" uk-cover>
-        <div class="uk-position-small uk-position-cover uk-flex uk-flex-middle uk-overlay uk-overlay-default">
-            <div class="uk-position-center-left uk-flex uk-flex-middle">
-                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:individual_choice' %}">Individual
-                    Analysis</a></button>
+        <img src={% static "images/cover.jpg" %} alt="cover_image" uk-cover>
+        <div class="uk-position-cover uk-flex-middle uk-overlay uk-overlay-default">
+
+            <div class="uk-position-center-left">
+                <a class="uk-button uk-button-default uk-button-large"
+                   href="{% url 'MusicAnalyzer:individual_choice' %}">Individual
+                    Analysis</a>
             </div>
-            <div class="uk-position-center-right uk-flex uk-flex-middle">
-                <button class="uk-button uk-button-default uk-button-large"><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant
-                    Hearing</a></button>
+            <div class="uk-position-center-right">
+                <a class="uk-button uk-button-default uk-button-large" href="{% url 'MusicAnalyzer:distant_choice' %}">Distant
+                    Hearing</a>
             </div>
 
         </div>
-
     </div>
     </body>
 {% endblock %}
