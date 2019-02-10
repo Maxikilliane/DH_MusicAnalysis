@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views import View
 from music21 import metadata
+from music21.converter import ConverterFileException
 
 from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
@@ -122,24 +123,26 @@ def upload_files(self, request, context):
             final_path = os.path.join(MEDIA_ROOT, path)
             default_storage.save(final_path, f)
             print(final_path)
-            music = m21.converter.parse(os.path.join(MEDIA_ROOT,
+            try:
+                music = m21.converter.parse(os.path.join(MEDIA_ROOT,
                                                      path))
-
-            # TODO: handle errors for wrong file formats
-            data = {'is_valid': True, "upload": {
+                data = {'is_valid': True, "upload": {
                     'composer': convert_none_to_empty_string(music.metadata.composer),
                     'title': convert_none_to_empty_string(music.metadata.title),
                     'year': convert_none_to_empty_string(music.metadata.date),
                     'path': final_path},
-                    'context': context}
-            if context == constants.DISTANT_HEARING:
-                data["delete_last"] = False
-            else:
-                data["delete_last"] = True
-                print(data)
+                        'context': context}
+                if context == constants.DISTANT_HEARING:
+                    data["delete_last"] = False
+                else:
+                    data["delete_last"] = True
+                    print(data)
+            except ConverterFileException:
+                data={'is_valid': False,
+                      "error_message": "This file format cannot be parsed. Please try a different one."}
             return JsonResponse(data)
     else:
-        self.context_dict.update({"message": "form not valid", "file_form": file_form})
+        self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
         data = {'is_valid': False}
         return JsonResponse(data)
 
