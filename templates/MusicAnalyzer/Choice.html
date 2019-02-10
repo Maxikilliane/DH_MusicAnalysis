@@ -9,8 +9,7 @@
 
     {# add static files here #}
     <link rel="stylesheet" type="text/css" href="{% static "/css/choice.css" %}"/>
-    <script src="{% static 'js/upload_multiple_files.js' %}"></script>
-    <script src="{% static 'js/search_corpus.js' %}"></script>
+    <script src="{% static 'js/handle_file_choice.js' %}"></script>
 
 {% endblock %}
 
@@ -20,7 +19,7 @@
     <div class="uk-grid uk-child-width-1-2">
         <div class="uk-container">
             <h3 class="uk-text-center">Select your own file</h3>
-            {% block upload_files %}
+
                 <div class="js-upload uk-placeholder uk-text-center upload_files_new">
                     <span uk-icon="icon: cloud-upload"></span>
                     <span class="uk-text-middle">Drop your file here to upload or</span>
@@ -39,22 +38,10 @@
                 </div>
                 <progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>
 
-            {% endblock %}
 
-            <table id="gallery">
-                <thead>
-                <tr>
-                    <th>uploaded files</th>
-                </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-            </table>
         </div>
         <div class="uk-container">
             <h3 class="uk-text-center">Search file from corpus</h3>
-            {% block search_corpus %}
                 {% if search_form %}
                     <form id="search_form" method="post"
                             {% if type == "distant" %}
@@ -74,8 +61,12 @@
                     </button>
 
                 {% endif %}
-                <div id="searchResults" class="invisible">
-                    <h3>search results</h3>
+        </div>
+                </div>
+
+                <div id="searchResults" class="invisible uk-grid uk-child-width-1-1">
+                <div class="uk-container .uk-align-center">
+                    <h3 class="uk-text-center">Results</h3>
 
                     <form id="select_to_analyse_form" method="post"
                             {% if type == "distant" %}
@@ -89,7 +80,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="state" value="select_for_analysis"/>
                         <input class="uk-button uk-button-default" type="submit" value="Analyze!">
-                        <table id="t_searchResults">
+                        <table id="t_searchResults" class="uk-table">
                             <thead>
                             <tr>
                                 <th>
@@ -114,7 +105,6 @@
                     </form>
                 </div>
 
+                </div>
 
-            {% endblock %}
-        </div>
 {% endblock %}

@@ -106,23 +106,32 @@ def search_corpus(request, context):
                            "path": str(result.sourcePath)
                            }
             result_list.append(result_dict)
-        data = {"results": result_list, "context":context}
+        data = {"results": result_list, "context": context}
     return JsonResponse(data)
 
 
 def upload_files(self, request, context):
     file_form = self.file_form_class(request.POST, request.FILES)
     print(self.file_form_class)
+    print("file uploading!")
     files = request.FILES.getlist('files')
+    print(files)
     if file_form.is_valid():
         for f in files:
             path = os.path.join(request.session.session_key, f.name)
             final_path = os.path.join(MEDIA_ROOT, path)
             default_storage.save(final_path, f)
+            print(final_path)
             music = m21.converter.parse(os.path.join(MEDIA_ROOT,
-                                                     path))  # this line of code should possibly only be done, once user has decided to really analyze this piece of music
+                                                     path))
+
             # TODO: handle errors for wrong file formats
-            data = {'is_valid': True, 'name': f.name, 'path': final_path}
+            data = {'is_valid': True, "upload": {
+                    'composer': convert_none_to_empty_string(music.metadata.composer),
+                    'title': convert_none_to_empty_string(music.metadata.title),
+                    'year': convert_none_to_empty_string(music.metadata.date),
+                    'path': final_path},
+                    'context': context}
             if context == constants.DISTANT_HEARING:
                 data["delete_last"] = False
             else:
@@ -217,3 +226,10 @@ def convert_str_to_int(string):
         return -1
     else:
         return int(string)
+
+
+def convert_none_to_empty_string(string):
+    if string == 'None' or string is None:
+        return ''
+    else:
+        return string

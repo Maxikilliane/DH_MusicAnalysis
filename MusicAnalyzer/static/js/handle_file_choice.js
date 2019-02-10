@@ -104,7 +104,7 @@ function adjustToContextAndFileSource(results, context, fileSource ){
             showNoSearchResultsMessage();
          }
     }else if(fileSource ==="upload"){
-       
+
     }
 
     if(context==="distant"){
