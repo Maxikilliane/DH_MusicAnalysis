@@ -12,23 +12,25 @@
 {% block body_block %}
     <head>
         <meta charset="UTF-8">
-        <title>Title</title>
+        <title>MusicAnalyzer</title>
     </head>
     <body>
     <div class="uk-cover-container" uk-height-viewport>
         <img src={% static "images/cover.jpg" %} alt="cover_image" uk-cover>
         <div class="uk-position-cover uk-flex-middle uk-overlay uk-overlay-default">
-
-            <div class="uk-position-center-left">
-                <a class="uk-button uk-button-default uk-button-large"
-                   href="{% url 'MusicAnalyzer:individual_choice' %}">Individual
-                    Analysis</a>
+            <div class="uk-child-width-1-2@s uk-child-width-1-2@m uk-text-center uk-flex-middle uk-position-center"
+                 uk-grid>
+                <div>
+                    <a class="uk-button uk-button-default uk-button-large"
+                       href="{% url 'MusicAnalyzer:individual_choice' %}">Individual
+                        Analysis</a>
+                </div>
+                <div>
+                    <a class="uk-button uk-button-default uk-button-large"
+                       href="{% url 'MusicAnalyzer:distant_choice' %}">Distant
+                        Hearing</a>
+                </div>
             </div>
-            <div class="uk-position-center-right">
-                <a class="uk-button uk-button-default uk-button-large" href="{% url 'MusicAnalyzer:distant_choice' %}">Distant
-                    Hearing</a>
-            </div>
-
         </div>
     </div>
     </body>

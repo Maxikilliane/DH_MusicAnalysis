@@ -1,39 +1,29 @@
 .uk-overlay-default {
-    background: rgba(255,255,255,.1);
+    background: rgba(255, 255, 255, .1);
     margin: 2em;
 }
 
+.uk-grid {
+    margin-left: 0px;
+}
+
 .uk-button-default {
-    background-color: rgba(255,255,255,.5);
+    background-color: rgba(255, 255, 255, .7);
     color: #262626;
     border: 1px solid #e5e5e5;
-    margin: 12em;
-    font-family: 'Roboto Condensed', monospace;
-    text-transform: capitalize;
-}
-
- .uk-button-default:focus, .uk-button-default:hover,  .uk-button-default:active {
-     background-color: rgba(255,255,255,.8) !important;
-    color: #262626;
-    border: 1px solid #e5e5e5;
-    margin: 12em;
-    font-family: 'Roboto Condensed', monospace;
-    text-transform: capitalize;
-}
- 
-
-.uk-button-large {
+    font-size: 1.3em;
+    line-height: 80px;
     padding: 0 40px;
-    line-height: 36px;
-    width: 200px;
-    height: 80px;
-    font-size: 1.5rem;
+    width: 270px;
+    font-family: 'Roboto Condensed', monospace;
+    text-transform: uppercase;
 }
 
-.uk-link, a {
-    color: #262626 !important;
-    text-decoration: none !important;
-    cursor: pointer;
+.uk-button-default:focus, .uk-button-default:hover, .uk-button-default:active {
+    background-color: rgba(255, 255, 255, .9) !important;
+    color: #262626;
+    border: 1px solid #e5e5e5;
+    font-family: 'Roboto Condensed', monospace;
+    text-transform: uppercase;
 }
-
 
