@@ -10,6 +10,7 @@
     {# add static files here #}
     <link rel="stylesheet" type="text/css" href="{% static "/css/choice.css" %}"/>
     <script src="{% static 'js/handle_file_choice.js' %}"></script>
+    <script src="{% static 'js/explanations.js' %}"></script>
 
 {% endblock %}
 
@@ -18,7 +19,7 @@
     {{ message }}
     <div class="uk-grid uk-child-width-1-2">
         <div class="uk-container">
-            <h3 class="uk-text-center">Select your own file</h3>
+            <h3 class="uk-text-center">Select your own file <span class="uk-icon-button" uk-icon="question" onclick="showPossibleFileExtensions();"></span></h3>
 
                 <div class="js-upload uk-placeholder uk-text-center upload_files_new">
                     <span uk-icon="icon: cloud-upload"></span>
