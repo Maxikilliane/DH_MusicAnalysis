@@ -17,13 +17,13 @@ $(function () {
                 let results = [data.result.upload];
                 let typeOfSelection = adjustToContextAndFileSource(results, data.result.context, "upload");
                 addResultsToTable(results, typeOfSelection, "upload");
-                /*if (data.result.delete_last) {
-                    $("#t_searchResults tbody tr").remove();
-                }
-                $("#gallery tbody").prepend(
-                    "<tr><td>" + data.result.name + "</td></tr>"
-                )*/
-
+            } else {
+                UIkit.notification({
+                    message: data.result.error_message,
+                    status: 'warning',
+                    pos: 'bottom-center',
+                    timeout: 2000
+                });
             }
         }
     });
@@ -93,31 +93,31 @@ function showNoSearchResultsMessage() {
  * adjusts the result tds depending on context and fileSource
  * returns typeOfSelection depending on context
  */
-function adjustToContextAndFileSource(results, context, fileSource ){
+function adjustToContextAndFileSource(results, context, fileSource) {
     let noResultsFlag;
     let fileSourceClass;
     let typeOfSelection;
-    if (fileSource === "search"){
+    if (fileSource === "search") {
         $("#t_searchResults tbody tr.search").remove();
-         if (results.length <= 0) {
+        if (results.length <= 0) {
             noResultsFlag = true;
             showNoSearchResultsMessage();
-         }
-    }else if(fileSource ==="upload"){
+        }
+    } else if (fileSource === "upload") {
 
     }
 
-    if(context==="distant"){
+    if (context === "distant") {
         typeOfSelection = "checkbox";
-    }else if(context==="individual"){
-        typeOfSelection ="radio";
+    } else if (context === "individual") {
+        typeOfSelection = "radio";
     }
 
-    if ( $('#t_searchResults tbody tr').length === 0 && noResultsFlag){
+    if ($('#t_searchResults tbody tr').length === 0 && noResultsFlag) {
         $("#searchResults").addClass("invisible");
         $("#select_all_music_pieces").addClass("invisible");
         $("#deselect_all_music_pieces").addClass("uk-disabled");
-    }else{
+    } else {
         $("#searchResults").removeClass("invisible");
         $("#select_all_music_pieces").removeClass("invisible");
         $("#deselect_all_music_pieces").removeClass("uk-disabled");
@@ -129,7 +129,7 @@ function adjustToContextAndFileSource(results, context, fileSource ){
 function addResultsToTable(results, typeOfSelection, fileSource) {
     console.log(results);
     for (let i = 0; i < results.length; i++) {
-        let row = "<tr class="+fileSource+">\n" +
+        let row = "<tr class=" + fileSource + ">\n" +
             '<td><input type="' + typeOfSelection + '" name="music_piece" value="' + results[i].path + '"></td>' +
             "<td>" + results[i].composer + "</td>\n" +
             "<td>" + results[i].title + "</td>\n" +
