@@ -1,11 +1,20 @@
 .bgcolor {
-    background-color:rgb(118, 235, 190) !important;
+    background-color: rgb(118, 235, 190) !important;
 }
 
 header nav {
     padding: 1em;
 }
 
+.uk-navbar-container:not(.uk-navbar-transparent) {
+    background: #BBDEFB;
+    height: 50px;
+}
+
 .body {
     padding: 1em;
+}
+
+.invisible {
+    display: none;
 }

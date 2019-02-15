@@ -1,0 +1,29 @@
+.uk-overlay-default {
+    background: rgba(255, 255, 255, .1);
+    margin: 2em;
+}
+
+.uk-grid {
+    margin-left: 0px;
+}
+
+.uk-button-default {
+    background-color: rgba(255, 255, 255, .7);
+    color: #262626;
+    border: 1px solid #e5e5e5;
+    font-size: 1.3em;
+    line-height: 80px;
+    padding: 0 40px;
+    width: 270px;
+    font-family: 'Roboto Condensed', monospace;
+    text-transform: uppercase;
+}
+
+.uk-button-default:focus, .uk-button-default:hover, .uk-button-default:active {
+    background-color: rgba(255, 255, 255, .9) !important;
+    color: #262626;
+    border: 1px solid #e5e5e5;
+    font-family: 'Roboto Condensed', monospace;
+    text-transform: uppercase;
+}
+
