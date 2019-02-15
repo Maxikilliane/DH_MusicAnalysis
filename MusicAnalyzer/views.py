@@ -104,8 +104,10 @@ def search_corpus(request, context):
             result_dict = {"composer": result.metadata.composer,
                            "title": result.metadata.title,
                            "year": result.metadata.date,
-                           "path": str(result.sourcePath)
+                           "path": str(result.sourcePath),
+                           "number": result.number
                            }
+
             result_list.append(result_dict)
         data = {"results": result_list, "context": context}
     return JsonResponse(data)

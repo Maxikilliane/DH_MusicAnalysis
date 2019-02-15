@@ -130,7 +130,7 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
     console.log(results);
     for (let i = 0; i < results.length; i++) {
         let row = "<tr class=" + fileSource + ">\n" +
-            '<td><input type="' + typeOfSelection + '" name="music_piece" value="' + results[i].path + '"></td>' +
+            '<td><input type="' + typeOfSelection + '" name="music_piece" value="path__' + results[i].path + '__number__' + results[i].number +'"></td>' +
             "<td>" + results[i].composer + "</td>\n" +
             "<td>" + results[i].title + "</td>\n" +
             "</tr>";
