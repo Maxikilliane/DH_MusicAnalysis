@@ -1,4 +1,5 @@
 import os
+from pathlib import WindowsPath, PosixPath
 
 from django.core.files.storage import default_storage
 from django.http import JsonResponse, HttpResponse
@@ -45,10 +46,26 @@ class Choice(View):
             if request.is_ajax():
                 return search_corpus(request, context)
         elif self.state == constants.STATE_SELECT_FOR_ANALYSIS:
-            # TODO: process analysis here:
-            # get paths to music_pieces from request.POST
-            # parse music with music21? or in different view?
-            # analyse? or in different view?
+            selecteds = request.POST.getlist("music_piece", None)
+            if selecteds is not None:
+                for select in selecteds:
+                    if select == "select all":
+                        continue
+                    else:
+                        parts = select.split("path__")[1].split("__number__")
+                        path = parts[0]
+                        number = get_int_or_none(parts[1])
+                        if context == constants.INDIVIDUAL:
+                            parsed = parse_from_metadata(path, number)
+                            # display the parsed data as score/notes etc. (pass to vexflox or similiar)
+                            # need to be sure that there is only one music piece (perhaps another check, but actually should be this way, because of radio select)
+                        elif context == constants.DISTANT_HEARING:
+                            # either: pass the data to the analysis view, probably as json, analyze there
+                            # or: analyse the data and pass the results to the analysis view
+                            #       (probably takes longer to load on first time,
+                            #        but doesn't require loading when switching tabs)
+                            pass
+
             return HttpResponse("Todo: process analysis here: "+str(request.POST.get("music_piece", "")))
         else:
             return upload_files(self, request, context)
@@ -80,7 +97,6 @@ class DistantHearingChoice(Choice):
 
 
 def search_corpus(request, context):
-    print(request.POST)
     free_search = request.POST.get("free_search", "")
     composer = request.POST.get('composer', "")
     title = request.POST.get('title', "")
@@ -115,16 +131,15 @@ def search_corpus(request, context):
 
 def upload_files(self, request, context):
     file_form = self.file_form_class(request.POST, request.FILES)
-    print(self.file_form_class)
-    print("file uploading!")
+
     files = request.FILES.getlist('files')
-    print(files)
+
     if file_form.is_valid():
         for f in files:
             path = os.path.join(request.session.session_key, f.name)
             final_path = os.path.join(MEDIA_ROOT, path)
             default_storage.save(final_path, f)
-            print(final_path)
+
             try:
                 music = m21.converter.parse(os.path.join(MEDIA_ROOT,
                                                      path))
@@ -238,3 +253,37 @@ def convert_none_to_empty_string(string):
         return ''
     else:
         return string
+
+
+def get_int_or_none(string):
+    if string == "null" or string is None:
+        return None
+    else:
+        try:
+            return int(string)
+        except ValueError:
+            return None
+
+
+
+def get_system_dependant_path(path):
+    if os.name == "nt":
+        return WindowsPath(path)
+    else:
+        return PosixPath(path)
+
+
+# params: sourcePath and number attributes of MetadataEntry-object
+# returns a Music21object
+def parse_from_metadata(source_path, number):
+    if source_path is not None and number is not None:
+        test = m21.corpus.parse(get_system_dependant_path(source_path), number)
+        return test
+        print(test)
+    elif source_path is not None:
+        test = m21.corpus.parse(get_system_dependant_path(source_path))
+        return test
+        print(test)
+    else:
+        print("Noooooo:")
+        return None
