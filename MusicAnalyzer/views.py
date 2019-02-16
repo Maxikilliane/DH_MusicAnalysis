@@ -3,7 +3,7 @@ from pathlib import WindowsPath, PosixPath
 
 from django.core.files.storage import default_storage
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from music21 import metadata
 from music21.converter import ConverterFileException
@@ -38,7 +38,6 @@ class Choice(View):
         self.context_dict["file_form"] = self.file_form_class()
         self.context_dict["search_form"] = self.search_form_class()
 
-
     # handle data getting back from view
     def post(self, request, context):
         print(request.POST)
@@ -64,13 +63,18 @@ class Choice(View):
                             # need to be sure that there is only one music piece (perhaps another check, but actually should be this way, because of radio select)
                         elif context == constants.DISTANT_HEARING:
                             music_pieces_list.append(transform_music_source_to_json(path, number, file_source))
-                            # either: pass the data to the analysis view, probably as json, analyze there
+
+                            # either: pass the data to the analysis view, analyze there
                             # or: analyse the data and pass the results to the analysis view
                             #       (probably takes longer to load on first time,
                             #        but doesn't require loading when switching tabs)
-                            pass
 
-            return HttpResponse("Todo: process analysis here: "+str(request.POST.get("music_piece", ""))) #TODO: delete this once more implemented
+                if context == constants.DISTANT_HEARING:
+                    save_music_choice_to_cookie(request, music_pieces_list)
+                    return redirect("MusicAnalyzer:distant_analysis")
+
+            return HttpResponse("Todo: process analysis here: " + str(
+                request.POST.get("music_piece", "")))  # TODO: delete this once more implemented
         else:
             return upload_files(self, request, context)
 
@@ -98,6 +102,15 @@ class DistantHearingChoice(Choice):
 
     def post(self, request):
         return super(DistantHearingChoice, self).post(request, context=constants.DISTANT_HEARING)
+
+
+class DistantAnalysis(View):
+
+    def get(self, request):
+        music_pieces = access_music_choice_from_cookie(request)  # make this instance variable and only change when updated
+        print(music_pieces)
+        # TODO analyse data for at least first tab here
+        return render(request, "MusicAnalyzer/DistantAnalysis.html", {"music_pieces": music_pieces})
 
 
 def search_corpus(request, context):
@@ -146,7 +159,7 @@ def upload_files(self, request, context):
 
             try:
                 music = m21.converter.parse(os.path.join(MEDIA_ROOT,
-                                                     path))
+                                                         path))
                 data = {'is_valid': True, "upload": {
                     'composer': convert_none_to_empty_string(music.metadata.composer),
                     'title': convert_none_to_empty_string(music.metadata.title),
@@ -159,8 +172,8 @@ def upload_files(self, request, context):
                     data["delete_last"] = True
                     print(data)
             except ConverterFileException:
-                data={'is_valid': False,
-                      "error_message": "This file format cannot be parsed. Please try a different one."}
+                data = {'is_valid': False,
+                        "error_message": "This file format cannot be parsed. Please try a different one."}
             return JsonResponse(data)
     else:
         self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
@@ -210,6 +223,7 @@ def get_year_results(corpus, start_year, end_year):
         result = corpus.search(str(year), "date")
         results.union(result)
     return results
+
 
 # searches in whole corpus for given terms
 # returns the ORred results of the searches
@@ -267,7 +281,6 @@ def get_int_or_none(string):
             return int(string)
         except ValueError:
             return None
-
 
 
 def get_system_dependant_path(path):
