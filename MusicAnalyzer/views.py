@@ -14,6 +14,7 @@ from MusicAnalyzer.forms import *
 import music21 as m21
 
 from MusicAnalyzer.session_handling import *
+import json
 
 
 class Index(View):
@@ -48,25 +49,28 @@ class Choice(View):
         elif self.state == constants.STATE_SELECT_FOR_ANALYSIS:
             selecteds = request.POST.getlist("music_piece", None)
             if selecteds is not None:
+                music_pieces_list = []
                 for select in selecteds:
                     if select == "select all":
                         continue
                     else:
-                        parts = select.split("path__")[1].split("__number__")
+                        file_source = get_file_source(select)
+                        parts = select.split(get_source_dependant_prefix(file_source))[1].split("__number__")
                         path = parts[0]
                         number = get_int_or_none(parts[1])
                         if context == constants.INDIVIDUAL:
-                            parsed = parse_from_metadata(path, number)
+                            parsed = parse_file(path, number, file_source)
                             # display the parsed data as score/notes etc. (pass to vexflox or similiar)
                             # need to be sure that there is only one music piece (perhaps another check, but actually should be this way, because of radio select)
                         elif context == constants.DISTANT_HEARING:
+                            music_pieces_list.append(transform_music_source_to_json(path, number, file_source))
                             # either: pass the data to the analysis view, probably as json, analyze there
                             # or: analyse the data and pass the results to the analysis view
                             #       (probably takes longer to load on first time,
                             #        but doesn't require loading when switching tabs)
                             pass
 
-            return HttpResponse("Todo: process analysis here: "+str(request.POST.get("music_piece", "")))
+            return HttpResponse("Todo: process analysis here: "+str(request.POST.get("music_piece", ""))) #TODO: delete this once more implemented
         else:
             return upload_files(self, request, context)
 
@@ -256,7 +260,7 @@ def convert_none_to_empty_string(string):
 
 
 def get_int_or_none(string):
-    if string == "null" or string is None:
+    if string == "null" or string is None or string == "undefined":
         return None
     else:
         try:
@@ -273,17 +277,48 @@ def get_system_dependant_path(path):
         return PosixPath(path)
 
 
-# params: sourcePath and number attributes of MetadataEntry-object
+# params:
+# file_source_constant to distinguish uploaded files from corpus files
+# sourcePath and number attributes of MetadataEntry-object, or path to uploaded file
 # returns a Music21object
-def parse_from_metadata(source_path, number):
-    if source_path is not None and number is not None:
-        test = m21.corpus.parse(get_system_dependant_path(source_path), number)
-        return test
-        print(test)
-    elif source_path is not None:
-        test = m21.corpus.parse(get_system_dependant_path(source_path))
-        return test
-        print(test)
+def parse_file(source_path, number, file_source):
+    print(file_source)
+    print(source_path)
+    if file_source == constants.CORPUS_FILE:
+        if source_path is not None and number is not None:
+            test = m21.corpus.parse(get_system_dependant_path(source_path), number)
+            return test
+        elif source_path is not None:
+            test = m21.corpus.parse(get_system_dependant_path(source_path))
+            return test
+        else:
+            return None
+    elif file_source == constants.UPLOADED_FILE:
+        if source_path is not None:
+            test = m21.converter.parse(get_system_dependant_path(source_path))
+            return test
+        else:
+            return None
+
+
+def get_file_source(source_path):
+    if source_path.startswith("path_upload__"):
+        return constants.UPLOADED_FILE
+    elif source_path.startswith("path_search__"):
+        return constants.CORPUS_FILE
     else:
-        print("Noooooo:")
         return None
+
+
+def get_source_dependant_prefix(source):
+    if source == constants.UPLOADED_FILE:
+        return "path_upload__"
+    elif source == constants.CORPUS_FILE:
+        return "path_search__"
+    else:
+        return "path__"
+
+
+def transform_music_source_to_json(path, number, file_source):
+    music_piece = {"path": path, "number": number, "file_source": file_source}
+    return music_piece
