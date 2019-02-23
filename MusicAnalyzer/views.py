@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from music21 import metadata
 from music21.converter import ConverterFileException
-
+from music21.musicxml import m21ToXml
 from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
 from MusicAnalyzer.forms import *
@@ -40,7 +40,6 @@ class Choice(View):
 
     # handle data getting back from view
     def post(self, request, context):
-        print(request.POST)
         self.state = request.POST.get("state", "")
         if self.state == constants.STATE_SEARCH_CORPUS:
             if request.is_ajax():
@@ -49,6 +48,7 @@ class Choice(View):
             selecteds = request.POST.getlist("music_piece", None)
             if selecteds is not None:
                 music_pieces_list = []
+                parsed_file = {}
                 for select in selecteds:
                     if select == "select all":
                         continue
@@ -59,6 +59,7 @@ class Choice(View):
                         number = get_int_or_none(parts[1])
                         if context == constants.INDIVIDUAL:
                             parsed = parse_file(path, number, file_source)
+                            parsed_file = parsed
                             # display the parsed data as score/notes etc. (pass to vexflox or similiar)
                             # need to be sure that there is only one music piece (perhaps another check, but actually should be this way, because of radio select)
                         elif context == constants.DISTANT_HEARING:
@@ -73,8 +74,14 @@ class Choice(View):
                     save_music_choice_to_cookie(request, music_pieces_list)
                     return redirect("MusicAnalyzer:distant_analysis")
 
-            return HttpResponse("Todo: process analysis here: " + str(
-                request.POST.get("music_piece", "")))  # TODO: delete this once more implemented
+                if context == constants.INDIVIDUAL:
+                    save_parsed_file_to_cookie(request, parsed_file)
+                    return redirect("MusicAnalyzer:individual_analysis")
+
+
+
+                #HttpResponse("Todo: process analysis here: " + str(
+                #request.POST.get("music_piece", "")))  # TODO: delete this once more implemented
         else:
             return upload_files(self, request, context)
 
@@ -107,10 +114,20 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        music_pieces = access_music_choice_from_cookie(request)  # make this instance variable and only change when updated
-        print(music_pieces)
+        music_pieces = access_music_choice_from_cookie(
+            request)  # make this instance variable and only change when updated
         # TODO analyse data for at least first tab here
         return render(request, "MusicAnalyzer/DistantAnalysis.html", {"music_pieces": music_pieces})
+
+
+class IndividualAnalysis(View):
+
+    def get(self, request):
+        parsed_file = access_save_parsed_file_from_cookie(request)
+        parsed_file = m21.converter.thaw(parsed_file)
+        gex = m21ToXml.GeneralObjectExporter()
+        parsed_file = gex.parse(parsed_file).decode('utf-8')
+        return render(request, "MusicAnalyzer/IndividualAnalysis.html", {"music_pieces": parsed_file})
 
 
 def search_corpus(request, context):
@@ -199,7 +216,6 @@ def get_composer_results(corpus, composer):
         results = corpus.search(composers[0], "composer")
 
         for index, composer in enumerate(composers):
-            print(index)
             if index != 0:
                 results.union(corpus.search(composer, "composer"))
     return results
@@ -235,7 +251,6 @@ def get_free_search_results(corpus, free_search):
         results = corpus.search(free_search[0])
 
         for index, term in enumerate(free_search):
-            print(index)
             if index != 0:
                 results.union(corpus.search(term))
     return results
@@ -295,20 +310,21 @@ def get_system_dependant_path(path):
 # sourcePath and number attributes of MetadataEntry-object, or path to uploaded file
 # returns a Music21object
 def parse_file(source_path, number, file_source):
-    print(file_source)
-    print(source_path)
     if file_source == constants.CORPUS_FILE:
         if source_path is not None and number is not None:
             test = m21.corpus.parse(get_system_dependant_path(source_path), number)
+            test = m21.converter.freeze(test)
             return test
         elif source_path is not None:
             test = m21.corpus.parse(get_system_dependant_path(source_path))
+            test = m21.converter.freeze(test)
             return test
         else:
             return None
     elif file_source == constants.UPLOADED_FILE:
         if source_path is not None:
             test = m21.converter.parse(get_system_dependant_path(source_path))
+            test = m21.converter.freeze(test)
             return test
         else:
             return None
