@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from music21 import metadata
 from music21.converter import ConverterFileException
+from music21.stream import Opus
 
 from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
@@ -160,6 +161,8 @@ def upload_files(self, request, context):
             try:
                 music = m21.converter.parse(os.path.join(MEDIA_ROOT,
                                                          path))
+                if isinstance(music, m21.stream.Opus):
+                    music = music.mergeScores()
                 data = {'is_valid': True, "upload": {
                     'composer': convert_none_to_empty_string(music.metadata.composer),
                     'title': convert_none_to_empty_string(music.metadata.title),
@@ -172,8 +175,11 @@ def upload_files(self, request, context):
                     data["delete_last"] = True
                     print(data)
             except ConverterFileException:
-                data = {'is_valid': False,
+                data = {"is_valid": False,
                         "error_message": "This file format cannot be parsed. Please try a different one."}
+            except ValueError:
+                data = {"is_valid": False,
+                        "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
             return JsonResponse(data)
     else:
         self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
