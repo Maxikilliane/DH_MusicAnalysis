@@ -1,18 +1,21 @@
 import os
+from pathlib import WindowsPath, PosixPath
 
 from django.core.files.storage import default_storage
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from music21 import metadata
 from music21.converter import ConverterFileException
-
+from music21.musicxml import m21ToXml
+from music21.stream import Opus
 from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
 from MusicAnalyzer.forms import *
 import music21 as m21
 
 from MusicAnalyzer.session_handling import *
+import json
 
 
 class Index(View):
@@ -36,20 +39,49 @@ class Choice(View):
         self.context_dict["file_form"] = self.file_form_class()
         self.context_dict["search_form"] = self.search_form_class()
 
-
     # handle data getting back from view
     def post(self, request, context):
-        print(request.POST)
         self.state = request.POST.get("state", "")
         if self.state == constants.STATE_SEARCH_CORPUS:
             if request.is_ajax():
                 return search_corpus(request, context)
         elif self.state == constants.STATE_SELECT_FOR_ANALYSIS:
-            # TODO: process analysis here:
-            # get paths to music_pieces from request.POST
-            # parse music with music21? or in different view?
-            # analyse? or in different view?
-            return HttpResponse("Todo: process analysis here: "+str(request.POST.get("music_piece", "")))
+            selecteds = request.POST.getlist("music_piece", None)
+            if selecteds is not None:
+                music_pieces_list = []
+                parsed_file = {}
+                for select in selecteds:
+                    if select == "select all":
+                        continue
+                    else:
+                        file_source = get_file_source(select)
+                        parts = select.split(get_source_dependant_prefix(file_source))[1].split("__number__")
+                        path = parts[0]
+                        number = get_int_or_none(parts[1])
+                        if context == constants.INDIVIDUAL:
+                            save_music_choice_to_cookie(request, transform_music_source_to_dict(path, number, file_source))
+                            # can do this directly in for, because in individual analysis only one music piece is analysed
+                            return redirect("MusicAnalyzer:individual_analysis")
+                        elif context == constants.DISTANT_HEARING:
+                            music_pieces_list.append(transform_music_source_to_dict(path, number, file_source))
+
+                            # either: pass the data to the analysis view, analyze there
+                            # or: analyse the data and pass the results to the analysis view
+                            #       (probably takes longer to load on first time,
+                            #        but doesn't require loading when switching tabs)
+
+                if context == constants.DISTANT_HEARING:
+                    save_music_choice_to_cookie(request, music_pieces_list)
+                    return redirect("MusicAnalyzer:distant_analysis")
+
+                #if context == constants.INDIVIDUAL:
+                 #   save_parsed_file_to_cookie(request, parsed_file)
+                  #  return redirect("MusicAnalyzer:individual_analysis")
+
+
+
+                #HttpResponse("Todo: process analysis here: " + str(
+                #request.POST.get("music_piece", "")))  # TODO: delete this once more implemented
         else:
             return upload_files(self, request, context)
 
@@ -79,8 +111,29 @@ class DistantHearingChoice(Choice):
         return super(DistantHearingChoice, self).post(request, context=constants.DISTANT_HEARING)
 
 
+class DistantAnalysis(View):
+
+    def get(self, request):
+        music_pieces = access_music_choice_from_cookie(
+            request)  # make this instance variable and only change when updated
+        # TODO analyse data for at least first tab here
+        return render(request, "MusicAnalyzer/DistantAnalysis.html", {"music_pieces": music_pieces})
+
+
+class IndividualAnalysis(View):
+
+    def get(self, request):
+        #parsed_file = access_save_parsed_file_from_cookie(request)
+        #parsed_file = m21.converter.thaw(parsed_file)
+        choice = access_music_choice_from_cookie(request)
+        parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
+        print(parsed_file)
+        gex = m21ToXml.GeneralObjectExporter()
+        parsed_file = gex.parse(parsed_file).decode('utf-8')
+        return render(request, "MusicAnalyzer/IndividualAnalysis.html", {"music_pieces": parsed_file})
+
+
 def search_corpus(request, context):
-    print(request.POST)
     free_search = request.POST.get("free_search", "")
     composer = request.POST.get('composer', "")
     title = request.POST.get('title', "")
@@ -104,8 +157,10 @@ def search_corpus(request, context):
             result_dict = {"composer": result.metadata.composer,
                            "title": result.metadata.title,
                            "year": result.metadata.date,
-                           "path": str(result.sourcePath)
+                           "path": str(result.sourcePath),
+                           "number": result.number
                            }
+
             result_list.append(result_dict)
         data = {"results": result_list, "context": context}
     return JsonResponse(data)
@@ -113,19 +168,20 @@ def search_corpus(request, context):
 
 def upload_files(self, request, context):
     file_form = self.file_form_class(request.POST, request.FILES)
-    print(self.file_form_class)
-    print("file uploading!")
+
     files = request.FILES.getlist('files')
-    print(files)
+
     if file_form.is_valid():
         for f in files:
             path = os.path.join(request.session.session_key, f.name)
             final_path = os.path.join(MEDIA_ROOT, path)
             default_storage.save(final_path, f)
-            print(final_path)
+
             try:
                 music = m21.converter.parse(os.path.join(MEDIA_ROOT,
-                                                     path))
+                                                         path))
+                if isinstance(music, m21.stream.Opus):
+                    music = music.mergeScores()
                 data = {'is_valid': True, "upload": {
                     'composer': convert_none_to_empty_string(music.metadata.composer),
                     'title': convert_none_to_empty_string(music.metadata.title),
@@ -138,8 +194,11 @@ def upload_files(self, request, context):
                     data["delete_last"] = True
                     print(data)
             except ConverterFileException:
-                data={'is_valid': False,
-                      "error_message": "This file format cannot be parsed. Please try a different one."}
+                data = {"is_valid": False,
+                        "error_message": "This file format cannot be parsed. Please try a different one."}
+            except ValueError:
+                data = {"is_valid": False,
+                        "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
             return JsonResponse(data)
     else:
         self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
@@ -165,7 +224,6 @@ def get_composer_results(corpus, composer):
         results = corpus.search(composers[0], "composer")
 
         for index, composer in enumerate(composers):
-            print(index)
             if index != 0:
                 results.union(corpus.search(composer, "composer"))
     return results
@@ -190,6 +248,7 @@ def get_year_results(corpus, start_year, end_year):
         results.union(result)
     return results
 
+
 # searches in whole corpus for given terms
 # returns the ORred results of the searches
 def get_free_search_results(corpus, free_search):
@@ -200,7 +259,6 @@ def get_free_search_results(corpus, free_search):
         results = corpus.search(free_search[0])
 
         for index, term in enumerate(free_search):
-            print(index)
             if index != 0:
                 results.union(corpus.search(term))
     return results
@@ -236,3 +294,68 @@ def convert_none_to_empty_string(string):
         return ''
     else:
         return string
+
+
+def get_int_or_none(string):
+    if string == "null" or string is None or string == "undefined":
+        return None
+    else:
+        try:
+            return int(string)
+        except ValueError:
+            return None
+
+
+def get_system_dependant_path(path):
+    if os.name == "nt":
+        return WindowsPath(path)
+    else:
+        return PosixPath(path)
+
+
+# params:
+# file_source_constant to distinguish uploaded files from corpus files
+# sourcePath and number attributes of MetadataEntry-object, or path to uploaded file
+# returns a Music21object
+def parse_file(source_path, number, file_source):
+    if file_source == constants.CORPUS_FILE:
+        if source_path is not None and number is not None:
+            test = m21.corpus.parse(get_system_dependant_path(source_path), number)
+            #test = m21.converter.freeze(test)
+            return test
+        elif source_path is not None:
+            test = m21.corpus.parse(get_system_dependant_path(source_path))
+            #test = m21.converter.freeze(test)
+            return test
+        else:
+            return None
+    elif file_source == constants.UPLOADED_FILE:
+        if source_path is not None:
+            test = m21.converter.parse(get_system_dependant_path(source_path))
+            #test = m21.converter.freeze(test)
+            return test
+        else:
+            return None
+
+
+def get_file_source(source_path):
+    if source_path.startswith("path_upload__"):
+        return constants.UPLOADED_FILE
+    elif source_path.startswith("path_search__"):
+        return constants.CORPUS_FILE
+    else:
+        return None
+
+
+def get_source_dependant_prefix(source):
+    if source == constants.UPLOADED_FILE:
+        return "path_upload__"
+    elif source == constants.CORPUS_FILE:
+        return "path_search__"
+    else:
+        return "path__"
+
+
+def transform_music_source_to_dict(path, number, file_source):
+    music_piece = {"path": path, "number": number, "file_source": file_source}
+    return music_piece
