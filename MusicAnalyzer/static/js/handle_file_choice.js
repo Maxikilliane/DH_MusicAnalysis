@@ -4,12 +4,70 @@
  */
 
 $(function () {
+    var bar = document.getElementById('js-progressbar');
+
+    UIkit.upload('.js-upload', {
+
+        url: '',
+        multiple: true,
+
+        loadStart: function (e) {
+            bar.removeAttribute('hidden');
+            bar.max = e.total;
+            bar.value = e.loaded;
+        },
+
+        progress: function (e) {
+            bar.max = e.total;
+            bar.value = e.loaded;
+        },
+
+        loadEnd: function (e) {
+            bar.max = e.total;
+            bar.value = e.loaded;
+            if (e.total && e.loaded) {
+                setTimeout(function () {
+                    bar.setAttribute('hidden', 'hidden');
+                }, 1000);
+
+            }
+        },
+    });
     /* open file explorer window*/
     $(".upload_files").click(function () {
         $("#fileupload").click();
     });
 
     /* init file upload component */
+     var bar = document.getElementById('js-progressbar');
+
+    UIkit.upload('.js-upload', {
+
+        url: '',
+        multiple: true,
+
+        loadStart: function (e) {
+            bar.removeAttribute('hidden');
+            bar.max = e.total;
+            bar.value = e.loaded;
+        },
+
+        progress: function (e) {
+            bar.max = e.total;
+            bar.value = e.loaded;
+        },
+
+        loadEnd: function (e) {
+            bar.max = e.total;
+            bar.value = e.loaded;
+            if (e.total && e.loaded) {
+                setTimeout(function () {
+                    bar.setAttribute('hidden', 'hidden');
+                }, 1000);
+
+            }
+        },
+    });
     $("#fileupload").fileupload({
         dataType: 'json',
         done: function (e, data) {  /* process server response */
@@ -131,8 +189,8 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
         let row = "<tr class=" + fileSource + ">\n" +
             '<td><input type="' + typeOfSelection + '" ' +
             'name="music_piece" ' +
-            'value="path_'+fileSource+'__' + results[i].path + '__number__' + results[i].number +'" ' +
-            'class="uk-'+typeOfSelection+'"></td>' +
+            'value="path_' + fileSource + '__' + results[i].path + '__number__' + results[i].number + '" ' +
+            'class="uk-' + typeOfSelection + '"></td>' +
             "<td>" + results[i].composer + "</td>\n" +
             "<td>" + results[i].title + "</td>\n" +
             "</tr>";

@@ -11,3 +11,4 @@ STATE_SELECT_FOR_ANALYSIS = "select_for_analysis"
 
 # Cookie names
 CHOSEN_MUSIC_COOKIE = "chosen_music"
+PARSED_FILE_COOKIE = "parsed_file"

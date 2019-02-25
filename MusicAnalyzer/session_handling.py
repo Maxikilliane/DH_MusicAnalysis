@@ -20,3 +20,13 @@ def access_music_choice_from_cookie(request):
     if request.session.get(constants.CHOSEN_MUSIC_COOKIE):
         print(request.session[constants.CHOSEN_MUSIC_COOKIE])
         return request.session[constants.CHOSEN_MUSIC_COOKIE]
+
+
+def save_parsed_file_to_cookie(request, file):
+    request.session[constants.PARSED_FILE_COOKIE] = file
+
+
+def access_save_parsed_file_from_cookie(request):
+    if request.session.get(constants.PARSED_FILE_COOKIE):
+        print(request.session[constants.PARSED_FILE_COOKIE])
+        return request.session[constants.PARSED_FILE_COOKIE]
