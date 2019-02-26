@@ -359,3 +359,20 @@ def get_source_dependant_prefix(source):
 def transform_music_source_to_dict(path, number, file_source):
     music_piece = {"path": path, "number": number, "file_source": file_source}
     return music_piece
+
+
+def get_interval_between_highest_and_lowest_pitch(stream):
+    return stream.analyze('ambitus')
+
+
+def get_chord_names(parsed_file):
+    chords = parsed_file.chordify()
+    chords_counts = {}
+    for chord in chords.recurse().getElementsByClass('Chord'):
+        if chord.pitchedCommonName in chords_counts:
+            chords_counts[chord.pitchedCommonName] += 1
+        else:
+            chords_counts[chords.pitchedCommonName] = 1
+
+
+    return chords_counts
