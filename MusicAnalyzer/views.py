@@ -373,6 +373,8 @@ def get_chord_names(parsed_file):
             chords_counts[chord.pitchedCommonName] += 1
         else:
             chords_counts[chords.pitchedCommonName] = 1
+        chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
+        chord.addLyric(str(chord_figure.figure))
 
-
+    # TODO: find a way to pass the chords to display
     return chords_counts
