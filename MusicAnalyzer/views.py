@@ -59,7 +59,8 @@ class Choice(View):
                         path = parts[0]
                         number = get_int_or_none(parts[1])
                         if context == constants.INDIVIDUAL:
-                            save_music_choice_to_cookie(request, transform_music_source_to_dict(path, number, file_source))
+                            save_music_choice_to_cookie(request,
+                                                        transform_music_source_to_dict(path, number, file_source))
                             # can do this directly in for, because in individual analysis only one music piece is analysed
                             return redirect("MusicAnalyzer:individual_analysis")
                         elif context == constants.DISTANT_HEARING:
@@ -74,14 +75,12 @@ class Choice(View):
                     save_music_choice_to_cookie(request, music_pieces_list)
                     return redirect("MusicAnalyzer:distant_analysis")
 
-                #if context == constants.INDIVIDUAL:
-                 #   save_parsed_file_to_cookie(request, parsed_file)
-                  #  return redirect("MusicAnalyzer:individual_analysis")
+                # if context == constants.INDIVIDUAL:
+                #   save_parsed_file_to_cookie(request, parsed_file)
+                #  return redirect("MusicAnalyzer:individual_analysis")
 
-
-
-                #HttpResponse("Todo: process analysis here: " + str(
-                #request.POST.get("music_piece", "")))  # TODO: delete this once more implemented
+                # HttpResponse("Todo: process analysis here: " + str(
+                # request.POST.get("music_piece", "")))  # TODO: delete this once more implemented
         else:
             return upload_files(self, request, context)
 
@@ -123,10 +122,11 @@ class DistantAnalysis(View):
 class IndividualAnalysis(View):
 
     def get(self, request):
-        #parsed_file = access_save_parsed_file_from_cookie(request)
-        #parsed_file = m21.converter.thaw(parsed_file)
+        # parsed_file = access_save_parsed_file_from_cookie(request)
+        # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
+        get_chord_names(parsed_file)
         print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
@@ -321,18 +321,18 @@ def parse_file(source_path, number, file_source):
     if file_source == constants.CORPUS_FILE:
         if source_path is not None and number is not None:
             test = m21.corpus.parse(get_system_dependant_path(source_path), number)
-            #test = m21.converter.freeze(test)
+            # test = m21.converter.freeze(test)
             return test
         elif source_path is not None:
             test = m21.corpus.parse(get_system_dependant_path(source_path))
-            #test = m21.converter.freeze(test)
+            # test = m21.converter.freeze(test)
             return test
         else:
             return None
     elif file_source == constants.UPLOADED_FILE:
         if source_path is not None:
             test = m21.converter.parse(get_system_dependant_path(source_path))
-            #test = m21.converter.freeze(test)
+            # test = m21.converter.freeze(test)
             return test
         else:
             return None
