@@ -1,6 +1,7 @@
 import os
 from pathlib import WindowsPath, PosixPath
 
+import matplotlib.pyplot as plt
 from django.core.files.storage import default_storage
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -9,13 +10,16 @@ from music21 import metadata
 from music21.converter import ConverterFileException
 from music21.musicxml import m21ToXml
 from music21.stream import Opus
+
+from DH_201819_MusicAnalysis import settings
 from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
 from MusicAnalyzer.forms import *
 import music21 as m21
 
 from MusicAnalyzer.session_handling import *
-import json
+
+plt.ioff()  # turn off interactive matplotlib
 
 
 class Index(View):
@@ -127,6 +131,7 @@ class IndividualAnalysis(View):
         choice = access_music_choice_from_cookie(request)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         get_chord_names(parsed_file)
+        # plot = m21.graph.plot.HistogramPitchSpace(parsed_file) # example for use of music21 plots
         print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
@@ -378,3 +383,11 @@ def get_chord_names(parsed_file):
 
     # TODO: find a way to pass the chords to display
     return chords_counts
+# saves a plot object to disk (to allow for it to be passed to the frontend)
+# TODO: need to decide on naming scheme for plots and adjust path accordingly
+def save_plot_to_disk(request, plot):
+    plot.doneAction = None
+    plot.run()
+    path = os.path.join(settings.MEDIA_ROOT, request.session.session_key, "graphs", "test.png")
+    plot.figure.savefig(path)
+    return path
