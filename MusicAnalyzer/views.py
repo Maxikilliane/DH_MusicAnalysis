@@ -53,7 +53,6 @@ class Choice(View):
             selecteds = request.POST.getlist("music_piece", None)
             if selecteds is not None:
                 music_pieces_list = []
-                parsed_file = {}
                 for select in selecteds:
                     if select == "select all":
                         continue
@@ -130,12 +129,20 @@ class IndividualAnalysis(View):
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
-        get_chord_names(parsed_file)
         # plot = m21.graph.plot.HistogramPitchSpace(parsed_file) # example for use of music21 plots
+
+        chord_information = get_chord_information(parsed_file)
+        chordified_file = chord_information["chords"]
+        parsed_file.insert(0, chordified_file)  # add the chords (and chordified score) to score
         print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
-        return render(request, "MusicAnalyzer/IndividualAnalysis.html", {"music_pieces": parsed_file})
+        context_dict = {"music_pieces": parsed_file,
+                        "chord_names": chord_information["chord_name_count"],
+                        "chord_qualities": chord_information["chord_quality_count"],
+                        "chord_roots": chord_information["chord_root_count"]
+                        }
+        return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
 
 
 def search_corpus(request, context):
@@ -370,19 +377,56 @@ def get_interval_between_highest_and_lowest_pitch(stream):
     return stream.analyze('ambitus')
 
 
-def get_chord_names(parsed_file):
+# get chords and summary stats on chords from parsed file
+# params: a parsed file (music21 Stream object)
+# returns: a dictionary containing:
+# * a stream object of the chordified file
+# * 3 dictionaries containing summary stats on the number of chords with a certain name, root or chord quality
+# additional info:
+# name is the pitched common name of a chord
+# root is the basis upon which a chord builds up
+# chord quality is something like minor, major, diminished etc.
+def get_chord_information(parsed_file):
     chords = parsed_file.chordify()
-    chords_counts = {}
-    for chord in chords.recurse().getElementsByClass('Chord'):
-        if chord.pitchedCommonName in chords_counts:
-            chords_counts[chord.pitchedCommonName] += 1
-        else:
-            chords_counts[chords.pitchedCommonName] = 1
-        chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
-        chord.addLyric(str(chord_figure.figure))
+    chords_names = {}
+    chords_qualities = {}
+    chords_roots = {}
 
-    # TODO: find a way to pass the chords to display
-    return chords_counts
+    for chord in chords.recurse().getElementsByClass('Chord'):
+        root = chord.root()
+        if chord.quality in chords_qualities:
+            chords_qualities[chord.quality] += 1
+        else:
+            chords_qualities[chord.quality] = 1
+
+        if chord.pitchedCommonName in chords_names:
+            chords_names[chord.pitchedCommonName] += 1
+        else:
+            chords_names[chord.pitchedCommonName] = 1
+        chord.addLyric(get_chord_representation(chord))
+
+        if root in chords_roots:
+            chords_roots[root] += 1
+        else:
+            chords_roots[root] = 1
+
+    return {"chords": chords,
+            "chord_name_count": chords_names,
+            "chord_quality_count": chords_qualities,
+            "chord_root_count": chords_roots}
+
+
+# get a chord symbol to display above the music
+# ideally this is something like Am, C7 or similiar
+# if chord symbol cannot be identified, get a more verbose name
+def get_chord_representation(chord):
+    chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
+    if chord_figure[0] == 'Chord Symbol Cannot Be Identified':
+        return chord.pitchedCommonName
+    else:
+        return chord_figure[0]
+
+
 # saves a plot object to disk (to allow for it to be passed to the frontend)
 # TODO: need to decide on naming scheme for plots and adjust path accordingly
 def save_plot_to_disk(request, plot):
