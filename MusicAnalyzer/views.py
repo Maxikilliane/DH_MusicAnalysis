@@ -14,6 +14,7 @@ from music21.stream import Opus
 from DH_201819_MusicAnalysis import settings
 from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
+from MusicAnalyzer.constants import ChordRepresentation
 from MusicAnalyzer.forms import *
 import music21 as m21
 
@@ -131,7 +132,11 @@ class IndividualAnalysis(View):
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         # plot = m21.graph.plot.HistogramPitchSpace(parsed_file) # example for use of music21 plots
 
-        chord_information = get_chord_information(parsed_file)
+        # TODO: get info from form (transmitted via AJAX) which chord representation is wanted
+
+        key = parsed_file.analyse('key')
+
+        chord_information = get_chord_information(parsed_file, key)
         chordified_file = chord_information["chords"]
         parsed_file.insert(0, chordified_file)  # add the chords (and chordified score) to score
         print(parsed_file)
@@ -378,7 +383,10 @@ def get_interval_between_highest_and_lowest_pitch(stream):
 
 
 # get chords and summary stats on chords from parsed file
-# params: a parsed file (music21 Stream object)
+# params:
+# * a parsed file (music21 Stream object)
+# * which type of chord representation was requested by the user (roman or chord names)
+# * key of the music_piece
 # returns: a dictionary containing:
 # * a stream object of the chordified file
 # * 3 dictionaries containing summary stats on the number of chords with a certain name, root or chord quality
@@ -386,7 +394,7 @@ def get_interval_between_highest_and_lowest_pitch(stream):
 # name is the pitched common name of a chord
 # root is the basis upon which a chord builds up
 # chord quality is something like minor, major, diminished etc.
-def get_chord_information(parsed_file):
+def get_chord_information(parsed_file, key, type_of_representation=constants.ChordRepresentation.chord_name):
     chords = parsed_file.chordify()
     chords_names = {}
     chords_qualities = {}
@@ -403,7 +411,7 @@ def get_chord_information(parsed_file):
             chords_names[chord.pitchedCommonName] += 1
         else:
             chords_names[chord.pitchedCommonName] = 1
-        chord.addLyric(get_chord_representation(chord))
+        chord.addLyric(get_chord_representation(chord, key, type_of_representation))
 
         if root in chords_roots:
             chords_roots[root] += 1
@@ -419,12 +427,15 @@ def get_chord_information(parsed_file):
 # get a chord symbol to display above the music
 # ideally this is something like Am, C7 or similiar
 # if chord symbol cannot be identified, get a more verbose name
-def get_chord_representation(chord):
-    chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
-    if chord_figure[0] == 'Chord Symbol Cannot Be Identified':
-        return chord.pitchedCommonName
-    else:
-        return chord_figure[0]
+def get_chord_representation(chord, key, representation_type):
+    if representation_type == ChordRepresentation.chord_name:
+        chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
+        if chord_figure[0] == 'Chord Symbol Cannot Be Identified':
+            return chord.pitchedCommonName
+        else:
+            return chord_figure[0]
+    elif representation_type == ChordRepresentation.roman:
+        return m21.roman.romanNumeralFromChord(chord, key).figure
 
 
 # saves a plot object to disk (to allow for it to be passed to the frontend)
