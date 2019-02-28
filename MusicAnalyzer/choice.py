@@ -8,7 +8,7 @@ from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
 import music21 as m21
 
-from MusicAnalyzer.views import convert_str_to_int, convert_none_to_empty_string
+from MusicAnalyzer.general import convert_str_to_int, convert_none_to_empty_string
 
 
 def search_corpus(request, context):
