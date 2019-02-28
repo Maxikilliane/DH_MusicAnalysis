@@ -128,7 +128,7 @@ class IndividualAnalysis(View):
 
         # TODO: get info from form (transmitted via AJAX) which chord representation is wanted
 
-        key = parsed_file.analyse('key')
+        key = parsed_file.analyze('key')
 
         chord_information = get_chord_information(parsed_file, key)
         chordified_file = chord_information["chords"]
