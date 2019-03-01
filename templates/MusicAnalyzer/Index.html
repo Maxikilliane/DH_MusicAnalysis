@@ -5,7 +5,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.19/js/uikit.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-rc.19/js/uikit-icons.min.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Roboto+Mono" rel="stylesheet">
-
+    <link rel="icon" href="{% static "/images/favicon.png" %}" type="image/png" />
     <link rel="stylesheet" type="text/css" href="{% static "/css/index.css" %}"/>
 
 {% endblock %}
@@ -17,7 +17,11 @@
     <body>
     <div class="uk-cover-container" uk-height-viewport>
         <img src={% static "images/cover.jpg" %} alt="cover_image" uk-cover>
+        <div class="uk-child-width-1-1@s uk-child-width-1-1@m uk-position-top-center" uk-grid>
+                   <img class="uk-center" src={% static "images/font_white_big.png" %} alt="BeyondTheNotes" style="padding-top:15px;">
+               </div>
         <div class="uk-position-cover uk-flex-middle uk-overlay uk-overlay-default">
+
             <div class="uk-child-width-1-2@s uk-child-width-1-2@m uk-text-center uk-flex-middle uk-position-center"
                  uk-grid>
                 <div>
