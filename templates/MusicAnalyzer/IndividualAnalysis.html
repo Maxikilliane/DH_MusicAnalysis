@@ -13,6 +13,43 @@
 {% endblock %}
 
 {% block body_block %}
+    <header>
+        <div class="uk-position-top">
+            <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+                <nav class="uk-navbar-container uk-navbar-default" uk-navbar>
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+
+                            <li style="width:20%;"><a href="{% url 'MusicAnalyzer:index' %}"><img
+                                    style="padding-bottom: 2em;" src="{% static "/images/logo.png" %}" alt="logo"></a>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <div class="uk-navbar-right">
+                        <ul class="uk-navbar-nav" style="color:black;">
+                            <li style="margin-right:2em;">
+                                <div>
+                                    <i id="zoom-in-btn"
+                                       class="fas fa-search-plus fa-2x"></i>
+                                    <div class="uk-navbar-subtitle">Zoom in</div>
+                                </div>
+                            </li>
+                            <li style="margin-right:2em;">
+                                <div>
+                                    <i id="zoom-out-btn"
+                                       class="fas fa-search-minus fa-2x"></i>
+                                    <div class="uk-navbar-subtitle">Zoom out</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="column">
+    </div>
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
          style="background: #f2f7fc; border: 1px solid #ddd; margin-top: 6em;">
         <div class="uk-padding" id="osmdCanvas"></div>
