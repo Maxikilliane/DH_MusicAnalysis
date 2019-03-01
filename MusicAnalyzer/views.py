@@ -128,7 +128,9 @@ class IndividualAnalysis(View):
 
         # TODO: get info from form (transmitted via AJAX) which chord representation is wanted
 
-        key = parsed_file.analyze('key')
+        keys = get_key_possibilities(parsed_file)
+        key = keys[0]
+
 
         chord_information = get_chord_information(parsed_file, key)
         chordified_file = chord_information["chords"]
@@ -139,7 +141,8 @@ class IndividualAnalysis(View):
         context_dict = {"music_pieces": parsed_file,
                         "chord_names": chord_information["chord_name_count"],
                         "chord_qualities": chord_information["chord_quality_count"],
-                        "chord_roots": chord_information["chord_root_count"]
+                        "chord_roots": chord_information["chord_root_count"],
+                        "key_possibilities": keys
                         }
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
 
@@ -275,3 +278,13 @@ def save_plot_to_disk(request, plot):
     path = os.path.join(settings.MEDIA_ROOT, request.session.session_key, "graphs", "test.png")
     plot.figure.savefig(path)
     return path
+
+
+# analyses the parsed music files to determine the key, gets the four most likely keys for a music piece
+# get the "probability" for each key in the list by using key.correlationCoefficient
+def get_key_possibilities(parsed_file):
+    key = parsed_file.analyze('key')
+    key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
+    for key in key_list:
+        print(key.correlationCoefficient)
+    return key_list
