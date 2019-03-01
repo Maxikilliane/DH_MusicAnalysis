@@ -40,4 +40,10 @@
         <div class="uk-padding" id="osmdCanvas"></div>
     </div>
     <input type="hidden" id="musicPiece" value="{{ music_pieces }}">
+     <div class="results">
+    {% for key in key_possibilities %}
+        {{ key }}
+        {{ key.correlationCoefficient }}
+    {% endfor %}
+    </div>
 {% endblock %}
