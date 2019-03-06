@@ -39,7 +39,7 @@ $(function () {
     });
 
     /* init file upload component */
-     var bar = document.getElementById('js-progressbar');
+    var bar = document.getElementById('js-progressbar');
 
     UIkit.upload('.js-upload', {
 
@@ -125,6 +125,17 @@ function search_corpus() {
 }
 
 
+// show the previously uploaded files in the table
+$(document).ready(function () {
+    let json = JSON.parse(document.getElementById('already_uploaded').textContent);
+    let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "upload");
+    addResultsToTable(json.results, typeOfSelection, "upload");
+
+});
+
+
+
+// adjust all the checkboxes to be in the same state (checked/unchecked) as the one in the table header
 function toggleSelectAll(source) {
     let name = source.name;
     let checkboxes = document.getElementsByName(name);
@@ -183,8 +194,10 @@ function adjustToContextAndFileSource(results, context, fileSource) {
     return typeOfSelection;
 }
 
+
+// display files in the table where they can be chosen for analysis
 function addResultsToTable(results, typeOfSelection, fileSource) {
-    console.log(results);
+    //console.log(results);
     for (let i = 0; i < results.length; i++) {
         let row = "<tr class=" + fileSource + ">\n" +
             '<td><input type="' + typeOfSelection + '" ' +

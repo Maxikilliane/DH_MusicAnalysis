@@ -43,6 +43,7 @@ def search_corpus(request, context):
         data = {"results": result_list, "context": context}
     return JsonResponse(data)
 
+
 # searches for all composers in composer string (separated by space)
 # returns the OR results of the searches
 def get_composer_results(corpus, composer):
@@ -122,29 +123,54 @@ def upload_files(self, request, context):
             default_storage.save(final_path, f)
 
             try:
-                music = m21.converter.parse(os.path.join(MEDIA_ROOT,
-                                                         path))
-                if isinstance(music, m21.stream.Opus):
-                    music = music.mergeScores()
-                data = {'is_valid': True, "upload": {
-                    'composer': convert_none_to_empty_string(music.metadata.composer),
-                    'title': convert_none_to_empty_string(music.metadata.title),
-                    'year': convert_none_to_empty_string(music.metadata.date),
-                    'path': final_path},
-                        'context': context}
-                if context == constants.DISTANT_HEARING:
-                    data["delete_last"] = False
-                else:
-                    data["delete_last"] = True
-                    print(data)
+                data = get_metadata_from_uploaded_files(context, final_path, True)
             except ConverterFileException:
                 data = {"is_valid": False,
                         "error_message": "This file format cannot be parsed. Please try a different one."}
+
+                os.remove(final_path)
+
             except ValueError:
                 data = {"is_valid": False,
                         "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
+                os.remove(final_path)
             return JsonResponse(data)
     else:
         self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
         data = {'is_valid': False}
         return JsonResponse(data)
+
+
+def get_metadata_from_uploaded_files(context, final_path, is_new):
+    music = m21.converter.parse(final_path)
+    if isinstance(music, m21.stream.Opus):
+        music = music.mergeScores()
+    if is_new:
+        data = get_metadata_for_newly_uploaded_files(final_path, context, music)
+    else:
+        data = get_metadata_for_previously_uploaded_files(final_path, context, music)
+    if is_new:
+        if context == constants.DISTANT_HEARING:
+            data["delete_last"] = False
+        else:
+            data["delete_last"] = True
+
+    return data
+
+
+def get_metadata_for_previously_uploaded_files(final_path, context, music):
+    return {'is_valid': True,
+        'composer': convert_none_to_empty_string(music.metadata.composer),
+        'title': convert_none_to_empty_string(music.metadata.title),
+        'year': convert_none_to_empty_string(music.metadata.date),
+        'path': final_path,
+            'context': context}
+
+
+def get_metadata_for_newly_uploaded_files(final_path, context, music):
+    return {'is_valid': True, "upload": {
+        'composer': convert_none_to_empty_string(music.metadata.composer),
+        'title': convert_none_to_empty_string(music.metadata.title),
+        'year': convert_none_to_empty_string(music.metadata.date),
+        'path': final_path},
+            'context': context}
