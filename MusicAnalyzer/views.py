@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from django.shortcuts import render, redirect
 from django.views import View
 from music21.musicxml import m21ToXml
-from music21.stream import Opus
 
 from MusicAnalyzer import constants
 from MusicAnalyzer.choice import upload_files, search_corpus
@@ -135,7 +134,6 @@ class IndividualAnalysis(View):
         chord_information = get_chord_information(parsed_file, key)
         chordified_file = chord_information["chords"]
         parsed_file.insert(0, chordified_file)  # add the chords (and chordified score) to score
-        print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
         context_dict = {"music_pieces": parsed_file,
@@ -285,6 +283,4 @@ def save_plot_to_disk(request, plot):
 def get_key_possibilities(parsed_file):
     key = parsed_file.analyze('key')
     key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
-    for key in key_list:
-        print(key.correlationCoefficient)
     return key_list
