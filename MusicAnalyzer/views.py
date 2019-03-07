@@ -107,6 +107,7 @@ class DistantHearingChoice(Choice):
         self.context_dict["url"] = "MusicAnalyzer:distant_choice"
         self.context_dict["type"] = constants.DISTANT_HEARING
         data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
+        self.context_dict["data"] = data
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
