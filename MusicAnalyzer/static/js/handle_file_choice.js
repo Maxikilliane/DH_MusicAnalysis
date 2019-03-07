@@ -166,7 +166,7 @@ function adjustToContextAndFileSource(results, context, fileSource) {
     let noResultsFlag;
     let typeOfSelection;
     if (fileSource === "search") {
-        $("#t_searchResults tbody tr.search").remove();
+        $("#t_searchResults tbody tr.search td input").not(':checked').parent().parent().remove();
         if (results.length <= 0) {
             noResultsFlag = true;
             showNoSearchResultsMessage();
