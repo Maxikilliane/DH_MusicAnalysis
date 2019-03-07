@@ -7,7 +7,7 @@ from django.views import View
 from music21.musicxml import m21ToXml
 from music21.stream import Opus
 
-from MusicAnalyzer import constants
+from MusicAnalyzer import constants, texts
 from MusicAnalyzer.choice import upload_files, search_corpus
 from MusicAnalyzer.constants import ChordRepresentation
 from MusicAnalyzer.forms import *
@@ -111,10 +111,13 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        music_pieces = access_music_choice_from_cookie(
-            request)  # make this instance variable and only change when updated
+        context_dict = {}
+        context_dict["music_pieces"] = access_music_choice_from_cookie(
+            request)  # make this instance variable and only change when updated?
+        context_dict["explanations"] = texts.distant_hearing_explanations
         # TODO analyse data for at least first tab here
-        return render(request, "MusicAnalyzer/DistantAnalysis.html", {"music_pieces": music_pieces})
+
+        return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
 
 class IndividualAnalysis(View):

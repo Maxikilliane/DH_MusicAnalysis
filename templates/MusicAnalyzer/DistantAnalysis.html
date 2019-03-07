@@ -11,7 +11,68 @@
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     {# add static files here #}
 {% endblock %}
+{% block right_nav_block %}
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#chords">Chords</a></li>
+    <li><a href="#pitches">Pitches</a></li>
+    <li><a href="#durations">Durations</a></li>
+    <li><a href="#key">Key</a></li>
+    <li><a href="#ambitus">Ambitus</a></li>
+{% endblock %}
 
 {% block body_block %}
+    <div id="overview">
+        {% if  explanations %}
+            <h2>Overview</h2>
+            <div class=" uk-text-center" uk-grid>
+                <div class="uk-width-1-3">
+                    <div class="uk-card uk-card-default uk-card-body">
+                        <h2 class="uk-card-title">Chords</h2>
+                        {{ explanations.chords }}
+                    </div>
+                </div>
+                <div class="uk-width-1-3">
+                    <div class="uk-card uk-card-default uk-card-body">
+                        <h2 class="uk-card-title">Pitches</h2>
+                        {{ explanations.pitches }}
+                    </div>
+                </div>
+                <div class="uk-width-1-3">
+                    <div class="uk-card uk-card-default uk-card-body">
+                        <h2 class="uk-card-title">Durations</h2>
+                        {{ explanations.durations }}
+                    </div>
+                </div>
+                <div class="uk-width-1-3">
+                    <div class="uk-card uk-card-default uk-card-body">
+                        <h2 class="uk-card-title">Key</h2>
+                        {{ explanations.key }}
+                    </div>
+                </div>
+                <div class="uk-width-1-3">
+                    <div class="uk-card uk-card-default uk-card-body">
+                        <h2 class="uk-card-title">Ambitus</h2>
+                        {{ explanations.ambitus }}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 
+    <div id="chords">
+        <h2>Chords</h2>
+
+    </div>
+    <div id="pitches">
+        <h2>Pitches</h2>
+    </div>
+    <div id="durations">
+        <h2>Durations</h2>
+    </div>
+    <div id="key">
+        <h2>Key</h2>
+    </div>
+    <div id="ambitus">
+        <h2>Ambitus</h2>
+    </div>
 {% endblock %}

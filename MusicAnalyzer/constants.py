@@ -17,8 +17,6 @@ CHOSEN_MUSIC_COOKIE = "chosen_music"
 PARSED_FILE_COOKIE = "parsed_file"
 
 # analysis
-
-
 class ChordRepresentation(Enum):
     roman = 1
     chord_name = 2

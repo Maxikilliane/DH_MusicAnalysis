@@ -13,7 +13,7 @@
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <!-- own CSS -->
-    <link rel="icon" href="{% static "/images/favicon.png" %}" type="image/png" />
+    <link rel="icon" href="{% static "/images/favicon.png" %}" type="image/png"/>
     <link rel="stylesheet" type="text/css" href="{% static "/css/base.css" %}"/>
     {% block head_block %}{% endblock %}
 </head>
@@ -21,14 +21,20 @@
 <header>
     <div class="uk-position-top">
         <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
-        <nav class="uk-navbar-container uk-navbar-default" uk-navbar>
-            <div class="uk-navbar-left">
-                <ul class="uk-navbar-nav">
+            <nav class="uk-navbar-container uk-navbar-default" uk-navbar>
+                <div class="uk-navbar-left">
+                    <ul class="uk-navbar-nav">
 
-                    <li style="width:20%;"><a href="{% url 'MusicAnalyzer:index' %}"><img style="padding-bottom: 2em;" src="{% static "/images/logo.png" %}" alt="logo"></a></li>
-                </ul>
-            </div>
-        </nav>
+                        <li style="width:20%;"><a href="{% url 'MusicAnalyzer:index' %}"><img
+                                style="padding-bottom: 2em;" src="{% static "/images/logo.png" %}" alt="logo"></a></li>
+                    </ul>
+                </div>
+                <div class="uk-navbar-right">
+                    <ul class="uk-navbar-nav">
+                        {% block right_nav_block %}{% endblock %}
+                    </ul>
+                </div>
+            </nav>
         </div>
     </div>
 </header>
