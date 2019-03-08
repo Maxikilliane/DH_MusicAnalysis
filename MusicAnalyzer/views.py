@@ -135,6 +135,11 @@ class IndividualAnalysis(View):
         context_dict = {"music_pieces": parsed_file, "analysis_form": analysis_form}
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
 
+    def post(self, request):
+        print(request.is_ajax())
+        if request.is_ajax():
+            return JsonResponse({"result": "success"})
+
 
 def search_corpus(request, context):
     free_search = request.POST.get("free_search", "")

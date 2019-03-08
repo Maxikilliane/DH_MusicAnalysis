@@ -13,6 +13,7 @@
     {# add static files here #}
     <link rel="stylesheet" type="text/css" href="{% static "/css/individualAnalysis.css" %}"/>
     <script src="{% static 'js/ui_kit_styling.js' %}"></script>
+    <script src="{% static 'js/ajax_analysis_communication.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
@@ -22,12 +23,14 @@
             {#            <h3>Test Überschrift</h3>#}
 
             {% if analysis_form %}
-                <form action="/MusicAnalyzer/IndividualAnalysis/" method="post" class="uk-form-stacked">
+                <form id="individual_analysis_form" action="/MusicAnalyzer/individualAnalysis/"
+                      method="post"
+                      data-analysis-choice-url="/MusicAnalyzer/individualAnalysis/"
+                      class="uk-form-stacked">
                     {% csrf_token %}
                     <div class="uk-margin">
                     <div class="question">
                         {% for field in analysis_form.visible_fields %}
-
                                 {{ field.errors }}
                             <div class="uk-form-label">{{ field.label }}</div>
                                {{ field.help_text }}
@@ -35,8 +38,9 @@
                         {% endfor %}
                     </div>
                     </div>
-                <input class="button" type="submit" name="analyzeChoice" value="Analyze"/>
                 </form>
+                <button id="individual_analysis_button" class="uk-button uk-button-default" onclick="start_analysis(event)">Analyse</button>
+
             {% endif %}
 
         <!-- use django forms!
