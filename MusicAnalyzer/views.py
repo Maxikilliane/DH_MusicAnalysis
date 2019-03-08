@@ -130,7 +130,10 @@ class IndividualAnalysis(View):
         print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
-        return render(request, "MusicAnalyzer/IndividualAnalysis.html", {"music_pieces": parsed_file})
+
+        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
+        context_dict = {"music_pieces": parsed_file, "analysis_form": analysis_form}
+        return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
 
 
 def search_corpus(request, context):

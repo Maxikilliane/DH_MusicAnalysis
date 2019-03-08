@@ -1,5 +1,6 @@
 {% extends 'MusicAnalyzer/Base.html' %}
 {% load staticfiles %}
+{% load customFilters %}
 {% block title %}{{ title }}{% endblock %}
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
@@ -10,13 +11,35 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     {# add static files here #}
+    <link rel="stylesheet" type="text/css" href="{% static "/css/individualAnalysis.css" %}"/>
+    <script src="{% static 'js/ui_kit_styling.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
     <div class="space-m uk-align-center uk-width-1-1 uk-width-1-2@m"
          style="margin-top: 6em;">
         <div class="uk-padding">
-{#            <h3>Test Überschrift</h3>#}
+            {#            <h3>Test Überschrift</h3>#}
+
+            {% if analysis_form %}
+                <form action="/MusicAnalyzer/IndividualAnalysis/" method="post" class="uk-form-stacked">
+                    {% csrf_token %}
+                    <div class="uk-margin">
+                    <div class="question">
+                        {% for field in analysis_form.visible_fields %}
+
+                                {{ field.errors }}
+                            <div class="uk-form-label">{{ field.label }}</div>
+                               {{ field.help_text }}
+                            <div class="uk-form-controls">{{ field }}</div>
+                        {% endfor %}
+                    </div>
+                    </div>
+                <input class="button" type="submit" name="analyzeChoice" value="Analyze"/>
+                </form>
+            {% endif %}
+
+        <!-- use django forms!
             <form class="uk-form-stacked">
                 <div class="uk-margin">
                     <div class="uk-form-label">Choose metrics to analyse:</div>
@@ -31,6 +54,7 @@
                     </div>
                 </div>
             </form>
+ -->
             {#            <form class="uk-form-stacked">#}
             {#                <div class="uk-margin"> #}
             {#                    <div class="uk-form-label">Radio</div>#}
