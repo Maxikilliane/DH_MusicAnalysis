@@ -22,13 +22,13 @@ class SearchForm(forms.Form):
 
 
 class IndividualAnalysisForm(forms.Form):
-    analysis_choices = [(Analysis.chords, 'chords'),
-                        (Analysis.intervals, 'intervals'),
-                        (Analysis.leading_notes, 'leading notes'),
-                        (Analysis.ambitus, 'ambitus'),
-                        (Analysis.key, 'key')
+    analysis_choices = [(Analysis.chords.value, 'chords'),
+                        (Analysis.intervals.value, 'intervals'),
+                        (Analysis.leading_notes.value, 'leading notes'),
+                        (Analysis.ambitus.value, 'ambitus'),
+                        (Analysis.key.value, 'key')
                         ]
-    individual_analysis = forms.MultipleChoiceField(choices = analysis_choices,
+    individual_analysis = forms.TypedMultipleChoiceField(choices = analysis_choices, coerce=int,
                                                     label="Choose metrics to analyse:",
                                                     widget=forms.CheckboxSelectMultiple)
 

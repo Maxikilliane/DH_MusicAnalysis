@@ -32,7 +32,7 @@
                     <div class="question">
                         {% for field in analysis_form.visible_fields %}
                                 {{ field.errors }}
-                            <div class="uk-form-label">{{ field.label }}</div>
+                            <div>{{ field.label }}</div>
                                {{ field.help_text }}
                             <div class="uk-form-controls">{{ field }}</div>
                         {% endfor %}

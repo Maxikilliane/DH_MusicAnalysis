@@ -14,7 +14,8 @@ function start_analysis(event) {
         success: function (json) {
             UIkit.notification.closeAll();
             console.log("success")
-            /*console.log(json);
+            console.log(json);
+            /*
             if (json.error) {
                 console.log(json.error);
             } else {
@@ -26,8 +27,6 @@ function start_analysis(event) {
         error: function (xhr, errmsg, err) {
             UIkit.notification.closeAll();
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-            console.log(errmsg);
-            console.log(err);
         }
     });
 
