@@ -1,14 +1,16 @@
 import os
+from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 
 import matplotlib.pyplot as plt
 from django.shortcuts import render, redirect
 from django.views import View
+from music21.converter import ConverterFileException
 from music21.musicxml import m21ToXml
 from music21.stream import Opus
 
 from MusicAnalyzer import constants
-from MusicAnalyzer.choice import upload_files, search_corpus
+from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files
 from MusicAnalyzer.constants import ChordRepresentation
 from MusicAnalyzer.forms import *
 import music21 as m21
@@ -88,6 +90,8 @@ class IndividualChoice(Choice):
         super(IndividualChoice, self).get(request)
         self.context_dict["url"] = "MusicAnalyzer:individual_choice"
         self.context_dict["type"] = constants.INDIVIDUAL
+        data = get_already_uploaded_files(request, constants.INDIVIDUAL)
+        self.context_dict["data"] = data
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -102,6 +106,8 @@ class DistantHearingChoice(Choice):
         super(DistantHearingChoice, self).get(request)
         self.context_dict["url"] = "MusicAnalyzer:distant_choice"
         self.context_dict["type"] = constants.DISTANT_HEARING
+        data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
+        self.context_dict["data"] = data
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -133,7 +139,7 @@ class IndividualAnalysis(View):
         chord_information = get_chord_information(parsed_file, key)
         chordified_file = chord_information["chords"]
         parsed_file.insert(0, chordified_file)  # add the chords (and chordified score) to score
-        print(parsed_file)
+
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
         context_dict = {"music_pieces": parsed_file,
@@ -200,6 +206,30 @@ def get_source_dependant_prefix(source):
         return "path_search__"
     else:
         return "path__"
+
+
+def get_already_uploaded_files(request, context):
+    path = os.path.join(settings.MEDIA_ROOT, request.session.session_key)
+    file_names = [os.path.join(path, file) for file in os.listdir(path) if isfile(os.path.join(path, file))]
+
+    data = {}
+    results = []
+    for path in file_names:
+        try:
+            result = get_metadata_from_uploaded_files(context, path, False)
+            results.append(result)
+
+        except ConverterFileException:
+            data.update({"is_valid": False,
+                         "error_message": "This file format cannot be parsed. Please try a different one."})
+            os.remove(path)
+        except ValueError:
+            data.update({"is_valid": False,
+                         "error_message": "Something went wrong with the file upload. Perhaps your file is broken."})
+            os.remove(path)
+    data["results"] = results
+    data["context"] = context
+    return data
 
 
 def transform_music_source_to_dict(path, number, file_source):
