@@ -1,3 +1,5 @@
+from enum import Enum
+
 DISTANT_HEARING = "distant"
 INDIVIDUAL = "individual"
 
@@ -12,3 +14,12 @@ STATE_SELECT_FOR_ANALYSIS = "select_for_analysis"
 # Cookie names
 CHOSEN_MUSIC_COOKIE = "chosen_music"
 PARSED_FILE_COOKIE = "parsed_file"
+
+
+class Analysis(Enum):
+    chords = 1
+    intervals = 2
+    leading_notes = 3
+    ambitus = 4
+    key = 5
+    pitches = 6

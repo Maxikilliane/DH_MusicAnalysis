@@ -49,7 +49,6 @@ class Choice(View):
             selecteds = request.POST.getlist("music_piece", None)
             if selecteds is not None:
                 music_pieces_list = []
-                parsed_file = {}
                 for select in selecteds:
                     if select == "select all":
                         continue
@@ -78,10 +77,6 @@ class Choice(View):
                  #   save_parsed_file_to_cookie(request, parsed_file)
                   #  return redirect("MusicAnalyzer:individual_analysis")
 
-
-
-                #HttpResponse("Todo: process analysis here: " + str(
-                #request.POST.get("music_piece", "")))  # TODO: delete this once more implemented
         else:
             return upload_files(self, request, context)
 
@@ -130,7 +125,31 @@ class IndividualAnalysis(View):
         print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
-        return render(request, "MusicAnalyzer/IndividualAnalysis.html", {"music_pieces": parsed_file})
+
+        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
+        context_dict = {"music_pieces": parsed_file, "analysis_form": analysis_form}
+        return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
+
+    def post(self, request):
+        if request.is_ajax():
+            analysis_form = IndividualAnalysisForm(request.POST, prefix="analysis_choice")
+            if analysis_form.is_valid():
+                chosen = analysis_form.cleaned_data.get('individual_analysis', [])
+                if Analysis.chords.value in chosen:
+                    print("analysing chords")
+
+                if Analysis.intervals.value in chosen:
+                    print("analysing intervals")
+
+                if Analysis.leading_notes.value in chosen:
+                    print("analysing leading notes")
+
+                if Analysis.ambitus.value in chosen:
+                    print("analysing ambitus")
+
+                if Analysis.key.value in chosen:
+                    print("analysing key")
+                return JsonResponse({"result": "success"})
 
 
 def search_corpus(request, context):
