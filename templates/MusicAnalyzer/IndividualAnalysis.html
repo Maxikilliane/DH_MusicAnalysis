@@ -1,5 +1,6 @@
 {% extends 'MusicAnalyzer/Base.html' %}
 {% load staticfiles %}
+{% load customFilters %}
 {% block title %}{{ title }}{% endblock %}
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
@@ -10,6 +11,9 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     {# add static files here #}
+    <link rel="stylesheet" type="text/css" href="{% static "/css/individualAnalysis.css" %}"/>
+    <script src="{% static 'js/ui_kit_styling.js' %}"></script>
+    <script src="{% static 'js/ajax_analysis_communication.js' %}"></script>
 {% endblock %}
 {% block zoom_nav_block %}
  <div class="uk-navbar-right">
@@ -33,9 +37,62 @@
 {% endblock %}
 
 {% block body_block %}
-    <div class="column">
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-1-2@m"
+         style="margin-top: 6em;">
+        <div class="uk-padding">
+            {#            <h3>Test Überschrift</h3>#}
+
+            {% if analysis_form %}
+                <form id="individual_analysis_form" action="/MusicAnalyzer/individualAnalysis/"
+                      method="post"
+                      data-analysis-choice-url="/MusicAnalyzer/individualAnalysis/"
+                      class="uk-form-stacked">
+                    {% csrf_token %}
+                    <div class="uk-margin">
+                    <div class="question">
+                        {% for field in analysis_form.visible_fields %}
+                                {{ field.errors }}
+                            <div>{{ field.label }}</div>
+                               {{ field.help_text }}
+                            <div class="uk-form-controls">{{ field }}</div>
+                        {% endfor %}
+                    </div>
+                    </div>
+                </form>
+                <button id="individual_analysis_button" class="uk-button uk-button-default" onclick="start_analysis(event)">Analyse</button>
+
+            {% endif %}
+
+        <!-- use django forms!
+            <form class="uk-form-stacked">
+                <div class="uk-margin">
+                    <div class="uk-form-label">Choose metrics to analyse:</div>
+                    <div class="uk-form-controls">
+                        <label><input class="uk-checkbox" type="checkbox"> chords</label>
+                        <br>
+                        <label><input class="uk-checkbox" type="checkbox"> intervals</label>
+                        <br>
+                        <label><input class="uk-checkbox" type="checkbox"> leading notes</label>
+                        <br>
+                        <label><input class="uk-checkbox" type="checkbox"> key</label>
+                    </div>
+                </div>
+            </form>
+ -->
+            {#            <form class="uk-form-stacked">#}
+            {#                <div class="uk-margin"> #}
+            {#                    <div class="uk-form-label">Radio</div>#}
+            {#                    <div class="uk-form-controls">#}
+            {#                        <label><input class="uk-checkbox" type="checkbox">A</label>#}
+            {#                        <br>#}
+            {#                        <label><input class="uk-checkbox" type="checkbox">B</label>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#            </form>#}
+        </div>
     </div>
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
+
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-1-2@m"
          style="background: #f2f7fc; border: 1px solid #ddd; margin-top: 6em;">
         <div class="uk-padding" id="osmdCanvas"></div>
     </div>
