@@ -62,41 +62,11 @@
                 <button id="individual_analysis_button" class="uk-button uk-button-default" onclick="start_analysis(event)">Analyse</button>
 
             {% endif %}
-
-        <!-- use django forms!
-            <form class="uk-form-stacked">
-                <div class="uk-margin">
-                    <div class="uk-form-label">Choose metrics to analyse:</div>
-                    <div class="uk-form-controls">
-                        <label><input class="uk-checkbox" type="checkbox"> chords</label>
-                        <br>
-                        <label><input class="uk-checkbox" type="checkbox"> intervals</label>
-                        <br>
-                        <label><input class="uk-checkbox" type="checkbox"> leading notes</label>
-                        <br>
-                        <label><input class="uk-checkbox" type="checkbox"> key</label>
-                    </div>
-                </div>
-            </form>
- -->
-            {#            <form class="uk-form-stacked">#}
-            {#                <div class="uk-margin"> #}
-            {#                    <div class="uk-form-label">Radio</div>#}
-            {#                    <div class="uk-form-controls">#}
-            {#                        <label><input class="uk-checkbox" type="checkbox">A</label>#}
-            {#                        <br>#}
-            {#                        <label><input class="uk-checkbox" type="checkbox">B</label>#}
-            {#                    </div>#}
-            {#                </div>#}
-            {#            </form>#}
         </div>
     </div>
-
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-1-2@m"
-         style="background: #f2f7fc; border: 1px solid #ddd; margin-top: 6em;">
-        <div class="uk-padding" id="osmdCanvas"></div>
+    <div class="musicPiece">
+     {% include 'MusicAnalyzer\music_piece.html' %}
     </div>
-    <input type="hidden" id="musicPiece" value="{{ music_pieces }}">
      <div class="results">
     {% for key in key_possibilities %}
         {{ key }}

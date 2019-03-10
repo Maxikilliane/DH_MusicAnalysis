@@ -2,7 +2,8 @@ import os
 from pathlib import WindowsPath, PosixPath
 
 import matplotlib.pyplot as plt
-from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, render_to_response
 from django.views import View
 from music21.musicxml import m21ToXml
 
@@ -117,6 +118,7 @@ class DistantAnalysis(View):
 
 
 class IndividualAnalysis(View):
+    context_dict = {}
 
     def get(self, request):
         # parsed_file = access_save_parsed_file_from_cookie(request)
@@ -128,16 +130,29 @@ class IndividualAnalysis(View):
         parsed_file = gex.parse(parsed_file).decode('utf-8')
 
         analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
-        context_dict = {"music_pieces": parsed_file, "analysis_form": analysis_form}
-        return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
+        self.context_dict.update({"music_piece": parsed_file, "analysis_form": analysis_form})
+        #return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
+        return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
         if request.is_ajax():
             analysis_form = IndividualAnalysisForm(request.POST, prefix="analysis_choice")
             if analysis_form.is_valid():
+                choice = access_music_choice_from_cookie(request)
+                parsed_file = parse_file(choice.get("path", ""), choice.get("number", None),
+                                         choice.get("file_source", None))
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
+                keys = get_key_possibilities(parsed_file)
+                key = keys[0]
+
                 if Analysis.chords.value in chosen:
                     print("analysing chords")
+                    chord_information = get_chord_information(parsed_file, key)
+                    chordified_file = chord_information["chords"]
+                    parsed_file.insert(0, chordified_file)  # add chords to music
+                    self.context_dict.update({"chord_names": chord_information["chord_name_count"],
+                                              "chord_qualities": chord_information["chord_quality_count"],
+                                              "chord_roots": chord_information["chord_root_count"]})
 
                 if Analysis.intervals.value in chosen:
                     print("analysing intervals")
@@ -150,26 +165,19 @@ class IndividualAnalysis(View):
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
-                return JsonResponse({"result": "success"})
+                    self.context_dict["key_possibilities"]= keys
+
+                gex = m21ToXml.GeneralObjectExporter()
+                parsed_file = gex.parse(parsed_file).decode('utf-8')
+                self.context_dict['music_piece'] = parsed_file
+                print("test")
+                print(self.context_dict)
+                return render_to_response('MusicAnalyzer\music_piece.html', self.context_dict)
+                #return JsonResponse({"result": "success"})
 
         # TODO: get info from form (transmitted via AJAX) which chord representation is wanted
 
-        keys = get_key_possibilities(parsed_file)
-        key = keys[0]
-
-
-        chord_information = get_chord_information(parsed_file, key)
-        chordified_file = chord_information["chords"]
-        parsed_file.insert(0, chordified_file)  # add the chords (and chordified score) to score
-        gex = m21ToXml.GeneralObjectExporter()
-        parsed_file = gex.parse(parsed_file).decode('utf-8')
-        context_dict = {"music_pieces": parsed_file,
-                        "chord_names": chord_information["chord_name_count"],
-                        "chord_qualities": chord_information["chord_quality_count"],
-                        "chord_roots": chord_information["chord_root_count"],
-                        "key_possibilities": keys
-                        }
-        return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
+                #return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
 
 # was necessary due to bug before rebuild of core corpus under windows
