@@ -2,3 +2,11 @@
     list-style: none;
 }
 
+#zoomBox {
+    z-index: 980;
+}
+
+#analysisChoiceForm {
+    margin-top: 3em;
+}
+

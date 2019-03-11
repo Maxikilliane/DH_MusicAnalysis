@@ -6,7 +6,7 @@
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
 
-    <script src="{% static 'js/fileSelectAndLoadOSMD.js' %}"></script>
+    <script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
     {# fontawesome for icons #}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -17,7 +17,7 @@
 {% endblock %}
 {% block body_block %}
     <div>
-        <div style="z-index: 980;" uk-sticky="offset: 100;">
+        <div id="zoomBox" uk-sticky="offset: 100;">
             <div class="uk-align-right">
                 <i id="zoom-in-btn"
                    class="fas fa-search-plus fa-2x"></i>
@@ -28,8 +28,7 @@
             </div>
         </div>
     </div>
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
-         style="margin-top: 6em;">
+    <div id="analysisChoiceForm" class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <div class="uk-padding">
             {#            <h3>Test Überschrift</h3>#}
 
@@ -59,7 +58,7 @@
     </div>
 
     <div class="musicPiece">
-     {% include 'MusicAnalyzer/music_piece.html' %}
+     {% include 'MusicAnalyzer/MusicPiece.html' %}
     </div>
      <div class="results">
     {% for key in key_possibilities %}
