@@ -22,3 +22,13 @@ PARSED_FILE_COOKIE = "parsed_file"
 class ChordRepresentation(Enum):
     roman = 1
     chord_name = 2
+
+class Analysis(Enum):
+    chords = 1
+    intervals = 2
+    leading_notes = 3
+    ambitus = 4
+    key = 5
+    pitches = 6
+
+

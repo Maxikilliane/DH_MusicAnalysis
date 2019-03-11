@@ -20,7 +20,8 @@
     {{ message }}
     <div class="uk-child-width-expand@s" uk-grid>
         <div class="uk-container">
-            <h3 class="uk-text-center">Select your own file <span class="uk-icon-button" uk-icon="question"  uk-tooltip="title: Valid file formats are: <br> ABC (.abc), Capella (.cap), ClercqTemperley, Humdrum (.krn), MEI (.mei), Midi (.midi), MuseData (.md), MusicXML (.musicxml/.mxl), Noteworthy (.nwc), NoteworthyBinary, RomanText (.rtf), Scala (.scl), TinyNotation and Volpiano.;">
+            <h3 class="uk-text-center">Select your own file <span class="uk-icon-button" uk-icon="question"
+                                                                  uk-tooltip="title: Valid file formats are: <br> ABC (.abc), Capella (.cap), ClercqTemperley, Humdrum (.krn), MEI (.mei), Midi (.midi), MuseData (.md), MusicXML (.musicxml/.mxl), Noteworthy (.nwc), NoteworthyBinary, RomanText (.rtf), Scala (.scl), TinyNotation and Volpiano.;">
 
             </span></h3>
 
@@ -69,7 +70,7 @@
     </div>
     <div id="searchResults" class="invisible uk-grid uk-child-width-1-1">
         <hr class="uk-divider-icon">
-        <div class="uk-container .uk-align-center">
+        <div class="uk-container uk-align-center">
 
             <form id="select_to_analyse_form" method="post"
                     {% if type == "distant" %}
@@ -78,12 +79,11 @@
                     {% elif type == "individual" %}
                   action="{% url 'MusicAnalyzer:individual_choice' %}"
                   data-search-corpus-url="{% url 'MusicAnalyzer:individual_choice' %}"
-                    {% endif %}
-            >
+                    {% endif %}>
                 {% csrf_token %}
                 <input type="hidden" name="state" value="select_for_analysis"/>
                 <div class="uk-flex uk-flex-center">
-                    <button class="uk-button uk-button-default" style="margin:2em;" type="submit"><i
+                    <button class="uk-button uk-button-default uk-align-center" style="margin:2em;" type="submit"><i
                             class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
                     </button>
@@ -93,7 +93,8 @@
                     <tr>
                         <th>
                             {% if type == "distant" %}
-                                <input type="checkbox" class="uk-checkbox" name="music_piece" id="select_all_music_pieces"
+                                <input type="checkbox" class="uk-checkbox" name="music_piece"
+                                       id="select_all_music_pieces"
                                        value="select all" class="invisible" onclick="toggleSelectAll(this)">
                             {% elif type == "individual" %}
                                 <a type="button" id="deselect_all_music_pieces"
