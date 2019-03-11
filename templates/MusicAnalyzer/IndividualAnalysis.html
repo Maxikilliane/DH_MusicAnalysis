@@ -49,6 +49,17 @@
                             {% endfor %}
                         </div>
                     </div>
+
+                    {% if key_form %}
+                        <div class="question">
+                        {% for field in key_form.visible_fields %}
+                            {{ field.errors }}
+                            <div>{{ field.label }}</div>
+                            {{ field.help_text }}
+                            <div class="uk-form-controls">{{ field }}</div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
                 </form>
                 <button id="individual_analysis_button" class="uk-button uk-button-default"
                         onclick="start_analysis(event)">Analyse
@@ -59,12 +70,12 @@
     </div>
 
     <div class="musicPiece">
-     {% include 'MusicAnalyzer/music_piece.html' %}
+        {% include 'MusicAnalyzer/music_piece.html' %}
     </div>
-     <div class="results">
-    {% for key in key_possibilities %}
-        {{ key }}
-        {{ key.correlationCoefficient }}
-    {% endfor %}
+    <div class="results">
+        {% for key in key_possibilities %}
+            {{ key }}
+            {{ key.correlationCoefficient }}
+        {% endfor %}
     </div>
 {% endblock %}

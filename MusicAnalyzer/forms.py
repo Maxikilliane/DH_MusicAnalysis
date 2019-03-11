@@ -28,11 +28,25 @@ class IndividualAnalysisForm(forms.Form):
                         (Analysis.ambitus.value, 'ambitus'),
                         (Analysis.key.value, 'key')
                         ]
-    individual_analysis = forms.TypedMultipleChoiceField(choices = analysis_choices, coerce=int,
-                                                    label="Choose metrics to analyse:",
-                                                    widget=forms.CheckboxSelectMultiple)
+    individual_analysis = forms.TypedMultipleChoiceField(choices=analysis_choices, coerce=int,
+                                                         label="Choose metrics to analyse:",
+                                                         widget=forms.CheckboxSelectMultiple)
 
 
+class KeyForm(forms.Form):
+    key_choice = forms.ChoiceField(label="Choose which key you want to use:", widget=forms.RadioSelect)
 
-class KeyFrom(forms.Form):
-    pass
+    def __init__(self, key_list, *args, **kwargs):
+        super(KeyForm, self).__init__(*args, **kwargs)
+        self.fields['key_choice'] = forms.ChoiceField(choices=self.get_key_choices(key_list),
+                                                      widget=forms.RadioSelect,
+                                                      label="Choose which key you want to use:")
+
+    # get choices for key_choice_form
+    def get_key_choices(self, key_list):
+        key_choices = []
+        for key in key_list:
+            user_representation = str(key) + " (" + str(round(key.correlationCoefficient, 4)) + ")"
+            key_choices.append((key.tonicPitchNameWithCase, user_representation))
+            print(key_choices)
+        return key_choices

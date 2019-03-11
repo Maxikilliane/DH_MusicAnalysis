@@ -131,12 +131,16 @@ class IndividualAnalysis(View):
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
-        print(parsed_file)
+        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
+        keys = get_key_possibilities(parsed_file)
+        key_form = KeyForm(keys, prefix="key")
+
+
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
 
-        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
-        self.context_dict.update({"music_piece": parsed_file, "analysis_form": analysis_form})
+
+        self.context_dict.update({"music_piece": parsed_file, "analysis_form": analysis_form, "key_form": key_form})
         #return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
@@ -149,6 +153,7 @@ class IndividualAnalysis(View):
                                          choice.get("file_source", None))
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
                 keys = get_key_possibilities(parsed_file)
+                keyform = KeyForm(prefix="key")
                 key = keys[0]
 
                 if Analysis.chords.value in chosen:
@@ -349,3 +354,4 @@ def get_key_possibilities(parsed_file):
     key = parsed_file.analyze('key')
     key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
     return key_list
+
