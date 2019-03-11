@@ -15,7 +15,6 @@
     <script src="{% static 'js/ui_kit_styling.js' %}"></script>
     <script src="{% static 'js/ajax_analysis_communication.js' %}"></script>
 {% endblock %}
-
 {% block body_block %}
     <div>
         <div style="z-index: 980;" uk-sticky="offset: 100;">
@@ -29,7 +28,7 @@
             </div>
         </div>
     </div>
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-1-2@m"
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
          style="margin-top: 6em;">
         <div class="uk-padding">
             {#            <h3>Test Überschrift</h3>#}
@@ -58,9 +57,14 @@
             {% endif %}
         </div>
     </div>
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
-         style="background: #f2f7fc; border: 1px solid #ddd; margin-top: 6em;">
-        <div class="uk-padding" id="osmdCanvas"></div>
+
+    <div class="musicPiece">
+     {% include 'MusicAnalyzer/music_piece.html' %}
     </div>
-    <input type="hidden" id="musicPiece" value="{{ music_pieces }}">
+     <div class="results">
+    {% for key in key_possibilities %}
+        {{ key }}
+        {{ key.correlationCoefficient }}
+    {% endfor %}
+    </div>
 {% endblock %}
