@@ -73,9 +73,6 @@
         {% include 'MusicAnalyzer/music_piece.html' %}
     </div>
     <div class="results">
-        {% for key in key_possibilities %}
-            {{ key }}
-            {{ key.correlationCoefficient }}
-        {% endfor %}
+
     </div>
 {% endblock %}

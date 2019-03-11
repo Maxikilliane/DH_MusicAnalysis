@@ -135,13 +135,11 @@ class IndividualAnalysis(View):
         keys = get_key_possibilities(parsed_file)
         key_form = KeyForm(keys, prefix="key")
 
-
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
 
-
         self.context_dict.update({"music_piece": parsed_file, "analysis_form": analysis_form, "key_form": key_form})
-        #return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
+        # return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
@@ -153,8 +151,19 @@ class IndividualAnalysis(View):
                                          choice.get("file_source", None))
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
                 keys = get_key_possibilities(parsed_file)
-                keyform = KeyForm(prefix="key")
+                key_form = KeyForm(keys, request.POST, prefix="key")
                 key = keys[0]
+
+                if Analysis.key.value in chosen:
+                    print("analysing key")
+                    if key_form.is_valid():
+                        chosen_key = key_form.cleaned_data.get("key_choice", "")
+                        key = m21.key.Key(chosen_key)
+                    else:
+                        pass
+                        #TODO error handling
+
+
 
                 if Analysis.chords.value in chosen:
                     print("analysing chords")
@@ -174,21 +183,18 @@ class IndividualAnalysis(View):
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
 
-                if Analysis.key.value in chosen:
-                    print("analysing key")
-                    self.context_dict["key_possibilities"]= keys
-
                 gex = m21ToXml.GeneralObjectExporter()
                 parsed_file = gex.parse(parsed_file).decode('utf-8')
                 self.context_dict['music_piece'] = parsed_file
                 print("test")
                 print(self.context_dict)
                 return render_to_response('MusicAnalyzer\music_piece.html', self.context_dict)
-                #return JsonResponse({"result": "success"})
-
+                # return JsonResponse({"result": "success"})
+            else:
+                print(analysis_form.errors)
         # TODO: get info from form (transmitted via AJAX) which chord representation is wanted
 
-                #return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
+        # return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
 
 # was necessary due to bug before rebuild of core corpus under windows
@@ -354,4 +360,3 @@ def get_key_possibilities(parsed_file):
     key = parsed_file.analyze('key')
     key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
     return key_list
-

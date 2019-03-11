@@ -53,6 +53,6 @@ class KeyForm(forms.Form):
                 key_name = key_name[:1] + sign + key_name[2:]
             key_name.replace("-", "b")
             user_representation = key_name + " (" + str(round(key.correlationCoefficient, 4)) + ")"
-            key_choices.append((key.name, user_representation))
+            key_choices.append((key.tonicPitchNameWithCase, user_representation))
 
         return key_choices
