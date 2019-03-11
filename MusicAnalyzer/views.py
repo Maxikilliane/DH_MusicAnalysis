@@ -178,7 +178,7 @@ class IndividualAnalysis(View):
                 self.context_dict['music_piece'] = parsed_file
                 print("test")
                 print(self.context_dict)
-                return render_to_response('MusicAnalyzer\music_piece.html', self.context_dict)
+                return render_to_response('MusicAnalyzer/MusicPiece.html', self.context_dict)
                 #return JsonResponse({"result": "success"})
 
         # TODO: get info from form (transmitted via AJAX) which chord representation is wanted
