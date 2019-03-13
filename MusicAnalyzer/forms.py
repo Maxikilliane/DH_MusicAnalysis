@@ -1,6 +1,6 @@
 from django import forms
 
-from MusicAnalyzer.constants import Analysis
+from MusicAnalyzer.constants import Analysis, ChordRepresentation
 
 
 class MultipleFilesForm(forms.Form):
@@ -28,11 +28,19 @@ class IndividualAnalysisForm(forms.Form):
                         (Analysis.ambitus.value, 'ambitus'),
                         (Analysis.key.value, 'key')
                         ]
-    individual_analysis = forms.TypedMultipleChoiceField(choices = analysis_choices, coerce=int,
-                                                    label="Choose metrics to analyse:",
-                                                    widget=forms.CheckboxSelectMultiple)
-
+    individual_analysis = forms.TypedMultipleChoiceField(choices=analysis_choices, coerce=int,
+                                                         label="Choose metrics to analyse:",
+                                                         widget=forms.CheckboxSelectMultiple)
 
 
 class KeyFrom(forms.Form):
     pass
+
+
+class ChordRepresentationForm(forms.Form):
+    representation_choices = [(ChordRepresentation.roman.value, 'roman numerals'),
+                              (ChordRepresentation.chord_name.value, 'chord names'),
+                              ]
+    chord_representation = forms.TypedChoiceField(choices=representation_choices, coerce=int,
+                                                  label="Choose the type of chord representation:",
+                                                  widget=forms.RadioSelect, required=False)
