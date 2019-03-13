@@ -17,8 +17,10 @@
 {% endblock %}
 {% block body_block %}
     <ul class="uk-breadcrumb">
-        <li><a href="{% url 'MusicAnalyzer:individual_choice' %}"><span uk-icon="icon: arrow-left; ratio: 2"></span></a></li>
+        <li><a href="{% url 'MusicAnalyzer:individual_choice' %}">Individual Choice</a></li>
+        <li><span>Individual Analysis</span></li>
     </ul>
+
         <div id="zoomBox" uk-sticky="bottom: #offset">
             <div class="uk-position-right inZoomBox">
                 <i id="zoom-in-btn"
