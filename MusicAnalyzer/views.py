@@ -297,10 +297,11 @@ def get_ambitus_for_display(stream, gex):
     print("test 1")
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
-
-    display.append(m21.note.Note(ambitus["pitches"][0]))
-    display.append(m21.note.Note(ambitus["pitches"][1]))
-
+    display_part = m21.stream.Part()
+    display_part.partName = " "
+    display_part.append(m21.note.Note(ambitus["pitches"][0]))
+    display_part.append(m21.note.Note(ambitus["pitches"][1]))
+    display.append(display_part)
     display.insert(0, m21.metadata.Metadata())
     display.metadata.title = ambitus["interval"].directedNiceName
     display.metadata.alternativeTitle = ""
