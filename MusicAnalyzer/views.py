@@ -1,4 +1,5 @@
 import os
+import re
 from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 
@@ -119,7 +120,10 @@ class DistantAnalysis(View):
     def get(self, request):
         music_pieces = access_music_choice_from_cookie(
             request)  # make this instance variable and only change when updated
-        # TODO analyse data for at least first tab here
+        for music_piece in music_pieces:
+            # TODO analyse data for at least first tab here
+            pass
+
         return render(request, "MusicAnalyzer/DistantAnalysis.html", {"music_pieces": music_pieces})
 
 
@@ -181,7 +185,7 @@ class IndividualAnalysis(View):
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
-                    self.context_dict["key_possibilities"]= keys
+                    self.context_dict["key_possibilities"] = keys
 
                 gex = m21ToXml.GeneralObjectExporter()
                 parsed_file = gex.parse(parsed_file).decode('utf-8')
@@ -317,7 +321,9 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
             chords_names[chord.pitchedCommonName] += 1
         else:
             chords_names[chord.pitchedCommonName] = 1
-        chord.addLyric(get_chord_representation(chord, key, type_of_representation))
+        lyric_parts = get_chord_representation(chord, key, type_of_representation)
+        for part in lyric_parts:
+            chord.addLyric(part)
 
         if root in chords_roots:
             chords_roots[root] += 1
@@ -334,14 +340,21 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
 # ideally this is something like Am, C7 or similiar
 # if chord symbol cannot be identified, get a more verbose name
 def get_chord_representation(chord, key, representation_type):
-    if representation_type == ChordRepresentation.chord_name:
+    chord_parts = []
     if representation_type == ChordRepresentation.chord_name.value:
         chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
         if chord_figure[0] == 'Chord Symbol Cannot Be Identified':
-            return chord.pitchedCommonName
+            symbol = chord.pitchedCommonName
         else:
-            return chord_figure[0]
-        return m21.roman.romanNumeralFromChord(chord, key).figure
+            symbol = chord_figure[0]
+        symbol_parts = re.split("-|\s", symbol)  # symbol.split()
+        re.split("-|\s", symbol)
+        for symbol_part in symbol_parts:
+            chord_parts.append(symbol_part)
+    elif representation_type == ChordRepresentation.roman.value:
+        chord_parts.append(m21.roman.romanNumeralFromChord(chord, key).figure)
+
+    return chord_parts
 
 
 # saves a plot object to disk (to allow for it to be passed to the frontend)
