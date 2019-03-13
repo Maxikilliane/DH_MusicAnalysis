@@ -128,11 +128,11 @@ function search_corpus() {
 // show the previously uploaded files in the table
 $(document).ready(function () {
     let json = JSON.parse(document.getElementById('already_uploaded').textContent);
-    let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "upload");
-    addResultsToTable(json.results, typeOfSelection, "upload");
-
+    if (json.results.length > 0) {
+        let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "upload");
+        addResultsToTable(json.results, typeOfSelection, "upload");
+    }
 });
-
 
 
 // adjust all the checkboxes to be in the same state (checked/unchecked) as the one in the table header

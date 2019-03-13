@@ -6,7 +6,7 @@
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
 
-    <script src="{% static 'js/fileSelectAndLoadOSMD.js' %}"></script>
+    <script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
     {# fontawesome for icons #}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -16,23 +16,21 @@
     <script src="{% static 'js/ajax_analysis_communication.js' %}"></script>
 {% endblock %}
 {% block body_block %}
-    <div>
-        <div style="z-index: 980;" uk-sticky="offset: 100;">
-            <div class="uk-align-right">
+    <ul class="uk-breadcrumb">
+        <li><a href="{% url 'MusicAnalyzer:individual_choice' %}">Individual Choice</a></li>
+        <li><span>Individual Analysis</span></li>
+    </ul>
+
+        <div id="zoomBox" uk-sticky="bottom: #offset">
+            <div class="uk-position-right inZoomBox">
                 <i id="zoom-in-btn"
                    class="fas fa-search-plus fa-2x"></i>
-                <p>Zoom in</p>
                 <i id="zoom-out-btn"
                    class="fas fa-search-minus fa-2x"></i>
-                <p>Zoom out</p>
             </div>
         </div>
-    </div>
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
-         style="margin-top: 6em;">
-        <div class="uk-padding">
-            {#            <h3>Test Überschrift</h3>#}
-
+    <div id="analysisChoiceForm" class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
+        <div class="questionForm">
             {% if analysis_form %}
                 <form id="individual_analysis_form" action="/MusicAnalyzer/individualAnalysis/"
                       method="post"
@@ -40,36 +38,37 @@
                       class="uk-form-stacked">
                     {% csrf_token %}
                     <div class="uk-margin">
-                        <div class="question">
+                        <div class="question uk-text-center">
                             {% for field in analysis_form.visible_fields %}
                                 {{ field.errors }}
-                                <div>{{ field.label }}</div>
+                                <h3>{{ field.label }}</h3>
                                 {{ field.help_text }}
                                 <div class="uk-form-controls">{{ field }}</div>
                             {% endfor %}
                         </div>
                     </div>
                     <div class="uk-margin">
-                        <div class="question">
+                        <div class="question uk-text-center">
                             {% for field in chords_form.visible_fields %}
                                 {{ field.errors }}
-                                <div>{{ field.label }}</div>
+                                <h4>{{ field.label }}</h4>
                                 {{ field.help_text }}
                                 <div class="uk-form-controls">{{ field }}</div>
                             {% endfor %}
                         </div>
                     </div>
                 </form>
-                <button id="individual_analysis_button" class="uk-button uk-button-default"
-                        onclick="start_analysis(event)">Analyse
-                </button>
+                <button id="individual_analysis_button" class="uk-button uk-button-default uk-align-center"
+                        onclick="start_analysis(event)"><i
+                        class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
+                </button>
             {% endif %}
         </div>
     </div>
 
     <div class="musicPiece">
-        {% include 'MusicAnalyzer/music_piece.html' %}
+        {% include 'MusicAnalyzer/MusicPiece.html' %}
     </div>
     <div class="results">
         {% for key in key_possibilities %}

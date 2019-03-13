@@ -18,3 +18,11 @@ header nav {
 .invisible {
     display: none;
 }
+
+#listItem {
+    width: 20%;
+}
+
+#logo {
+    padding-bottom: 2em;
+}
