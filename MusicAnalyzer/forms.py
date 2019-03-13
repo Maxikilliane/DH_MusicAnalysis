@@ -1,6 +1,6 @@
 from django import forms
 
-from MusicAnalyzer.constants import Analysis
+from MusicAnalyzer.constants import Analysis, ChordRepresentation
 
 
 class MultipleFilesForm(forms.Form):
@@ -36,3 +36,12 @@ class IndividualAnalysisForm(forms.Form):
 
 class KeyFrom(forms.Form):
     pass
+
+
+class ChordRepresentationForm(forms.Form):
+    representation_choices = [(ChordRepresentation.roman.value, 'roman numerals'),
+                              (ChordRepresentation.chord_name.value, 'chord names'),
+                              ]
+    chord_representation = forms.TypedChoiceField(choices=representation_choices, coerce=int,
+                                                  label="Choose the type of chord representation:",
+                                                  widget=forms.RadioSelect, required=False)

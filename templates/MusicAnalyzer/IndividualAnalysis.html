@@ -47,6 +47,16 @@
                             {% endfor %}
                         </div>
                     </div>
+                    <div class="uk-margin">
+                        <div class="question uk-text-center">
+                            {% for field in chords_form.visible_fields %}
+                                {{ field.errors }}
+                                <h4>{{ field.label }}</h4>
+                                {{ field.help_text }}
+                                <div class="uk-form-controls">{{ field }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </form>
                 <button id="individual_analysis_button" class="uk-button uk-button-default uk-align-center"
                         onclick="start_analysis(event)"><i

@@ -1,4 +1,5 @@
 import os
+import re
 from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 
@@ -11,7 +12,7 @@ from music21.musicxml import m21ToXml
 
 from MusicAnalyzer import constants
 from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files
-from MusicAnalyzer.constants import ChordRepresentation
+from MusicAnalyzer.constants import ChordRepresentation, Prefix
 from MusicAnalyzer.forms import *
 import music21 as m21
 
@@ -119,7 +120,10 @@ class DistantAnalysis(View):
     def get(self, request):
         music_pieces = access_music_choice_from_cookie(
             request)  # make this instance variable and only change when updated
-        # TODO analyse data for at least first tab here
+        for music_piece in music_pieces:
+            # TODO analyse data for at least first tab here
+            pass
+
         return render(request, "MusicAnalyzer/DistantAnalysis.html", {"music_pieces": music_pieces})
 
 
@@ -135,14 +139,17 @@ class IndividualAnalysis(View):
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
 
-        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
-        self.context_dict.update({"music_piece": parsed_file, "analysis_form": analysis_form})
-        #return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
+        analysis_form = IndividualAnalysisForm(prefix=Prefix.individual_analysis.value)
+        chords_form = ChordRepresentationForm(prefix=Prefix.chord_representation.value,
+                                              initial={"chord_representation": ChordRepresentation.roman.value})
+        self.context_dict.update(
+            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form})
+        # return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
         if request.is_ajax():
-            analysis_form = IndividualAnalysisForm(request.POST, prefix="analysis_choice")
+            analysis_form = IndividualAnalysisForm(request.POST, prefix=Prefix.individual_analysis.value)
             if analysis_form.is_valid():
                 choice = access_music_choice_from_cookie(request)
                 parsed_file = parse_file(choice.get("path", ""), choice.get("number", None),
@@ -153,7 +160,14 @@ class IndividualAnalysis(View):
 
                 if Analysis.chords.value in chosen:
                     print("analysing chords")
-                    chord_information = get_chord_information(parsed_file, key)
+
+                    chords_form = ChordRepresentationForm(request.POST, prefix=Prefix.chord_representation.value)
+                    if chords_form.is_valid():
+                        chord_representation = chords_form.cleaned_data.get("chord_representation", -1)
+                    else:
+                        pass
+                        # TODO error handling
+                    chord_information = get_chord_information(parsed_file, key, chord_representation)
                     chordified_file = chord_information["chords"]
                     parsed_file.insert(0, chordified_file)  # add chords to music
                     self.context_dict.update({"chord_names": chord_information["chord_name_count"],
@@ -171,7 +185,7 @@ class IndividualAnalysis(View):
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
-                    self.context_dict["key_possibilities"]= keys
+                    self.context_dict["key_possibilities"] = keys
 
                 gex = m21ToXml.GeneralObjectExporter()
                 parsed_file = gex.parse(parsed_file).decode('utf-8')
@@ -179,11 +193,12 @@ class IndividualAnalysis(View):
                 print("test")
                 print(self.context_dict)
                 return render_to_response('MusicAnalyzer/MusicPiece.html', self.context_dict)
-                #return JsonResponse({"result": "success"})
+                # return JsonResponse({"result": "success"})
+            else:
+                pass
+                # TODO error handling
 
-        # TODO: get info from form (transmitted via AJAX) which chord representation is wanted
-
-                #return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
+        # return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
 
 # was necessary due to bug before rebuild of core corpus under windows
@@ -289,7 +304,7 @@ def get_interval_between_highest_and_lowest_pitch(stream):
 # name is the pitched common name of a chord
 # root is the basis upon which a chord builds up
 # chord quality is something like minor, major, diminished etc.
-def get_chord_information(parsed_file, key, type_of_representation=constants.ChordRepresentation.chord_name):
+def get_chord_information(parsed_file, key, type_of_representation=constants.ChordRepresentation.roman):
     chords = parsed_file.chordify()
     chords_names = {}
     chords_qualities = {}
@@ -306,7 +321,9 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
             chords_names[chord.pitchedCommonName] += 1
         else:
             chords_names[chord.pitchedCommonName] = 1
-        chord.addLyric(get_chord_representation(chord, key, type_of_representation))
+        lyric_parts = get_chord_representation(chord, key, type_of_representation)
+        for part in lyric_parts:
+            chord.addLyric(part)
 
         if root in chords_roots:
             chords_roots[root] += 1
@@ -323,14 +340,21 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
 # ideally this is something like Am, C7 or similiar
 # if chord symbol cannot be identified, get a more verbose name
 def get_chord_representation(chord, key, representation_type):
-    if representation_type == ChordRepresentation.chord_name:
+    chord_parts = []
+    if representation_type == ChordRepresentation.chord_name.value:
         chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
         if chord_figure[0] == 'Chord Symbol Cannot Be Identified':
-            return chord.pitchedCommonName
+            symbol = chord.pitchedCommonName
         else:
-            return chord_figure[0]
-    elif representation_type == ChordRepresentation.roman:
-        return m21.roman.romanNumeralFromChord(chord, key).figure
+            symbol = chord_figure[0]
+        symbol_parts = re.split("-|\s", symbol)  # symbol.split()
+        re.split("-|\s", symbol)
+        for symbol_part in symbol_parts:
+            chord_parts.append(symbol_part)
+    elif representation_type == ChordRepresentation.roman.value:
+        chord_parts.append(m21.roman.romanNumeralFromChord(chord, key).figure)
+
+    return chord_parts
 
 
 # saves a plot object to disk (to allow for it to be passed to the frontend)
