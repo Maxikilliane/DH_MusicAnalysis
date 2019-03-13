@@ -4,7 +4,8 @@ window.onload = function () {
 
 function displayMusic(containerId, fileId){
     let initialZoom = 0.6;
-    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay(containerId, {autoResize: true});
+    let container = document.getElementById(containerId);
+    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
     let localFile = document.getElementById(fileId).value;
 
     openSheetMusicDisplay.load(localFile);

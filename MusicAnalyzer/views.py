@@ -132,6 +132,7 @@ class IndividualAnalysis(View):
     gex = m21ToXml.GeneralObjectExporter()
 
     def get(self, request):
+        print("get")
         # parsed_file = access_save_parsed_file_from_cookie(request)
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
@@ -144,10 +145,11 @@ class IndividualAnalysis(View):
                                               initial={"chord_representation": ChordRepresentation.roman.value})
         self.context_dict.update(
             {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form})
-        # return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
+        # return render(request, "MusicAnalyzer/results.html", self.context_dict)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
+        print("post")
         if request.is_ajax():
             analysis_form = IndividualAnalysisForm(request.POST, prefix=Prefix.individual_analysis.value)
             if analysis_form.is_valid():
@@ -183,18 +185,19 @@ class IndividualAnalysis(View):
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
                     ambitus = get_ambitus_for_display(parsed_file, self.gex)
-                    self.context_dict["ambitus"] = ambitus
+                    print("ambitus")
+                    self.context_dict["ambitus_display"] = ambitus
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
                     self.context_dict["key_possibilities"] = keys
 
                 parsed_file = self.gex.parse(parsed_file).decode('utf-8')
+
                 self.context_dict['music_piece'] = parsed_file
-                print("test")
-                print(self.context_dict)
-                return JsonResponse(self.context_dict)
-                #return render_to_response('MusicAnalyzer\music_piece.html', self.context_dict)
+                # print(self.context_dict)
+                # return JsonResponse(self.context_dict)
+                return render_to_response('MusicAnalyzer/results.html', self.context_dict)
                 # return JsonResponse({"result": "success"})
             else:
                 pass
@@ -291,26 +294,23 @@ def transform_music_source_to_dict(path, number, file_source):
 
 
 def get_ambitus_for_display(stream, gex):
+    print("test 1")
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
 
     display.append(m21.note.Note(ambitus["pitches"][0]))
     display.append(m21.note.Note(ambitus["pitches"][1]))
-    y = 1000
-    tb = m21.text.TextBox(ambitus["interval"].directedNiceName, 700, y)
-    tb.style.alignVertical = 'bottom'
-    tb.style.fontSize = 12
 
-    stream.append(tb)
+    display.insert(0, m21.metadata.Metadata())
+    display.metadata.title = ambitus["interval"].directedNiceName
+    display.metadata.alternativeTitle = ""
+    display.metadata.composer = ""
+    display.metadata.movementName = str(ambitus["interval"].semitones) + " semitones"
 
-    tb2 = m21.text.TextBox(str(ambitus["interval"].semitones)+ "semitones", 700, y)
-    tb2.style.alignVertical = 'bottom'
-    tb2.style.fontSize = 12
-    stream.append(tb2)
-
-    #display.addLyric(ambitus["interval"].directedNiceName)
-    #display.addLyric(str(ambitus["interval"].semitones)+ "semitones")
-    ambitus_display = gex.parse(stream)
+    # display.addLyric(ambitus["interval"].directedNiceName)
+    # display.addLyric(str(ambitus["interval"].semitones)+ "semitones")
+    ambitus_display = gex.parse(display).decode("utf-8")
+    print("test 2")
     return ambitus_display
 
 

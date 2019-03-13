@@ -1,6 +1,16 @@
 {% load staticfiles %}
 <script src="{% static 'js/fileSelectAndLoadOSMD.js' %}"></script>
 <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
+
+{% if ambitus_display %}
+<div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
+         style="background: #f2f7fc; border: 1px solid #ddd; margin-top: 6em;">
+        <div class="uk-padding" id="ambitusCanvas"></div>
+    </div>
+    <input type="hidden" id="ambitus" value="{{ ambitus_display }}">
+{% endif %}
+
+
 <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
          style="background: #f2f7fc; border: 1px solid #ddd; margin-top: 6em;">
         <div class="uk-padding" id="osmdCanvas"></div>
