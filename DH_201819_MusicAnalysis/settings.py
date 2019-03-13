@@ -150,6 +150,7 @@ USE_TZ = True
 
 # session related stuff
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = True
 if SESSION_EXPIRE_AT_BROWSER_CLOSE:
     max_age = None
     expires = None

@@ -10,11 +10,15 @@ function start_analysis(event) {
         url: form.attr("data-analysis-choice-url"),
         data: form.serialize(),
         type: "POST",
-        dataType: 'json',
-        success: function (json) {
+        dataType: 'html',
+        success: function (data) {
+            $('.musicPiece').html(data);
+            triggerUpload();
             UIkit.notification.closeAll();
-            console.log("success")
-            console.log(json);
+        //"{% url 'update_items' %}?item_num=" + item_num
+
+            //replaceWith("<div>hallo welt</div>");
+
             /*
             if (json.error) {
                 console.log(json.error);

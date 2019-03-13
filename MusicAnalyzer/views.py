@@ -1,21 +1,25 @@
 import os
+import re
+from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 
-from django.core.files.storage import default_storage
-from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
+import matplotlib.pyplot as plt
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, render_to_response
 from django.views import View
-from music21 import metadata
 from music21.converter import ConverterFileException
 from music21.musicxml import m21ToXml
-from music21.stream import Opus
-from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
+
 from MusicAnalyzer import constants
+from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files
+from MusicAnalyzer.constants import ChordRepresentation, Prefix
 from MusicAnalyzer.forms import *
 import music21 as m21
 
+from MusicAnalyzer.general import get_int_or_none
 from MusicAnalyzer.session_handling import *
-import json
+
+plt.ioff()  # turn off interactive matplotlib
 
 
 class Index(View):
@@ -58,7 +62,8 @@ class Choice(View):
                         path = parts[0]
                         number = get_int_or_none(parts[1])
                         if context == constants.INDIVIDUAL:
-                            save_music_choice_to_cookie(request, transform_music_source_to_dict(path, number, file_source))
+                            save_music_choice_to_cookie(request,
+                                                        transform_music_source_to_dict(path, number, file_source))
                             # can do this directly in for, because in individual analysis only one music piece is analysed
                             return redirect("MusicAnalyzer:individual_analysis")
                         elif context == constants.DISTANT_HEARING:
@@ -73,9 +78,9 @@ class Choice(View):
                     save_music_choice_to_cookie(request, music_pieces_list)
                     return redirect("MusicAnalyzer:distant_analysis")
 
-                #if context == constants.INDIVIDUAL:
-                 #   save_parsed_file_to_cookie(request, parsed_file)
-                  #  return redirect("MusicAnalyzer:individual_analysis")
+                # if context == constants.INDIVIDUAL:
+                #   save_parsed_file_to_cookie(request, parsed_file)
+                #  return redirect("MusicAnalyzer:individual_analysis")
 
         else:
             return upload_files(self, request, context)
@@ -86,6 +91,8 @@ class IndividualChoice(Choice):
         super(IndividualChoice, self).get(request)
         self.context_dict["url"] = "MusicAnalyzer:individual_choice"
         self.context_dict["type"] = constants.INDIVIDUAL
+        data = get_already_uploaded_files(request, constants.INDIVIDUAL)
+        self.context_dict["data"] = data
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -100,6 +107,8 @@ class DistantHearingChoice(Choice):
         super(DistantHearingChoice, self).get(request)
         self.context_dict["url"] = "MusicAnalyzer:distant_choice"
         self.context_dict["type"] = constants.DISTANT_HEARING
+        data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
+        self.context_dict["data"] = data
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -111,32 +120,59 @@ class DistantAnalysis(View):
     def get(self, request):
         music_pieces = access_music_choice_from_cookie(
             request)  # make this instance variable and only change when updated
-        # TODO analyse data for at least first tab here
+        for music_piece in music_pieces:
+            # TODO analyse data for at least first tab here
+            pass
+
         return render(request, "MusicAnalyzer/DistantAnalysis.html", {"music_pieces": music_pieces})
 
 
 class IndividualAnalysis(View):
+    context_dict = {}
 
     def get(self, request):
-        #parsed_file = access_save_parsed_file_from_cookie(request)
-        #parsed_file = m21.converter.thaw(parsed_file)
+        # parsed_file = access_save_parsed_file_from_cookie(request)
+        # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
 
-        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
-        context_dict = {"music_pieces": parsed_file, "analysis_form": analysis_form}
-        return render(request, "MusicAnalyzer/IndividualAnalysis.html", context_dict)
+        analysis_form = IndividualAnalysisForm(prefix=Prefix.individual_analysis.value)
+        chords_form = ChordRepresentationForm(prefix=Prefix.chord_representation.value,
+                                              initial={"chord_representation": ChordRepresentation.roman.value})
+        self.context_dict.update(
+            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form})
+        # return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
+        return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
         if request.is_ajax():
-            analysis_form = IndividualAnalysisForm(request.POST, prefix="analysis_choice")
+            analysis_form = IndividualAnalysisForm(request.POST, prefix=Prefix.individual_analysis.value)
             if analysis_form.is_valid():
+                choice = access_music_choice_from_cookie(request)
+                parsed_file = parse_file(choice.get("path", ""), choice.get("number", None),
+                                         choice.get("file_source", None))
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
+                keys = get_key_possibilities(parsed_file)
+                key = keys[0]
+
                 if Analysis.chords.value in chosen:
                     print("analysing chords")
+
+                    chords_form = ChordRepresentationForm(request.POST, prefix=Prefix.chord_representation.value)
+                    if chords_form.is_valid():
+                        chord_representation = chords_form.cleaned_data.get("chord_representation", -1)
+                    else:
+                        pass
+                        # TODO error handling
+                    chord_information = get_chord_information(parsed_file, key, chord_representation)
+                    chordified_file = chord_information["chords"]
+                    parsed_file.insert(0, chordified_file)  # add chords to music
+                    self.context_dict.update({"chord_names": chord_information["chord_name_count"],
+                                              "chord_qualities": chord_information["chord_quality_count"],
+                                              "chord_roots": chord_information["chord_root_count"]})
 
                 if Analysis.intervals.value in chosen:
                     print("analysing intervals")
@@ -149,80 +185,20 @@ class IndividualAnalysis(View):
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
-                return JsonResponse({"result": "success"})
+                    self.context_dict["key_possibilities"] = keys
 
+                gex = m21ToXml.GeneralObjectExporter()
+                parsed_file = gex.parse(parsed_file).decode('utf-8')
+                self.context_dict['music_piece'] = parsed_file
+                print("test")
+                print(self.context_dict)
+                return render_to_response('MusicAnalyzer/MusicPiece.html', self.context_dict)
+                # return JsonResponse({"result": "success"})
+            else:
+                pass
+                # TODO error handling
 
-def search_corpus(request, context):
-    free_search = request.POST.get("free_search", "")
-    composer = request.POST.get('composer', "")
-    title = request.POST.get('title', "")
-    start_year = convert_str_to_int(request.POST.get('start_year', ""))
-    end_year = convert_str_to_int(request.POST.get('end_year', ""))
-
-    if end_year < start_year:
-        data = {
-            "error": "Negative year durations are not possible. Please alter the year fields."
-        }
-    else:
-        my_corpus = m21.corpus.corpora.CoreCorpus()
-        free_search_results = get_free_search_results(my_corpus, free_search)
-        composer_results = get_composer_results(my_corpus, composer)
-        title_results = get_title_results(my_corpus, title)
-        year_results = get_year_results(my_corpus, start_year, end_year)
-        total_search_results = and_without_empty([free_search_results, composer_results, title_results, year_results])
-
-        result_list = []
-        for result in total_search_results:
-            result_dict = {"composer": result.metadata.composer,
-                           "title": result.metadata.title,
-                           "year": result.metadata.date,
-                           "path": str(result.sourcePath),
-                           "number": result.number
-                           }
-
-            result_list.append(result_dict)
-        data = {"results": result_list, "context": context}
-    return JsonResponse(data)
-
-
-def upload_files(self, request, context):
-    file_form = self.file_form_class(request.POST, request.FILES)
-
-    files = request.FILES.getlist('files')
-
-    if file_form.is_valid():
-        for f in files:
-            path = os.path.join(request.session.session_key, f.name)
-            final_path = os.path.join(MEDIA_ROOT, path)
-            default_storage.save(final_path, f)
-
-            try:
-                music = m21.converter.parse(os.path.join(MEDIA_ROOT,
-                                                         path))
-                if isinstance(music, m21.stream.Opus):
-                    music = music.mergeScores()
-                data = {'is_valid': True, "upload": {
-                    'composer': convert_none_to_empty_string(music.metadata.composer),
-                    'title': convert_none_to_empty_string(music.metadata.title),
-                    'year': convert_none_to_empty_string(music.metadata.date),
-                    'path': final_path},
-                        'context': context}
-                if context == constants.DISTANT_HEARING:
-                    data["delete_last"] = False
-                else:
-                    data["delete_last"] = True
-                    print(data)
-            except ConverterFileException:
-                data = {"is_valid": False,
-                        "error_message": "This file format cannot be parsed. Please try a different one."}
-            except ValueError:
-                data = {"is_valid": False,
-                        "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
-            return JsonResponse(data)
-    else:
-        self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
-        data = {'is_valid': False}
-        return JsonResponse(data)
+        # return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
 
 # was necessary due to bug before rebuild of core corpus under windows
@@ -231,98 +207,6 @@ def get_corpus():
         return m21.corpus.corpora.CoreCorpus()
     else:
         return m21.corpus.corpora.CoreCorpus()
-
-
-# searches for all composers in composer string (separated by space)
-# returns the OR results of the searches
-def get_composer_results(corpus, composer):
-    composers = composer.split()
-    if len(composers) == 0:
-        return metadata.bundles.MetadataBundle()
-    else:
-        results = corpus.search(composers[0], "composer")
-
-        for index, composer in enumerate(composers):
-            if index != 0:
-                results.union(corpus.search(composer, "composer"))
-    return results
-
-
-# this checks whether title should be included in a search
-def get_title_results(corpus, title):
-    if title != "" and title is not None and not title.isspace():
-        return corpus.search(title, "title")
-    else:
-        return metadata.bundles.MetadataBundle()
-
-
-# searches for all years between start_year and end_year
-# returns the OR results of the searches
-def get_year_results(corpus, start_year, end_year):
-    if start_year == -1 and end_year == -1:
-        return metadata.bundles.MetadataBundle()
-    results = corpus.search(str(start_year), "date")
-    for year in range(start_year + 1, end_year):
-        result = corpus.search(str(year), "date")
-        results.union(result)
-    return results
-
-
-# searches in whole corpus for given terms
-# returns the ORred results of the searches
-def get_free_search_results(corpus, free_search):
-    free_search = free_search.split()
-    if len(free_search) == 0:
-        return metadata.bundles.MetadataBundle()
-    else:
-        results = corpus.search(free_search[0])
-
-        for index, term in enumerate(free_search):
-            if index != 0:
-                results.union(corpus.search(term))
-    return results
-
-
-# first "deletes" any empty results
-# then intersects the rest of the non-empty ones
-def and_without_empty(result_list):
-    results = []
-    for item in result_list:
-        if len(item) > 0:
-            results.append(item)
-    if len(results) > 0:
-        final_result = results[0]
-        for index, result in enumerate(results):
-            if index > 0:
-                final_result = final_result.intersection(result)
-        return final_result
-    else:
-        return result_list[0]
-
-
-# This is used to transform the form results from year fields to a form which makes them good search input
-def convert_str_to_int(string):
-    if string == "" or string.isspace() or string is None:
-        return -1
-    else:
-        return int(string)
-
-
-def convert_none_to_empty_string(string):
-    if string == 'None' or string is None:
-        return ''
-    else:
-        return string
-
-
-def get_int_or_none(string):
-    if string == "null" or string is None or string == "undefined":
-        return None
-    else:
-        try:
-            return int(string)
-        except ValueError:
-            return None
 
 
 def get_system_dependant_path(path):
@@ -340,18 +224,18 @@ def parse_file(source_path, number, file_source):
     if file_source == constants.CORPUS_FILE:
         if source_path is not None and number is not None:
             test = m21.corpus.parse(get_system_dependant_path(source_path), number)
-            #test = m21.converter.freeze(test)
+            # test = m21.converter.freeze(test)
             return test
         elif source_path is not None:
             test = m21.corpus.parse(get_system_dependant_path(source_path))
-            #test = m21.converter.freeze(test)
+            # test = m21.converter.freeze(test)
             return test
         else:
             return None
     elif file_source == constants.UPLOADED_FILE:
         if source_path is not None:
             test = m21.converter.parse(get_system_dependant_path(source_path))
-            #test = m21.converter.freeze(test)
+            # test = m21.converter.freeze(test)
             return test
         else:
             return None
@@ -375,6 +259,117 @@ def get_source_dependant_prefix(source):
         return "path__"
 
 
+def get_already_uploaded_files(request, context):
+    path = os.path.join(settings.MEDIA_ROOT, request.session.session_key)
+    file_names = [os.path.join(path, file) for file in os.listdir(path) if isfile(os.path.join(path, file))]
+
+    data = {}
+    results = []
+    for path in file_names:
+        try:
+            result = get_metadata_from_uploaded_files(context, path, False)
+            results.append(result)
+
+        except ConverterFileException:
+            data.update({"is_valid": False,
+                         "error_message": "This file format cannot be parsed. Please try a different one."})
+            os.remove(path)
+        except ValueError:
+            data.update({"is_valid": False,
+                         "error_message": "Something went wrong with the file upload. Perhaps your file is broken."})
+            os.remove(path)
+    data["results"] = results
+    data["context"] = context
+    return data
+
+
 def transform_music_source_to_dict(path, number, file_source):
     music_piece = {"path": path, "number": number, "file_source": file_source}
     return music_piece
+
+
+def get_interval_between_highest_and_lowest_pitch(stream):
+    return stream.analyze('ambitus')
+
+
+# get chords and summary stats on chords from parsed file
+# params:
+# * a parsed file (music21 Stream object)
+# * which type of chord representation was requested by the user (roman or chord names)
+# * key of the music_piece
+# returns: a dictionary containing:
+# * a stream object of the chordified file
+# * 3 dictionaries containing summary stats on the number of chords with a certain name, root or chord quality
+# additional info:
+# name is the pitched common name of a chord
+# root is the basis upon which a chord builds up
+# chord quality is something like minor, major, diminished etc.
+def get_chord_information(parsed_file, key, type_of_representation=constants.ChordRepresentation.roman):
+    chords = parsed_file.chordify()
+    chords_names = {}
+    chords_qualities = {}
+    chords_roots = {}
+
+    for chord in chords.recurse().getElementsByClass('Chord'):
+        root = chord.root()
+        if chord.quality in chords_qualities:
+            chords_qualities[chord.quality] += 1
+        else:
+            chords_qualities[chord.quality] = 1
+
+        if chord.pitchedCommonName in chords_names:
+            chords_names[chord.pitchedCommonName] += 1
+        else:
+            chords_names[chord.pitchedCommonName] = 1
+        lyric_parts = get_chord_representation(chord, key, type_of_representation)
+        for part in lyric_parts:
+            chord.addLyric(part)
+
+        if root in chords_roots:
+            chords_roots[root] += 1
+        else:
+            chords_roots[root] = 1
+
+    return {"chords": chords,
+            "chord_name_count": chords_names,
+            "chord_quality_count": chords_qualities,
+            "chord_root_count": chords_roots}
+
+
+# get a chord symbol to display above the music
+# ideally this is something like Am, C7 or similiar
+# if chord symbol cannot be identified, get a more verbose name
+def get_chord_representation(chord, key, representation_type):
+    chord_parts = []
+    if representation_type == ChordRepresentation.chord_name.value:
+        chord_figure = m21.harmony.chordSymbolFigureFromChord(chord, True)
+        if chord_figure[0] == 'Chord Symbol Cannot Be Identified':
+            symbol = chord.pitchedCommonName
+        else:
+            symbol = chord_figure[0]
+        symbol_parts = re.split("-|\s", symbol)  # symbol.split()
+        re.split("-|\s", symbol)
+        for symbol_part in symbol_parts:
+            chord_parts.append(symbol_part)
+    elif representation_type == ChordRepresentation.roman.value:
+        chord_parts.append(m21.roman.romanNumeralFromChord(chord, key).figure)
+
+    return chord_parts
+
+
+# saves a plot object to disk (to allow for it to be passed to the frontend)
+# TODO: need to decide on naming scheme for plots and adjust path accordingly
+def save_plot_to_disk(request, plot):
+    plot.doneAction = None
+    plot.run()
+    path = os.path.join(settings.MEDIA_ROOT, request.session.session_key, "graphs", "test.png")
+    plot.figure.savefig(path)
+    return path
+
+
+# analyses the parsed music files to determine the key, gets the four most likely keys for a music piece
+# get the "probability" for each key in the list by using key.correlationCoefficient
+def get_key_possibilities(parsed_file):
+    key = parsed_file.analyze('key')
+    key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
+    return key_list

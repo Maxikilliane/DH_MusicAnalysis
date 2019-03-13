@@ -11,9 +11,21 @@ STATE_UPLOAD_FILE = "upload"
 STATE_SELECT_FOR_ANALYSIS = "select_for_analysis"
 
 
+class Prefix(Enum):
+    individual_analysis = "analysis_choice"
+    chord_representation = "chord_rep"
+
+
 # Cookie names
 CHOSEN_MUSIC_COOKIE = "chosen_music"
 PARSED_FILE_COOKIE = "parsed_file"
+
+
+# analysis
+
+class ChordRepresentation(Enum):
+    roman = 1
+    chord_name = 2
 
 
 class Analysis(Enum):
@@ -23,3 +35,4 @@ class Analysis(Enum):
     ambitus = 4
     key = 5
     pitches = 6
+
