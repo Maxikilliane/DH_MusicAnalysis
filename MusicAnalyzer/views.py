@@ -133,7 +133,8 @@ class IndividualAnalysis(View):
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
         keys = get_key_possibilities(parsed_file)
-        key_form = KeyForm(keys, prefix="key")
+        key_form = KeyForm(keys, prefix="key", initial={"key_choice": keys[0].tonicPitchNameWithCase})
+
 
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
