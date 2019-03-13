@@ -129,6 +129,7 @@ class DistantAnalysis(View):
 
 class IndividualAnalysis(View):
     context_dict = {}
+    gex = m21ToXml.GeneralObjectExporter()
 
     def get(self, request):
         # parsed_file = access_save_parsed_file_from_cookie(request)
@@ -136,8 +137,7 @@ class IndividualAnalysis(View):
         choice = access_music_choice_from_cookie(request)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         print(parsed_file)
-        gex = m21ToXml.GeneralObjectExporter()
-        parsed_file = gex.parse(parsed_file).decode('utf-8')
+        parsed_file = self.gex.parse(parsed_file).decode('utf-8')
 
         analysis_form = IndividualAnalysisForm(prefix=Prefix.individual_analysis.value)
         chords_form = ChordRepresentationForm(prefix=Prefix.chord_representation.value,
@@ -182,17 +182,19 @@ class IndividualAnalysis(View):
 
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
+                    ambitus = get_ambitus_for_display(parsed_file, self.gex)
+                    self.context_dict["ambitus"] = ambitus
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
                     self.context_dict["key_possibilities"] = keys
 
-                gex = m21ToXml.GeneralObjectExporter()
-                parsed_file = gex.parse(parsed_file).decode('utf-8')
+                parsed_file = self.gex.parse(parsed_file).decode('utf-8')
                 self.context_dict['music_piece'] = parsed_file
                 print("test")
                 print(self.context_dict)
-                return render_to_response('MusicAnalyzer\music_piece.html', self.context_dict)
+                return JsonResponse(self.context_dict)
+                #return render_to_response('MusicAnalyzer\music_piece.html', self.context_dict)
                 # return JsonResponse({"result": "success"})
             else:
                 pass
@@ -288,8 +290,36 @@ def transform_music_source_to_dict(path, number, file_source):
     return music_piece
 
 
-def get_interval_between_highest_and_lowest_pitch(stream):
-    return stream.analyze('ambitus')
+def get_ambitus_for_display(stream, gex):
+    ambitus = get_ambitus(stream)
+    display = m21.stream.Stream()
+
+    display.append(m21.note.Note(ambitus["pitches"][0]))
+    display.append(m21.note.Note(ambitus["pitches"][1]))
+    y = 1000
+    tb = m21.text.TextBox(ambitus["interval"].directedNiceName, 700, y)
+    tb.style.alignVertical = 'bottom'
+    tb.style.fontSize = 12
+
+    stream.append(tb)
+
+    tb2 = m21.text.TextBox(str(ambitus["interval"].semitones)+ "semitones", 700, y)
+    tb2.style.alignVertical = 'bottom'
+    tb2.style.fontSize = 12
+    stream.append(tb2)
+
+    #display.addLyric(ambitus["interval"].directedNiceName)
+    #display.addLyric(str(ambitus["interval"].semitones)+ "semitones")
+    ambitus_display = gex.parse(stream)
+    return ambitus_display
+
+
+def get_ambitus(stream):
+    ambitus = m21.analysis.discrete.Ambitus(stream)
+    pitch_span = ambitus.getPitchSpan(stream)
+    interval = ambitus.getSolution(stream)
+
+    return {"pitches": pitch_span, "interval": interval}
 
 
 # get chords and summary stats on chords from parsed file

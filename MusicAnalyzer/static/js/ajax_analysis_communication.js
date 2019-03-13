@@ -10,23 +10,15 @@ function start_analysis(event) {
         url: form.attr("data-analysis-choice-url"),
         data: form.serialize(),
         type: "POST",
-        dataType: 'html',
+        dataType: 'json',
         success: function (data) {
-            $('.musicPiece').html(data);
+            $('#musicPiece').val(data.music_piece);
             triggerUpload();
+            //$('.musicPiece').html(data);
+            //triggerUpload();
+
+            displayMusic("ambitusCanvas", "ambitus");
             UIkit.notification.closeAll();
-        //"{% url 'update_items' %}?item_num=" + item_num
-
-            //replaceWith("<div>hallo welt</div>");
-
-            /*
-            if (json.error) {
-                console.log(json.error);
-            } else {
-                console.log("success");
-                let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "search");
-                addResultsToTable(json.results, typeOfSelection, "search");
-            }*/
         },
         error: function (xhr, errmsg, err) {
             UIkit.notification.closeAll();

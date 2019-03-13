@@ -2,6 +2,16 @@ window.onload = function () {
     triggerUpload()
 }
 
+function displayMusic(containerId, fileId){
+    let initialZoom = 0.6;
+    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay(containerId, {autoResize: true});
+    let localFile = document.getElementById(fileId).value;
+
+    openSheetMusicDisplay.load(localFile);
+    openSheetMusicDisplay.zoom = initialZoom;
+    openSheetMusicDisplay.render();
+}
+
 function triggerUpload() {
     let initialZoom = 0.6
     let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdCanvas", {autoResize: true});

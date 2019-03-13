@@ -5,6 +5,7 @@
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
+    <script src="{% static 'js/fileSelectAndLoadOSMD.js' %}"></script>
 
     <script src="{% static 'js/fileSelectAndLoadOSMD.js' %}"></script>
     {# fontawesome for icons #}
@@ -68,13 +69,10 @@
         </div>
     </div>
 
+    <div class="uk-padding" id="ambitusCanvas"></div>
+    <input type="hidden" id="ambitus" value="{{ ambitus_display }}">
+
     <div class="musicPiece">
         {% include 'MusicAnalyzer/music_piece.html' %}
-    </div>
-    <div class="results">
-        {% for key in key_possibilities %}
-            {{ key }}
-            {{ key.correlationCoefficient }}
-        {% endfor %}
     </div>
 {% endblock %}
