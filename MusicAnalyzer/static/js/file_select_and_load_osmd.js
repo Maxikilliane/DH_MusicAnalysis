@@ -9,6 +9,8 @@ function triggerUpload() {
     let localFile = document.getElementById("musicPiece").value;
     let zoomIn = document.getElementById("zoom-in-btn");
     let zoomOut = document.getElementById("zoom-out-btn");
+    let chordCheckbox = document.getElementById("id_analysis_choice-individual_analysis_0");
+    let chordTypeSelectionElement = document.getElementById("chordDependent")
 
     openSheetMusicDisplay.load(localFile)
     openSheetMusicDisplay.zoom = initialZoom;
@@ -45,7 +47,17 @@ function triggerUpload() {
         canvas.disabled = zoomIn.disabled = zoomOut.disabled = "";
     }
 
+    chordCheckbox.addEventListener('change', function () {
+        if (this.checked) {
+            chordTypeSelectionElement.style.display = "inherit";
+        } else {
+            chordTypeSelectionElement.style.display = "none";
+        }
+    });
+
 }
+
+
 
 
 
