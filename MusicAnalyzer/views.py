@@ -153,7 +153,7 @@ class IndividualAnalysis(View):
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
                 keys = get_key_possibilities(parsed_file)
                 key_form = KeyForm(keys, request.POST, prefix="key")
-                key = keys[0]
+
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
@@ -161,8 +161,8 @@ class IndividualAnalysis(View):
                         chosen_key = key_form.cleaned_data.get("key_choice", "")
                         key = m21.key.Key(chosen_key)
                     else:
-                        pass
-                        #TODO error handling
+                        key = keys[0]
+                        self.context_dict["key_form_error_message"] = "Error during key choice, the default key, "+get_better_key_name(key) +", was used instead."
 
 
 

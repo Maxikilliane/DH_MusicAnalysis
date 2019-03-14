@@ -46,13 +46,18 @@ class KeyForm(forms.Form):
     def get_key_choices(self, key_list):
         key_choices = []
         for key in key_list:
-            key_name = key.name
-            sign = key_name[1]
-            if sign == "-":
-                sign = "b"
-                key_name = key_name[:1] + sign + key_name[2:]
-            key_name.replace("-", "b")
+            key_name = get_better_key_name(key)
             user_representation = key_name + " (" + str(round(key.correlationCoefficient, 4)) + ")"
             key_choices.append((key.tonicPitchNameWithCase, user_representation))
 
         return key_choices
+
+
+def get_better_key_name(key):
+    key_name = key.name
+    sign = key_name[1]
+    if sign == "-":
+        sign = "b"
+        key_name = key_name[:1] + sign + key_name[2:]
+    key_name.replace("-", "b")
+    return key_name
