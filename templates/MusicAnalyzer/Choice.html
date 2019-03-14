@@ -18,6 +18,14 @@
 {% block body_block %}
     <h2 class="uk-text-center">{{ heading }}</h2>
     {{ message }}
+    <div class="uk-text-center space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="explanation">
+        <ul uk-accordion>
+            <li>
+                <a class="uk-accordion-title" href="#">What can I do here?</a>
+                <div class="uk-accordion-content">{{ explanation }}</div>
+            </li>
+        </ul>
+    </div>
     <div class="uk-child-width-expand@s" uk-grid>
         <div class="uk-container">
             <h3 class="uk-text-center">Select your own file <span class="uk-icon-button" uk-icon="question"
@@ -112,7 +120,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {{data|json_script:"already_uploaded" }}
+                    {{ data|json_script:"already_uploaded" }}
                     </tbody>
                 </table>
                 <div class="uk-flex uk-flex-center">
