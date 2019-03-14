@@ -82,7 +82,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="state" value="select_for_analysis"/>
                 <div class="uk-flex uk-flex-center">
-                    <button class="uk-button uk-button-default uk-align-center submitButton" type="submit"><i
+                    <button class="uk-button uk-button-default uk-align-center submitButton" type="submit" disabled id="analyzeButton1"><i
                             class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
                     </button>
@@ -110,7 +110,7 @@
                     </tbody>
                 </table>
                 <div class="uk-flex uk-flex-center">
-                    <button class="uk-button uk-button-default" type="submit"><i
+                    <button class="uk-button uk-button-default analyzeButton" type="submit" disabled id ="analyzeButton2"><i
                             class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
                     </button>
