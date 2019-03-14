@@ -44,3 +44,7 @@
     display: -webkit-inline-box;
 }
 
+#chordDependent {
+    display: none;
+}
+
