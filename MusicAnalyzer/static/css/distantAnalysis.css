@@ -1,0 +1,17 @@
+body {
+    margin-top: 5em;
+}
+
+h2 {
+    margin-bottom: 2em;
+}
+
+.uk-navbar-nav>li>a {
+    padding-bottom: 2em;
+    color: black;
+}
+
+.uk-navbar-nav>li:hover>a, .uk-navbar-nav>li>a.uk-open, .uk-navbar-nav>li>a:focus {
+    font-weight: 500;
+    color: black;
+}
