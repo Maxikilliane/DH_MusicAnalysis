@@ -39,33 +39,6 @@ $(function () {
     /* init file upload component */
     let bar = document.getElementById('js-progressbar');
 
-    UIkit.upload('.js-upload', {
-
-        url: '',
-        multiple: true,
-
-        loadStart: function (e) {
-            bar.removeAttribute('hidden');
-            bar.max = e.total;
-            bar.value = e.loaded;
-        },
-
-        progress: function (e) {
-            bar.max = e.total;
-            bar.value = e.loaded;
-        },
-
-        loadEnd: function (e) {
-            bar.max = e.total;
-            bar.value = e.loaded;
-            if (e.total && e.loaded) {
-                setTimeout(function () {
-                    bar.setAttribute('hidden', 'hidden');
-                }, 1000);
-
-            }
-        },
-    });
     $("#fileupload").fileupload({
         dataType: 'json',
         done: function (e, data) {  /* process server response */
@@ -121,6 +94,23 @@ function search_corpus() {
 
 }
 
+function appendClickListeners() {
+    let radios = document.getElementsByName("music_piece");
+    let analyzeButton1 = document.getElementById("analyzeButton1");
+    let analyzeButton2 = document.getElementById("analyzeButton2");
+    for (let i = 0, max = radios.length; i < max; i++) {
+        radios[i].addEventListener("click", function () {
+            console.log(radios[i])
+            analyzeButton1.disabled = isRadioClicked()
+            analyzeButton2.disabled = isRadioClicked()
+        });
+    }
+
+
+    function isRadioClicked() {
+        return $('input[type=radio]:checked').length === 0 && $('input[type=checkbox]:checked').length === 0
+    }
+}
 
 // show the previously uploaded files in the table
 $(document).ready(function () {
@@ -129,22 +119,7 @@ $(document).ready(function () {
         let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "upload");
         addResultsToTable(json.results, typeOfSelection, "upload");
     }
-
-    let radios = document.getElementsByName("music_piece");
-    let analyzeButton1 = document.getElementById("analyzeButton1");
-    let analyzeButton2 = document.getElementById("analyzeButton2");
-
-    for (let i = 0, max = radios.length; i < max; i++) {
-        radios[i].addEventListener("click", function () {
-            analyzeButton1.disabled = isRadioClicked()
-            analyzeButton2.disabled = isRadioClicked()
-        });
-    }
-
-
-    function isRadioClicked() {
-        return $('input[type=radio]:checked').length === 0 &&  $('input[type=checkbox]:checked').length === 0
-    }
+    appendClickListeners()
 });
 
 
@@ -221,5 +196,7 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
             "<td>" + results[i].title + "</td>\n" +
             "</tr>";
         $("#t_searchResults tbody").append(row);
+        appendClickListeners();
+
     }
 }
