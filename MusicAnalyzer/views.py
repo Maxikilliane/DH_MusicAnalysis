@@ -2,16 +2,17 @@ import os
 import re
 from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
-
+import collections
 import matplotlib.pyplot as plt
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, render_to_response
 from django.views import View
+# from matplotlib import collections
 from music21.converter import ConverterFileException
 from music21.musicxml import m21ToXml
 
 from MusicAnalyzer import constants, texts
-from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files
+from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files, get_relevant_metadata
 from MusicAnalyzer.constants import ChordRepresentation, Prefix
 from MusicAnalyzer.forms import *
 import music21 as m21
@@ -119,14 +120,46 @@ class DistantAnalysis(View):
 
     def get(self, request):
         context_dict = {}
-        context_dict["music_pieces"] = access_music_choice_from_cookie(
-            request)  # make this instance variable and only change when updated?
+        # context_dict["music_pieces"] = access_music_choice_from_cookie(request)  # make this instance variable and only change when updated?
         context_dict["explanations"] = texts.distant_hearing_explanations
         music_pieces = access_music_choice_from_cookie(
             request)
+        analysis_results = []
+        music_pieces_list = []
+
         for music_piece in music_pieces:
-            # TODO analyse data for at least first tab here
-            pass
+            analysis_result = {}
+            parsed_file = parse_file(music_piece.get("path", ""), music_piece.get("number", None),
+                                     music_piece.get("file_source", None))
+            music_piece_info = {}
+            metadata_dict = get_relevant_metadata(parsed_file)
+            key = get_key_possibilities(parsed_file)[0]
+            chords_info = get_chord_information(parsed_file, key)
+            music_piece_info["metadata"] = metadata_dict
+            music_piece_info["chords"] = chords_info
+
+            analysis_result.update(metadata_dict)
+            analysis_result.update(chords_info)
+            analysis_results.append(analysis_result)
+
+            music_pieces_list.append(music_piece_info)
+
+        context_dict["music_pieces_info"] = music_pieces_list
+        # sum the values with same keys
+        dict_of_result_dicts = {}
+        chord_quality_counter = collections.Counter()
+        chord_name_counter = collections.Counter()
+        chord_root_counter = collections.Counter()
+        for d in analysis_results:
+            chord_quality_counter.update(d["chord_quality_count"])
+            chord_name_counter.update(d["chord_name_count"])
+            chord_root_counter.update(d["chord_root_count"])
+
+        total_result = {"chord_root_count": dict(chord_root_counter),
+                        "chord_name_count": dict(chord_name_counter),
+                        "chord_quality_count": dict(chord_quality_counter)}
+
+        context_dict["chord_summary_stats"] = total_result
 
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
