@@ -184,7 +184,7 @@ class IndividualAnalysis(View):
 
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
-                    ambitus = get_ambitus_for_display(parsed_file, self.gex)
+                    ambitus = get_ambitus_for_display(parsed_file, self.gex, self.context_dict)
                     print("ambitus")
                     self.context_dict["ambitus_display"] = ambitus
 
@@ -293,25 +293,23 @@ def transform_music_source_to_dict(path, number, file_source):
     return music_piece
 
 
-def get_ambitus_for_display(stream, gex):
-    print("test 1")
+def get_ambitus_for_display(stream, gex, context_dict):
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
     display_part = m21.stream.Part()
-    display_part.partName = " "
     display_part.append(m21.note.Note(ambitus["pitches"][0]))
     display_part.append(m21.note.Note(ambitus["pitches"][1]))
     display.append(display_part)
     display.insert(0, m21.metadata.Metadata())
-    display.metadata.title = ambitus["interval"].directedNiceName
-    display.metadata.alternativeTitle = ""
-    display.metadata.composer = ""
-    display.metadata.movementName = str(ambitus["interval"].semitones) + " semitones"
-
-    # display.addLyric(ambitus["interval"].directedNiceName)
-    # display.addLyric(str(ambitus["interval"].semitones)+ "semitones")
+    # not necessary anymore because osmd provides the option to not display those, seemed cleaner that way.
+    # display_part.partName = " "
+    # display.metadata.title = ambitus["interval"].niceName
+    # display.metadata.alternativeTitle = ""
+    # display.metadata.movementName = str(ambitus["interval"].semitones) + " semitones"
+    display.metadata.composer = " "
+    context_dict["ambitus_interval"] = ambitus["interval"].niceName
+    context_dict["semitones"] = str(ambitus["interval"].semitones) + " semitones"
     ambitus_display = gex.parse(display).decode("utf-8")
-    print("test 2")
     return ambitus_display
 
 

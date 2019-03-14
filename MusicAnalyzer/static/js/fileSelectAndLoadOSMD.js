@@ -2,10 +2,19 @@ window.onload = function () {
     triggerUpload()
 }
 
-function displayMusic(containerId, fileId){
+function displayMusic(containerId, fileId) {
     let initialZoom = 0.6;
     let container = document.getElementById(containerId);
-    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay(container);
+    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
+            drawCredits: false,
+            drawTitle: false,
+            drawPartNames: false,
+            drawLyricist: false,
+            drawComposer: false,
+            drawSubtitle: false,
+            drawComments: false
+        }
+    );
     let localFile = document.getElementById(fileId).value;
 
     openSheetMusicDisplay.load(localFile);
