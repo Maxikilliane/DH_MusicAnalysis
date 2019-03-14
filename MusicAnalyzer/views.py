@@ -93,6 +93,7 @@ class IndividualChoice(Choice):
         self.context_dict["type"] = constants.INDIVIDUAL
         data = get_already_uploaded_files(request, constants.INDIVIDUAL)
         self.context_dict["data"] = data
+        self.context_dict["explanation"] = "You can analyze a single piece of music in different ways. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. By clicking the 'Analyze' Button the file gets rendered and you can choose which types of analysis you want to perform: Displaying chords, intervals, showing the ambitus or the key of the music piece."
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
