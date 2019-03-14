@@ -36,12 +36,12 @@ function triggerUpload() {
 
 
     function disable() {
-        document.body.style.opacity = 0.3;
+        document.body.style.opacity = "0.3";
         canvas.disabled = zoomIn.disabled = zoomOut.disabled = "disabled";
     }
 
     function enable() {
-        document.body.style.opacity = 1;
+        document.body.style.opacity = "1";
         canvas.disabled = zoomIn.disabled = zoomOut.disabled = "";
     }
 
