@@ -183,7 +183,7 @@ def add_group(request, context):
     if add_group_form.is_valid():
         name = add_group_form.cleaned_data.get("name", "")
         # TODO check if group name unique for this session
-        DistantHearingGroup.objects.create(name=name, ref_django_session_id=request.session.session_key)
-        return JsonResponse({"result": "success", "new_group": name})
+        new_group = DistantHearingGroup.objects.create(name=name, ref_django_session_id=request.session.session_key)
+        return JsonResponse({"result": "success", "name": name, "id":new_group.pk})
     else:
         return JsonResponse({"result": "error", "error": "Form invalid!"})

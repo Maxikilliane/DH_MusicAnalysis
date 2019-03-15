@@ -110,11 +110,19 @@ function add_group() {
                 timeout: 5000 // basically endless time, gets closed on success or error
             });
             console.log(json);
+
             if (json.error) {
                 console.log(json.error);
             } else {
                 console.log("success");
+                let pk = json.id;
+                let new_group_element = '<li><div class=".uk-form-controls uk-form-controls-text"><label for="id_choose_group-group_choice_' +
+                    pk + '"><input name="choose_group-group_choice" value="' +
+                    pk + '" id="id_choose_group-group_choice_' +
+                    pk + '" type="radio" class="uk-radio" checked="checked"> ' +
+                    String(json.name) + '</label></div></li>';
 
+                $("#id_choose_group-group_choice").append(new_group_element);
             }
         },
         error: function (xhr, errmsg, err) {

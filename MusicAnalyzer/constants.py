@@ -19,10 +19,12 @@ class State(Enum):
     add_new_group = "new_group"
 
 
+
 class Prefix(Enum):
     individual_analysis = "analysis_choice"
     chord_representation = "chord_rep"
     add_group = "add_group"
+    choose_group = "choose_group"
 
 
 # Cookie names
