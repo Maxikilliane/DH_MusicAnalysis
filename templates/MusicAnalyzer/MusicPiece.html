@@ -1,0 +1,14 @@
+{% load staticfiles %}
+<script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
+<script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
+<script src="{% static 'js/ui_kit_styling.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static "/css/musicPiece.css" %}"/>
+<input type="hidden" id="key_form_error" value="{{ key_form_error_message }}"
+       onchange="displayUiKitMessage({{ key_form_error_message }},'warning')"/>
+
+<div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m"
+     style="background: #f2f7fc; border: 1px solid #ddd; margin-top: 6em;">
+    <div class="uk-padding" id="osmdCanvas"></div>
+</div>
+<input type="hidden" id="musicPiece" value="{{ music_piece }}">
+

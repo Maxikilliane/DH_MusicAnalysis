@@ -1,6 +1,6 @@
 from django import forms
 
-from MusicAnalyzer.constants import Analysis
+from MusicAnalyzer.constants import Analysis, ChordRepresentation
 
 
 class MultipleFilesForm(forms.Form):
@@ -22,11 +22,11 @@ class SearchForm(forms.Form):
 
 
 class IndividualAnalysisForm(forms.Form):
-    analysis_choices = [(Analysis.chords.value, 'chords'),
-                        (Analysis.intervals.value, 'intervals'),
-                        (Analysis.leading_notes.value, 'leading notes'),
-                        (Analysis.ambitus.value, 'ambitus'),
-                        (Analysis.key.value, 'key')
+    analysis_choices = [(Analysis.chords.value, 'Chords'),
+                        (Analysis.intervals.value, 'Intervals'),
+                        (Analysis.leading_notes.value, 'Leading notes'),
+                        (Analysis.ambitus.value, 'Ambitus'),
+                        (Analysis.key.value, 'Key')
                         ]
     individual_analysis = forms.TypedMultipleChoiceField(choices=analysis_choices, coerce=int,
                                                          label="Choose metrics to analyse:",
@@ -40,7 +40,7 @@ class KeyForm(forms.Form):
         super(KeyForm, self).__init__(*args, **kwargs)
         self.fields['key_choice'] = forms.ChoiceField(choices=self.get_key_choices(key_list),
                                                       widget=forms.RadioSelect,
-                                                      label="Choose which key you want to use:")
+                                                      label="Possible keys with their probability:")
 
     # get choices for key_choice_form
     def get_key_choices(self, key_list):
@@ -61,3 +61,13 @@ def get_better_key_name(key):
         key_name = key_name[:1] + sign + key_name[2:]
     key_name.replace("-", "b")
     return key_name
+
+class ChordRepresentationForm(forms.Form):
+    representation_choices = [(ChordRepresentation.roman.value, 'roman numerals'),
+                              (ChordRepresentation.chord_name.value, 'chord names'),
+                              ]
+    chord_representation = forms.TypedChoiceField(choices=representation_choices, coerce=int,
+                                                  label="Choose the type of chord representation:",
+                                                  widget=forms.RadioSelect, required=False)
+
+

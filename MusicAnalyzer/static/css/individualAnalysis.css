@@ -2,3 +2,56 @@
     list-style: none;
 }
 
+
+#zoomBox {
+    z-index: 980;
+    display: inline-block;
+}
+
+.uk-button-default {
+    background-color: transparent;
+    color: #333;
+    border: 1px solid #1e87f0;
+    margin-top: 0px;
+}
+
+.uk-breadcrumb {
+    margin-top: 5em;
+}
+
+.inZoomBox {
+    top: 100px;
+    margin-right: 2em;
+}
+
+.uk-button-default:focus, .uk-button-default:hover, .uk-button-default:active {
+    background-color: #BBDEFB !important;
+    border: 1px solid #1e87f0;
+}
+
+.analysisFormListItem {
+    color: black;
+    padding-right: 20px;
+}
+
+.questionForm {
+    margin-bottom: 4em;
+    border: 1px solid #ddd;
+}
+
+.analysisFormList {
+    padding-left: 0;
+    display: -webkit-inline-box;
+}
+
+#chordDependent {
+    display: none;
+}
+
+#keyDependent {
+    display: none;
+}
+
+#id_key-key_choice input {
+    display: none;
+}
