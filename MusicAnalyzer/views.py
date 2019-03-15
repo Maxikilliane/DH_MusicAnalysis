@@ -47,6 +47,7 @@ class Choice(View):
         self.context_dict["file_form"] = self.file_form_class()
         self.context_dict["search_form"] = self.search_form_class()
         self.context_dict["add_group_form"] = AddGroupForm(prefix=Prefix.add_group.value)
+        self.context_dict["group_choice_form"] = GroupChoiceForm(prefix=Prefix.choose_group.value, session_key=request.session.session_key)
 
     # handle data getting back from view
     def post(self, request, context):
