@@ -134,3 +134,9 @@ class DistantHearingGroup(models.Model):
     group_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50,)
     ref_django_session = models.ForeignKey(DjangoSession, models.CASCADE)
+
+    def __str__(self):
+        if self.name is not None:
+            return str(self.name)
+        else:
+            return "-"
