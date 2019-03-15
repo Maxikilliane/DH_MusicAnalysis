@@ -1,5 +1,7 @@
 import os
 import re
+import random
+import string
 from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 
@@ -11,7 +13,7 @@ from music21.converter import ConverterFileException
 from music21.musicxml import m21ToXml
 
 from MusicAnalyzer import constants
-from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files
+from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files, add_group
 from MusicAnalyzer.constants import ChordRepresentation, Prefix
 from MusicAnalyzer.forms import *
 import music21 as m21
@@ -34,14 +36,17 @@ class Index(View):
 class Choice(View):
     file_form_class = FileForm
     search_form_class = SearchForm
+    group_form_class = AddGroupForm
     template_name = "MusicAnalyzer/Choice.html"
     context_dict = {"heading": "Individual Analysis"}
     state = ""
+    group_names = []
 
     def get(self, request):
         on_session_start(request)
         self.context_dict["file_form"] = self.file_form_class()
         self.context_dict["search_form"] = self.search_form_class()
+        self.context_dict["add_group_form"] = AddGroupForm(prefix=Prefix.add_group.value)
 
     # handle data getting back from view
     def post(self, request, context):
@@ -81,7 +86,11 @@ class Choice(View):
                 # if context == constants.INDIVIDUAL:
                 #   save_parsed_file_to_cookie(request, parsed_file)
                 #  return redirect("MusicAnalyzer:individual_analysis")
-
+        elif self.state == constants.State.add_new_group.value:
+            print("add_new_group")
+            if request.is_ajax():
+                print("ajax")
+                return add_group(request, context)
         else:
             return upload_files(self, request, context)
 

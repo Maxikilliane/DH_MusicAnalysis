@@ -1,6 +1,7 @@
 from django import forms
 
 from MusicAnalyzer.constants import Analysis, ChordRepresentation
+from MusicAnalyzer.models import DistantHearingGroup
 
 
 class MultipleFilesForm(forms.Form):
@@ -19,6 +20,15 @@ class SearchForm(forms.Form):
                                     required=False)
     end_year = forms.IntegerField(max_value=9999, min_value=0, widget=forms.TextInput(attrs={'class': 'uk-input'}),
                                   required=False)
+
+
+class AddGroupForm(forms.ModelForm):
+    name = forms.CharField(max_length=50, required=True)
+
+    class Meta:
+        model = DistantHearingGroup
+        # exclude = ('testPerson', )
+        fields = ('name',)
 
 
 class IndividualAnalysisForm(forms.Form):

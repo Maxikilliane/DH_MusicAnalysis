@@ -94,15 +94,45 @@ function search_corpus() {
 
 }
 
+function add_group() {
+    console.log("add group");
+    let form = $("#add_group_form");
+    $.ajax({
+        url: form.attr("data-add-group-url"),
+        data: form.serialize(),
+        type: "POST",
+        dataType: 'json',
+        success: function (json) {
+            UIkit.notification({
+                message: 'Added new group:',
+                status: 'success',
+                pos: 'bottom-center',
+                timeout: 5000 // basically endless time, gets closed on success or error
+            });
+            console.log(json);
+            if (json.error) {
+                console.log(json.error);
+            } else {
+                console.log("success");
+
+            }
+        },
+        error: function (xhr, errmsg, err) {
+
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    });
+}
+
 function appendClickListeners() {
     let radios = document.getElementsByName("music_piece");
     let analyzeButton1 = document.getElementById("analyzeButton1");
     let analyzeButton2 = document.getElementById("analyzeButton2");
     for (let i = 0, max = radios.length; i < max; i++) {
         radios[i].addEventListener("click", function () {
-            console.log(radios[i])
-            analyzeButton1.disabled = isRadioClicked()
-            analyzeButton2.disabled = isRadioClicked()
+            console.log(radios[i]);
+            analyzeButton1.disabled = isRadioClicked();
+            analyzeButton2.disabled = isRadioClicked();
         });
     }
 

@@ -8,7 +8,10 @@ from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
 import music21 as m21
 
+from MusicAnalyzer.constants import Prefix
+from MusicAnalyzer.forms import AddGroupForm
 from MusicAnalyzer.general import convert_str_to_int, convert_none_to_empty_string
+from MusicAnalyzer.models import DistantHearingGroup
 
 
 def search_corpus(request, context):
@@ -174,3 +177,13 @@ def get_metadata_for_newly_uploaded_files(final_path, context, music):
         'year': convert_none_to_empty_string(music.metadata.date),
         'path': final_path},
             'context': context}
+
+def add_group(request, context):
+    add_group_form = AddGroupForm(request.POST, prefix=Prefix.add_group.value)
+    if add_group_form.is_valid():
+        name = add_group_form.cleaned_data.get("name", "")
+        # TODO check if group name unique for this session
+        DistantHearingGroup.objects.create(name=name, ref_django_session_id=request.session.session_key)
+        return JsonResponse({"result": "success", "new_group": name})
+    else:
+        return JsonResponse({"result": "error", "error": "Form invalid!"})
