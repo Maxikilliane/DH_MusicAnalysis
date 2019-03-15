@@ -230,6 +230,7 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
             'name="music_piece" ' +
             'value="path_' + fileSource + '__' + results[i].path + '__number__' + results[i].number + '" ' +
             'class="uk-' + typeOfSelection + '"></td>' +
+            "<td></td>\n"+ //TODO make this line optional when is distant hearing
             "<td>" + results[i].composer + "</td>\n" +
             "<td>" + results[i].title + "</td>\n" +
             "</tr>";
