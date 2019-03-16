@@ -1,6 +1,6 @@
 from django import forms
 
-from MusicAnalyzer.constants import Analysis, ChordRepresentation
+from MusicAnalyzer.constants import Analysis, ChordRepresentation, State
 from MusicAnalyzer.models import DistantHearingGroup, DjangoSession
 
 
@@ -31,15 +31,17 @@ class AddGroupForm(forms.ModelForm):
         fields = ('name',)
 
 
-class GroupChoiceForm(forms.Form):
-    group_choice = forms.ChoiceField(label="", widget=forms.RadioSelect)
+class MusicChoiceForm(forms.Form):
+    is_selected = forms.BooleanField(required=False)
+    path_to_source = forms.CharField(widget=forms.Textarea)
+    file_source = forms.CharField(max_length=15)
+    number = forms.IntegerField(required=False)
+    group_choice = forms.ChoiceField(label="", required=False)
 
     def __init__(self, session_key, *args, **kwargs):
-        super(GroupChoiceForm, self).__init__(*args, **kwargs)
+        super(MusicChoiceForm, self).__init__(*args, **kwargs)
         self.fields['group_choice'] = forms.ModelChoiceField(queryset=self.get_group_choices(session_key),
-                                                             widget=forms.RadioSelect,
-                                                             label="")
-
+                                                             label="", required=False)
 
     # get choices for key_choice_form
     def get_group_choices(self, session_key):
@@ -62,25 +64,6 @@ class IndividualAnalysisForm(forms.Form):
 class KeyFrom(forms.Form):
     pass
 
-
-class KeyForm(forms.Form):
-    key_choice = forms.ChoiceField(label="Choose which key you want to use:", widget=forms.RadioSelect)
-
-    def __init__(self, key_list, *args, **kwargs):
-        super(KeyForm, self).__init__(*args, **kwargs)
-        self.fields['key_choice'] = forms.ChoiceField(choices=self.get_key_choices(key_list),
-                                                      widget=forms.RadioSelect,
-                                                      label="Choose which key you want to use:")
-
-    # get choices for key_choice_form
-    def get_key_choices(self, key_list):
-        key_choices = []
-        for key in key_list:
-            key_name = get_better_key_name(key)
-            user_representation = key_name + " (" + str(round(key.correlationCoefficient, 4)) + ")"
-            key_choices.append((key.tonicPitchNameWithCase, user_representation))
-
-        return key_choices
 
 
 class ChordRepresentationForm(forms.Form):

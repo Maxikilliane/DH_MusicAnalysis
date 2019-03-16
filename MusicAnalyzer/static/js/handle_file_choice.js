@@ -132,17 +132,20 @@ function add_group() {
     });
 }
 
+
+//TODO set selected inside form when clicked?
 function appendClickListeners() {
-    let radios = document.getElementsByName("music_piece");
+    let $radios = $("input[name=music_piece]");//document.getElementsByName("music_piece");
     let analyzeButton1 = document.getElementById("analyzeButton1");
     let analyzeButton2 = document.getElementById("analyzeButton2");
-    for (let i = 0, max = radios.length; i < max; i++) {
-        radios[i].addEventListener("click", function () {
-            console.log(radios[i]);
-            analyzeButton1.disabled = isRadioClicked();
-            analyzeButton2.disabled = isRadioClicked();
-        });
-    }
+    $radios.off().on("click", function () {
+        console.log($(this));
+        console.log($(this).parent());
+        console.log($(this).parent().parent());
+
+        analyzeButton1.disabled = isRadioClicked();
+        analyzeButton2.disabled = isRadioClicked();
+    });
 
 
     function isRadioClicked() {
@@ -157,7 +160,8 @@ $(document).ready(function () {
         let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "upload");
         addResultsToTable(json.results, typeOfSelection, "upload");
     }
-    appendClickListeners()
+    appendClickListeners();
+
 });
 
 
@@ -224,18 +228,76 @@ function adjustToContextAndFileSource(results, context, fileSource) {
 
 // display files in the table where they can be chosen for analysis
 function addResultsToTable(results, typeOfSelection, fileSource) {
+    let start = getCurrentNumOfForms();
     for (let i = 0; i < results.length; i++) {
-        let row = "<tr class=" + fileSource + ">\n" +
-            '<td><input type="' + typeOfSelection + '" ' +
+        let formNum = parseInt(start) + i;
+        let fileSourceOptions = "";
+        if (fileSource === "search_corpus") {
+            fileSourceOptions += '<option value="search_corpus" selected="selected">search_corpus</option>\n' +
+                '<option value="upload">upload</option>'
+        } else if (fileSource === "upload") {
+            fileSourceOptions += '<option value="search_corpus">search_corpus</option>\n' +
+                '<option value="upload" selected="selected">upload</option>'
+        }
+        let selection = '<td><input type="' + typeOfSelection + '" ' +
             'name="music_piece" ' +
-            'value="path_' + fileSource + '__' + results[i].path + '__number__' + results[i].number + '" ' +
-            'class="uk-' + typeOfSelection + '"></td>' +
-            "<td></td>\n"+ //TODO make this line optional when is distant hearing
-            "<td>" + results[i].composer + "</td>\n" +
-            "<td>" + results[i].title + "</td>\n" +
-            "</tr>";
+            //'value="path_' + fileSource + '__' + results[i].path + '__number__' + results[i].number + '" ' +
+            'class="uk-' + typeOfSelection + '">' +
+
+            '<div class="invisible">' +
+            '<input type="checkbox" name="choose_music_piece-' + formNum + '-is_selected" id="id_choose_music_piece-' + formNum + '-is_selected">' +
+            '<textarea name="choose_music_piece-' + formNum + '-path_to_source" cols="40" rows="10" id="id_choose_music_piece-' + formNum + '-path_to_source">' + results[i].path + '</textarea>' +
+            '<input type="text" name="choose_music_piece-' + formNum + '-file_source" id="id_choose_music_piece-' + formNum + '-file_source" value="' + fileSource + '">' +
+            '<input type="number" name="choose_music_piece-' + formNum + '-number" id="id_choose_music_piece-' + formNum + '-number" value=' + results[i].number + '>' +
+            '<input type="checkbox" name="choose_music_piece-' + formNum + '-DELETE" id="id_choose_music_piece-' + formNum + '-DELETE"> </div>' +
+            '</td>';
+
+        let group = "";
+        if (typeOfSelection === "checkbox") {
+            let groupOptions = getGroupOptions();
+            group += '<td>' +
+                '<select name="choose_music_piece-' + formNum + '-group_choice" id="id_choose_music_piece-' + formNum + '-group_choice">\n' +
+                groupOptions +
+                '</select>' +
+                '</td>\n';
+        }
+        let composer = "<td>" + results[i].composer + "</td>\n";
+        let title = "<td>" + results[i].title + "</td>\n";
+        let row = "<tr class=" + fileSource + ">\n" + selection + group + composer + title + "</tr>";
+
         $("#t_searchResults tbody").append(row);
         appendClickListeners();
 
     }
+    setCurrentNumOfForms(results.length)
+
+}
+
+function getGroupOptions() {
+    return '  <option value="" selected="">---------</option>\n' +
+        '  <option value="5">composer:Beethoven</option>\n'
+}
+
+function getCurrentNumOfForms() {
+    return $('#id_choose_music_piece-TOTAL_FORMS').val()
+}
+
+function setCurrentNumOfForms(numberOfNewForms) {
+    let numFormsField = $('#id_choose_music_piece-TOTAL_FORMS');
+    let numBefore = parseInt(numFormsField.val());
+    let numNow = numBefore + numberOfNewForms;
+    numFormsField.val(numNow);
+}
+
+function addSelected(event, typeOfSelection) {
+    let selectedRows = $("#t_searchResults tbody tr td input[type=checkbox]:checked").parent().parent();
+    let selectedInForms = selectedRows.find("td div.invisible input[name$=-is_selected]");
+    console.log(selectedInForms);
+    selectedInForms.attr('checked', true);
+    console.log("all fine here");
+    selectedInForms.prop('checked', true);
+    console.log("all fine");
+    console.log("selected:");
+    console.log(selectedInForms);
+    $('#select_to_analyse_form').submit();
 }

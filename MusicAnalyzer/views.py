@@ -6,6 +6,7 @@ from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 
 import matplotlib.pyplot as plt
+from django.forms import formset_factory
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, render_to_response
 from django.views import View
@@ -41,13 +42,17 @@ class Choice(View):
     context_dict = {"heading": "Individual Analysis"}
     state = ""
     group_names = []
+    musicChoiceFormset = formset_factory(MusicChoiceForm, extra=0, can_delete=True)
 
     def get(self, request):
         on_session_start(request)
         self.context_dict["file_form"] = self.file_form_class()
         self.context_dict["search_form"] = self.search_form_class()
         self.context_dict["add_group_form"] = AddGroupForm(prefix=Prefix.add_group.value)
-        self.context_dict["group_choice_form"] = GroupChoiceForm(prefix=Prefix.choose_group.value, session_key=request.session.session_key)
+        self.context_dict["music_choice_form"] = self.musicChoiceFormset(
+            form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
+
+        # MusicChoiceForm(prefix=Prefix.choose_music_file.value, session_key=request.session.session_key)
 
     # handle data getting back from view
     def post(self, request, context):
@@ -55,8 +60,16 @@ class Choice(View):
         if self.state == constants.STATE_SEARCH_CORPUS:
             if request.is_ajax():
                 return search_corpus(request, context)
-        elif self.state == constants.STATE_SELECT_FOR_ANALYSIS:
-            selecteds = request.POST.getlist("music_piece", None)
+        elif self.state == constants.State.select_for_analysis.value:
+            print("Post")
+            print(request.POST)
+            music_choice_form = self.musicChoiceFormset(request.POST, form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
+            if music_choice_form.is_valid():
+                print("clean")
+                print(music_choice_form.cleaned_data)
+            else:
+                print(music_choice_form.errors)
+            '''selecteds = request.POST.getlist("music_piece", None)
             if selecteds is not None:
                 music_pieces_list = []
                 for select in selecteds:
@@ -87,6 +100,7 @@ class Choice(View):
                 # if context == constants.INDIVIDUAL:
                 #   save_parsed_file_to_cookie(request, parsed_file)
                 #  return redirect("MusicAnalyzer:individual_analysis")
+                '''
         elif self.state == constants.State.add_new_group.value:
             print("add_new_group")
             if request.is_ajax():
@@ -103,7 +117,8 @@ class IndividualChoice(Choice):
         self.context_dict["type"] = constants.INDIVIDUAL
         data = get_already_uploaded_files(request, constants.INDIVIDUAL)
         self.context_dict["data"] = data
-        self.context_dict["explanation"] = "You can analyze a single piece of music in different ways. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. By clicking the 'Analyze' Button the file gets rendered and you can choose which types of analysis you want to perform: Displaying chords, intervals, showing the ambitus or the key of the music piece."
+        self.context_dict[
+            "explanation"] = "You can analyze a single piece of music in different ways. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. By clicking the 'Analyze' Button the file gets rendered and you can choose which types of analysis you want to perform: Displaying chords, intervals, showing the ambitus or the key of the music piece."
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
