@@ -136,7 +136,11 @@ class IndividualAnalysis(View):
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
-        print(parsed_file)
+        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
+        keys = get_key_possibilities(parsed_file)
+        key_form = KeyForm(keys, prefix="key", initial={"key_choice": keys[0].tonicPitchNameWithCase})
+
+
         gex = m21ToXml.GeneralObjectExporter()
         parsed_file = gex.parse(parsed_file).decode('utf-8')
 
@@ -144,7 +148,7 @@ class IndividualAnalysis(View):
         chords_form = ChordRepresentationForm(prefix=Prefix.chord_representation.value,
                                               initial={"chord_representation": ChordRepresentation.roman.value})
         self.context_dict.update(
-            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form})
+            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form, "key_form": key_form})
         # return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
@@ -157,7 +161,19 @@ class IndividualAnalysis(View):
                                          choice.get("file_source", None))
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
                 keys = get_key_possibilities(parsed_file)
-                key = keys[0]
+                key_form = KeyForm(keys, request.POST, prefix="key")
+
+
+                if Analysis.key.value in chosen:
+                    print("analysing key")
+                    if key_form.is_valid():
+                        chosen_key = key_form.cleaned_data.get("key_choice", "")
+                        key = m21.key.Key(chosen_key)
+                    else:
+                        key = keys[0]
+                        self.context_dict["key_form_error_message"] = "Error during key choice, the default key, "+get_better_key_name(key) +", was used instead."
+
+
 
                 if Analysis.chords.value in chosen:
                     print("analysing chords")
@@ -196,9 +212,7 @@ class IndividualAnalysis(View):
                 return render_to_response('MusicAnalyzer/MusicPiece.html', self.context_dict)
                 # return JsonResponse({"result": "success"})
             else:
-                pass
-                # TODO error handling
-
+                print(analysis_form.errors)
         # return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
 

@@ -10,7 +10,14 @@ function triggerUpload() {
     let zoomIn = document.getElementById("zoom-in-btn");
     let zoomOut = document.getElementById("zoom-out-btn");
     let chordCheckbox = document.getElementById("id_analysis_choice-individual_analysis_0");
-    let chordTypeSelectionElement = document.getElementById("chordDependent")
+    let chordTypeSelectionElement = document.getElementById("chordDependent");
+    let keyCheckbox = document.getElementById("id_analysis_choice-individual_analysis_4");
+    let intervalsCheckbox = document.getElementById("id_analysis_choice-individual_analysis_1");
+    let leadingNotesCheckbox = document.getElementById("id_analysis_choice-individual_analysis_2");
+    let ambitusCheckbox = document.getElementById("id_analysis_choice-individual_analysis_3");
+    let keyProbabilityElement = document.getElementById("keyDependent");
+    let keyHeading = document.getElementById("keyHeading");
+    let keyRadios = document.getElementById("id_key-key_choice").getElementsByTagName("input");
 
     openSheetMusicDisplay.load(localFile)
     openSheetMusicDisplay.zoom = initialZoom;
@@ -18,7 +25,6 @@ function triggerUpload() {
 
     // Create zoom controls
     zoomIn.onclick = function () {
-        console.log("click")
         initialZoom *= 1.2;
         scale();
     };
@@ -47,17 +53,47 @@ function triggerUpload() {
         canvas.disabled = zoomIn.disabled = zoomOut.disabled = "";
     }
 
-    chordCheckbox.addEventListener('change', function () {
+    chordCheckbox.addEventListener('click', function () {
         if (this.checked) {
             chordTypeSelectionElement.style.display = "inherit";
+            keyHeading.innerText = "Choose which key you want to use for the chord analysis:"
+            for (let i = 0, max = keyRadios.length; i < max; i++) {
+                keyRadios[i].style.display = "inline-block";
+            }
         } else {
             chordTypeSelectionElement.style.display = "none";
+            keyHeading.innerText = "Possible keys with their probability:"
+            for (let i = 0, max = keyRadios.length; i < max; i++) {
+                keyRadios[i].style.display = "None";
+            }
+        }
+    });
+    keyCheckbox.addEventListener('click', function () {
+        if (this.checked) {
+            keyProbabilityElement.style.display = "inherit";
+
+        } else {
+            keyProbabilityElement.style.display = "none";
         }
     });
 
+
+    let checkboxes = document.getElementsByClassName("analysisFormListItem");
+
+
+    let analyzeButton = document.getElementById("individual_analysis_button");
+
+    for (let i = 0, max = checkboxes.length; i < max; i++) {
+        checkboxes[i].addEventListener("click", function () {
+            analyzeButton.disabled = !isBoxClicked()
+        });
+    }
+
+    function isBoxClicked() {
+        return ambitusCheckbox.checked === true || intervalsCheckbox.checked === true ||
+            chordCheckbox.checked === true || leadingNotesCheckbox.checked === true
+    }
+
+
 }
-
-
-
-
 
