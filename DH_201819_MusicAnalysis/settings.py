@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # Static files (CSS, JavaScript, Images)
@@ -153,3 +154,6 @@ SESSION_SAVE_EVERY_REQUEST = True
 if SESSION_EXPIRE_AT_BROWSER_CLOSE:
     max_age = None
     expires = None
+
+# Configure Django App for Heroku.
+django_heroku.settings(locals())
