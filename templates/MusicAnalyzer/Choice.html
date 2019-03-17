@@ -97,6 +97,14 @@
                     onclick="add_group(event)"><i class="fas fa-plus-circle"></i>&nbsp;Add
             </button>
         </div>
+        <div class="invisible" id="group_options">
+            {% if groups %}
+                <option value="" selected=""></option>
+                {% for group in groups %}
+                    <option value="{{ group.pk }}" >{{ group.name }}</option>
+                {% endfor %}
+            {% endif %}
+        </div>
     {% endif %}
     <div id="searchResults" class="invisible uk-grid uk-child-width-1-1">
         <hr class="uk-divider-icon">
@@ -112,12 +120,18 @@
                     {% endif %}>
                 {% csrf_token %}
                 <input type="hidden" name="state" value="select_for_analysis"/>
-                {% if type == "distant" %}
-                    {{ music_choice_form.management_form }}
-                {% endif %}
+
+                {{ music_choice_form.management_form }}
+
 
                 <div class="uk-flex uk-flex-center">
-                    <button class="uk-button uk-button-default uk-align-center submitButton" onclick="addSelected()" disabled
+                    <button class="uk-button uk-button-default uk-align-center submitButton"
+                            onclick="{% if type == 'distant' %}
+                                addSelected(event, 'checkbox');
+                            {% elif type == 'individual' %}
+                                addSelected(event, 'radio');
+                            {% endif %}"
+                            disabled
                             id="analyzeButton1"><i
                             class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
@@ -137,7 +151,8 @@
                                 </a>
                             {% endif %}
                         </th>
-                        {% if type == "distant" %}<th>group</th>{% endif %}
+                        {% if type == "distant" %}
+                            <th>group</th>{% endif %}
                         <th>composer</th>
                         <th>title</th>
                     </tr>
@@ -147,7 +162,12 @@
                     </tbody>
                 </table>
                 <div class="uk-flex uk-flex-center">
-                    <button class="uk-button uk-button-default analyzeButton" onclick="addSelected()" disabled
+                    <button class="uk-button uk-button-default analyzeButton"
+                            onclick="{% if type == 'distant' %}
+                                addSelected(event, 'checkbox');
+                            {% elif type == 'individual' %}
+                                addSelected(event, 'radio');
+                            {% endif %}" disabled
                             id="analyzeButton2"><i
                             class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 

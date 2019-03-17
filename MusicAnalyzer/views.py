@@ -14,7 +14,8 @@ from music21.converter import ConverterFileException
 from music21.musicxml import m21ToXml
 
 from MusicAnalyzer import constants
-from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files, add_group
+from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files, add_group, \
+    get_available_groups
 from MusicAnalyzer.constants import ChordRepresentation, Prefix
 from MusicAnalyzer.forms import *
 import music21 as m21
@@ -63,12 +64,40 @@ class Choice(View):
         elif self.state == constants.State.select_for_analysis.value:
             print("Post")
             print(request.POST)
-            music_choice_form = self.musicChoiceFormset(request.POST, form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
-            if music_choice_form.is_valid():
-                print("clean")
-                print(music_choice_form.cleaned_data)
+            music_choice_forms = self.musicChoiceFormset(request.POST, form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
+            if music_choice_forms.is_valid():
+                print("clean formset")
+                music_pieces_list = []
+                for music_choice_form in music_choice_forms:
+                    if music_choice_form.is_valid:
+                        print("clean form")
+                        data = music_choice_form.cleaned_data
+                        is_selected = data.get("is_selected", False)
+                        print("is_selected")
+                        print(is_selected)
+                        if is_selected:
+                            print("true selected")
+                            file_source = data.get("file_source")
+                            path = data.get("path_to_source")
+                            number = data.get("number")
+                            group_choice = data.get("group_choice")
+                            if context == constants.INDIVIDUAL:
+                                print("individual")
+                                save_music_choice_to_cookie(request,
+                                                            transform_music_source_to_dict(path, number, file_source))
+                                # can do this directly in for, because in individual analysis only one music piece is analysed
+                                return redirect("MusicAnalyzer:individual_analysis")
+                            elif context == constants.DISTANT_HEARING:
+                                print("distant")
+                                music_pieces_list.append(transform_music_source_to_dict(path, number, file_source))
+                    else:
+                        print("non valid form")
+                        # TODO error handling
+                if context == constants.DISTANT_HEARING:
+                    save_music_choice_to_cookie(request, music_pieces_list)
+                    return redirect("MusicAnalyzer:distant_analysis")
             else:
-                print(music_choice_form.errors)
+                print(music_choice_forms.errors)
             '''selecteds = request.POST.getlist("music_piece", None)
             if selecteds is not None:
                 music_pieces_list = []
@@ -135,6 +164,7 @@ class DistantHearingChoice(Choice):
         self.context_dict["type"] = constants.DISTANT_HEARING
         data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
         self.context_dict["data"] = data
+        self.context_dict["groups"] = get_available_groups(request)
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -160,6 +190,7 @@ class IndividualAnalysis(View):
         # parsed_file = access_save_parsed_file_from_cookie(request)
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
+        print(choice)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         print(parsed_file)
         gex = m21ToXml.GeneralObjectExporter()
@@ -247,9 +278,10 @@ def get_system_dependant_path(path):
 # sourcePath and number attributes of MetadataEntry-object, or path to uploaded file
 # returns a Music21object
 def parse_file(source_path, number, file_source):
-    if file_source == constants.CORPUS_FILE:
+    if file_source == "search":
         if source_path is not None and number is not None:
             test = m21.corpus.parse(get_system_dependant_path(source_path), number)
+
             # test = m21.converter.freeze(test)
             return test
         elif source_path is not None:
@@ -258,7 +290,7 @@ def parse_file(source_path, number, file_source):
             return test
         else:
             return None
-    elif file_source == constants.UPLOADED_FILE:
+    elif file_source == "upload":
         if source_path is not None:
             test = m21.converter.parse(get_system_dependant_path(source_path))
             # test = m21.converter.freeze(test)

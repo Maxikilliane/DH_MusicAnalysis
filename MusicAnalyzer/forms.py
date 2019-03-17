@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import BaseFormSet
 
 from MusicAnalyzer.constants import Analysis, ChordRepresentation, State
 from MusicAnalyzer.models import DistantHearingGroup, DjangoSession
@@ -47,6 +48,20 @@ class MusicChoiceForm(forms.Form):
     def get_group_choices(self, session_key):
         current_session = DjangoSession.objects.get(session_key=session_key)
         return DistantHearingGroup.objects.filter(ref_django_session=current_session)
+
+
+class MusicChoicessFormSet(BaseFormSet):
+     def clean(self)  :
+         if any(self.errors):
+             # Don't bother validating the formset unless each form is valid on its own
+             return
+         music_pieces = []
+         for form in self.forms:
+             titles = []
+             title = form.cleaned_data['title']
+             if title in titles:
+                 raise forms.ValidationError("Articles in a set must have distinct titles.")
+             titles.append(title)
 
 
 class IndividualAnalysisForm(forms.Form):

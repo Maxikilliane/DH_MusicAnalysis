@@ -187,3 +187,10 @@ def add_group(request, context):
         return JsonResponse({"result": "success", "name": name, "id":new_group.pk})
     else:
         return JsonResponse({"result": "error", "error": "Form invalid!"})
+
+def get_available_groups(request):
+    groups = DistantHearingGroup.objects.filter(ref_django_session_id = request.session.session_key)
+    groups_list = []
+    for group in groups:
+        groups_list.append({"name": group.name, "pk": group.pk})
+    return groups_list

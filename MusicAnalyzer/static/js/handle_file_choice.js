@@ -104,7 +104,7 @@ function add_group() {
         dataType: 'json',
         success: function (json) {
             UIkit.notification({
-                message: 'Added new group:',
+                message: 'Added new group: '+ String(json.name),
                 status: 'success',
                 pos: 'bottom-center',
                 timeout: 5000 // basically endless time, gets closed on success or error
@@ -116,13 +116,8 @@ function add_group() {
             } else {
                 console.log("success");
                 let pk = json.id;
-                let new_group_element = '<li><div class=".uk-form-controls uk-form-controls-text"><label for="id_choose_group-group_choice_' +
-                    pk + '"><input name="choose_group-group_choice" value="' +
-                    pk + '" id="id_choose_group-group_choice_' +
-                    pk + '" type="radio" class="uk-radio" checked="checked"> ' +
-                    String(json.name) + '</label></div></li>';
-
-                $("#id_choose_group-group_choice").append(new_group_element);
+                let new_group_option = '<option value="'+pk+'">'+String(json.name)+'</option>\n';
+                $("[id$=-group_choice]").append(new_group_option);
             }
         },
         error: function (xhr, errmsg, err) {
@@ -133,15 +128,11 @@ function add_group() {
 }
 
 
-//TODO set selected inside form when clicked?
 function appendClickListeners() {
     let $radios = $("input[name=music_piece]");//document.getElementsByName("music_piece");
     let analyzeButton1 = document.getElementById("analyzeButton1");
     let analyzeButton2 = document.getElementById("analyzeButton2");
     $radios.off().on("click", function () {
-        console.log($(this));
-        console.log($(this).parent());
-        console.log($(this).parent().parent());
 
         analyzeButton1.disabled = isRadioClicked();
         analyzeButton2.disabled = isRadioClicked();
@@ -274,8 +265,7 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
 }
 
 function getGroupOptions() {
-    return '  <option value="" selected="">---------</option>\n' +
-        '  <option value="5">composer:Beethoven</option>\n'
+    return $("#group_options").prop("innerHTML");
 }
 
 function getCurrentNumOfForms() {
@@ -290,14 +280,15 @@ function setCurrentNumOfForms(numberOfNewForms) {
 }
 
 function addSelected(event, typeOfSelection) {
-    let selectedRows = $("#t_searchResults tbody tr td input[type=checkbox]:checked").parent().parent();
+    let selectedRows;
+    if (typeOfSelection === "checkbox") {
+        selectedRows = $("#t_searchResults tbody tr td input[type=checkbox]:checked").parent().parent();
+    } else if (typeOfSelection === "radio") {
+        selectedRows = $("#t_searchResults tbody tr td input[type=radio]:checked").parent().parent();
+    }
     let selectedInForms = selectedRows.find("td div.invisible input[name$=-is_selected]");
-    console.log(selectedInForms);
     selectedInForms.attr('checked', true);
-    console.log("all fine here");
+
     selectedInForms.prop('checked', true);
-    console.log("all fine");
-    console.log("selected:");
-    console.log(selectedInForms);
     $('#select_to_analyse_form').submit();
 }
