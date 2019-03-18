@@ -85,8 +85,7 @@
 
 <input type="hidden" id="chord_summary_stats" value="{{ chord_summary_stats }}">
         <script type="text/javascript">
-   let analysis = {{chord_summary_stats}};
-    distantAnalysis(analysis);
+    distantAnalysis({{ chord_summary_stats|safe }});
 </script>
         </tbody>
     </table>

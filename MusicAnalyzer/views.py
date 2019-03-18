@@ -228,7 +228,6 @@ class IndividualAnalysis(View):
                 gex = m21ToXml.GeneralObjectExporter()
                 parsed_file = gex.parse(parsed_file).decode('utf-8')
                 self.context_dict['music_piece'] = parsed_file
-                print("test")
                 print(self.context_dict)
                 return render_to_response('MusicAnalyzer/MusicPiece.html', self.context_dict)
                 # return JsonResponse({"result": "success"})
@@ -364,9 +363,9 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
             chord.addLyric(part)
 
         if root in chords_roots:
-            chords_roots[root] += 1
+            chords_roots[root.name] += 1
         else:
-            chords_roots[root] = 1
+            chords_roots[root.name] = 1
 
     return {"chords": chords,
             "chord_name_count": chords_names,
