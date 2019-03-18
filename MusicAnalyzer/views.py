@@ -89,7 +89,7 @@ class Choice(View):
                                 return redirect("MusicAnalyzer:individual_analysis")
                             elif context == constants.DISTANT_HEARING:
                                 print("distant")
-                                music_pieces_list.append(transform_music_source_to_dict(path, number, file_source))
+                                music_pieces_list.append(transform_music_source_to_dict(path, number, file_source, group_choice))
                     else:
                         print("non valid form")
                         # TODO error handling
@@ -98,38 +98,7 @@ class Choice(View):
                     return redirect("MusicAnalyzer:distant_analysis")
             else:
                 print(music_choice_forms.errors)
-            '''selecteds = request.POST.getlist("music_piece", None)
-            if selecteds is not None:
-                music_pieces_list = []
-                for select in selecteds:
-                    if select == "select all":
-                        continue
-                    else:
-                        file_source = get_file_source(select)
-                        parts = select.split(get_source_dependant_prefix(file_source))[1].split("__number__")
-                        path = parts[0]
-                        number = get_int_or_none(parts[1])
-                        if context == constants.INDIVIDUAL:
-                            save_music_choice_to_cookie(request,
-                                                        transform_music_source_to_dict(path, number, file_source))
-                            # can do this directly in for, because in individual analysis only one music piece is analysed
-                            return redirect("MusicAnalyzer:individual_analysis")
-                        elif context == constants.DISTANT_HEARING:
-                            music_pieces_list.append(transform_music_source_to_dict(path, number, file_source))
-
-                            # either: pass the data to the analysis view, analyze there
-                            # or: analyse the data and pass the results to the analysis view
-                            #       (probably takes longer to load on first time,
-                            #        but doesn't require loading when switching tabs)
-
-                if context == constants.DISTANT_HEARING:
-                    save_music_choice_to_cookie(request, music_pieces_list)
-                    return redirect("MusicAnalyzer:distant_analysis")
-
-                # if context == constants.INDIVIDUAL:
-                #   save_parsed_file_to_cookie(request, parsed_file)
-                #  return redirect("MusicAnalyzer:individual_analysis")
-                '''
+            
         elif self.state == constants.State.add_new_group.value:
             print("add_new_group")
             if request.is_ajax():
@@ -341,8 +310,8 @@ def get_already_uploaded_files(request, context):
     return data
 
 
-def transform_music_source_to_dict(path, number, file_source):
-    music_piece = {"path": path, "number": number, "file_source": file_source}
+def transform_music_source_to_dict(path, number, file_source, group=None):
+    music_piece = {"path": path, "number": number, "file_source": file_source, "group": group}
     return music_piece
 
 
