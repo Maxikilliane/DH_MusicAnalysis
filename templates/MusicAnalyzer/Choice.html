@@ -82,28 +82,44 @@
     </div>
 
     {% if type == "distant" %}
+        <div class="uk-text-center space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="defineGroups">
+            <h3>Define groups</h3>
+            <div id="inputMask">
+                <form id="add_group_form" method="post"
+                      action="{% url 'MusicAnalyzer:distant_choice' %}"
+                      data-add-group-url="{% url 'MusicAnalyzer:distant_choice' %}">
 
-        <h3>Define groups</h3>
-        <form id="add_group_form" method="post"
-              action="{% url 'MusicAnalyzer:distant_choice' %}"
-              data-add-group-url="{% url 'MusicAnalyzer:distant_choice' %}"
-        >
-            {% csrf_token %}
-            <input type="hidden" name="state" value="new_group"/>
-            {{ add_group_form.as_p }}
-        </form>
-        <div class="uk-flex uk-flex-center">
-            <button id="add_group_button" class="uk-button uk-button-default"
-                    onclick="add_group(event)"><i class="fas fa-plus-circle"></i>&nbsp;Add
-            </button>
+                    {% csrf_token %}
+                    <input type="hidden" name="state" value="new_group"/>
+                    {{ add_group_form.as_p }}
+                </form>
+
+
+                <button id="add_group_button" class="uk-button uk-button-default"
+                        onclick="add_group(event)"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add Group
+                </button>
+
+            </div>
+            <div id="groupLabels">
+                {% if groups %}
+                    {% for group in groups %}
+                        <span class="uk-label">{{ group.name }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
         </div>
+
+
         <div class="invisible" id="group_options">
             {% if groups %}
                 <option value="" selected=""></option>
                 {% for group in groups %}
-                    <option value="{{ group.pk }}" >{{ group.name }}</option>
+                    <option class="uk-label" value="{{ group.pk }}">{{ group.name }}</option>
                 {% endfor %}
             {% endif %}
+        </div>
+
         </div>
     {% endif %}
     <div id="searchResults" class="invisible uk-grid uk-child-width-1-1">

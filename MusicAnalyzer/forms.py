@@ -24,7 +24,8 @@ class SearchForm(forms.Form):
 
 
 class AddGroupForm(forms.ModelForm):
-    name = forms.CharField(max_length=50, required=True)
+    name = forms.CharField(label="", max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'uk-input',
+                                                                                       'placeholder': 'group name'}))
 
     class Meta:
         model = DistantHearingGroup
