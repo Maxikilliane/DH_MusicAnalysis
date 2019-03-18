@@ -1,12 +1,32 @@
-window.onload = function () {
-    triggerUpload()
+
+
+function displayMusic(containerId, fileId) {
+    let initialZoom = 0.6;
+    let container = document.getElementById(containerId);
+    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
+            drawCredits: false,
+            drawTitle: false,
+            drawPartNames: false,
+            drawLyricist: false,
+            drawComposer: false,
+            drawSubtitle: false,
+            drawComments: false
+        }
+    );
+    let localFile = document.getElementById(fileId).value;
+
+    openSheetMusicDisplay.load(localFile);
+    openSheetMusicDisplay.zoom = initialZoom;
+    openSheetMusicDisplay.render();
 }
 
+
 function triggerUpload() {
-    let initialZoom = 0.6
-    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdCanvas", {autoResize: true});
+    console.log("uploading file");
+    let initialZoom = 0.6;
     let canvas = document.getElementById("osmdCanvas")
     let localFile = document.getElementById("musicPiece").value;
+    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdCanvas", {autoResize: true});
     let zoomIn = document.getElementById("zoom-in-btn");
     let zoomOut = document.getElementById("zoom-out-btn");
     let chordCheckbox = document.getElementById("id_analysis_choice-individual_analysis_0");
@@ -84,7 +104,9 @@ function triggerUpload() {
     let analyzeButton = document.getElementById("individual_analysis_button");
 
     for (let i = 0, max = checkboxes.length; i < max; i++) {
+
         checkboxes[i].addEventListener("click", function () {
+
             analyzeButton.disabled = !isBoxClicked()
         });
     }

@@ -1,3 +1,10 @@
+$(document).ready(function () {
+    console.log("doc ready");
+
+   triggerUpload();
+    //triggerUpload();
+});
+
 function start_analysis(event) {
     let form = $("#individual_analysis_form");
     UIkit.notification({
@@ -12,12 +19,19 @@ function start_analysis(event) {
         type: "POST",
         dataType: 'html',
         success: function (data) {
+            //$('#musicPiece').val(data.music_piece);
+            //triggerUpload();
             $('.musicPiece').html(data);
             triggerUpload();
+            if ($('#ambitus_results').length) {
+                displayMusic("ambitusCanvas", "ambitus");
+            }
+
             UIkit.notification.closeAll();
         },
         error: function (xhr, errmsg, err) {
             UIkit.notification.closeAll();
+            console.log("error");
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
         }
     });
