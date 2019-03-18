@@ -13,7 +13,9 @@ from DH_201819_MusicAnalysis import settings
 def session_end_handler(sender, **kwargs):
     session_folder = kwargs.get('instance').session_key
     path = settings.MEDIA_ROOT
-    shutil.rmtree(os.path.join(path, session_folder))
+    dir_to_delete = os.path.join(path, session_folder)
+    if os.path.exists(dir_to_delete):
+        shutil.rmtree(dir_to_delete)
     print("session %s ended" % kwargs.get('instance').session_key)
 
 
