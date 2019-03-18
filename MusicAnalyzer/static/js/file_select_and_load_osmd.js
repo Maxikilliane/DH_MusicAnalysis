@@ -1,6 +1,4 @@
-$(document).ready(function () {
-    triggerUpload();
-});
+
 
 function displayMusic(containerId, fileId) {
     let initialZoom = 0.6;
@@ -24,6 +22,7 @@ function displayMusic(containerId, fileId) {
 
 
 function triggerUpload() {
+    console.log("uploading file");
     let initialZoom = 0.6;
     let canvas = document.getElementById("osmdCanvas")
     let localFile = document.getElementById("musicPiece").value;
@@ -105,7 +104,9 @@ function triggerUpload() {
     let analyzeButton = document.getElementById("individual_analysis_button");
 
     for (let i = 0, max = checkboxes.length; i < max; i++) {
+
         checkboxes[i].addEventListener("click", function () {
+
             analyzeButton.disabled = !isBoxClicked()
         });
     }

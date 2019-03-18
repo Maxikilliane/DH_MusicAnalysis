@@ -205,7 +205,8 @@ class IndividualAnalysis(View):
                     print("ambitus")
                     self.context_dict["ambitus_display"] = ambitus
                 else:
-                    del self.context_dict["ambitus_display"]
+                    if 'ambitus_display' in self.context_dict.keys():
+                        del self.context_dict["ambitus_display"]
 
                 if Analysis.key.value in chosen:
                     print("analysing key")

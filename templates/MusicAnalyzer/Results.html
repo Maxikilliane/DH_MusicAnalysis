@@ -3,6 +3,7 @@
 <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
 
 {% if ambitus_display %}
+    <div id="ambitus_results">
     <h3 class="uk-text-center">Ambitus</h3>
     <p class="uk-text-center">{{ ambitus_interval }} <br/>
         {{ semitones }}</p>
@@ -11,6 +12,7 @@
         <div class="uk-padding-small" id="ambitusCanvas" style="padding-top:0;"></div>
     </div>
     <input type="hidden" id="ambitus" value="{{ ambitus_display }}">
+    </div>
 {% endif %}
 
 
