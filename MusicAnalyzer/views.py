@@ -163,8 +163,8 @@ class IndividualAnalysis(View):
                                          choice.get("file_source", None))
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
                 keys = get_key_possibilities(parsed_file)
+                key = keys[0]
                 key_form = KeyForm(keys, request.POST, prefix="key")
-
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
