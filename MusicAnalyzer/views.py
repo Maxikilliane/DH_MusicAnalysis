@@ -4,6 +4,7 @@ from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 import collections
 import matplotlib.pyplot as plt
+import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, render_to_response
 from django.views import View
@@ -159,7 +160,7 @@ class DistantAnalysis(View):
                         "chord_name_count": dict(chord_name_counter),
                         "chord_quality_count": dict(chord_quality_counter)}
 
-        context_dict["chord_summary_stats"] = total_result
+        context_dict["chord_summary_stats"] = json.dumps(total_result)
 
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 

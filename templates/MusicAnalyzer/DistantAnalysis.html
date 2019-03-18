@@ -84,6 +84,10 @@
         {% endfor %}
 
 <input type="hidden" id="chord_summary_stats" value="{{ chord_summary_stats }}">
+        <script type="text/javascript">
+   let analysis = {{chord_summary_stats}};
+    distantAnalysis(analysis);
+</script>
         </tbody>
     </table>
 
