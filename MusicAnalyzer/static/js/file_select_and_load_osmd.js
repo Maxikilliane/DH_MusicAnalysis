@@ -1,6 +1,6 @@
-window.onload = function () {
-    triggerUpload()
-}
+$(document).ready(function () {
+    triggerUpload();
+});
 
 function displayMusic(containerId, fileId) {
     let initialZoom = 0.6;
