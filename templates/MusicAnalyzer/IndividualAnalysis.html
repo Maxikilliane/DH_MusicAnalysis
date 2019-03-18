@@ -5,7 +5,6 @@
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
-
     <script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
     {# fontawesome for icons #}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
@@ -78,12 +77,6 @@
     </div>
 
     <div class="musicPiece">
-        {% include 'MusicAnalyzer/MusicPiece.html' %}
-    </div>
-    <div class="results">
-        {% for key in key_possibilities %}
-            {{ key }}
-            {{ key.correlationCoefficient }}
-        {% endfor %}
+        {% include 'MusicAnalyzer/Results.html' %}
     </div>
 {% endblock %}
