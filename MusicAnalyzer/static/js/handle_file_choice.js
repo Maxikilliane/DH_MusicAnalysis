@@ -104,7 +104,7 @@ function add_group() {
         dataType: 'json',
         success: function (json) {
             UIkit.notification({
-                message: 'Added new group: '+ String(json.name),
+                message: 'Added new group: ' + String(json.name),
                 status: 'success',
                 pos: 'bottom-center',
                 timeout: 5000 // basically endless time, gets closed on success or error
@@ -116,8 +116,11 @@ function add_group() {
             } else {
                 console.log("success");
                 let pk = json.id;
-                let new_group_option = '<option value="'+pk+'">'+String(json.name)+'</option>\n';
+                let new_group_option = '<option value="' + pk + '">' + String(json.name) + '</option>\n';
                 $("[id$=-group_choice]").append(new_group_option);
+
+                let newLabel = '<span class="uk-label">' + String(json.name) + '</span>\n';
+                $("#groupLabels").append(newLabel);
             }
         },
         error: function (xhr, errmsg, err) {
@@ -247,7 +250,7 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
         if (typeOfSelection === "checkbox") {
             let groupOptions = getGroupOptions();
             group += '<td>' +
-                '<select name="choose_music_piece-' + formNum + '-group_choice" id="id_choose_music_piece-' + formNum + '-group_choice">\n' +
+                '<select class="uk-select" name="choose_music_piece-' + formNum + '-group_choice" id="id_choose_music_piece-' + formNum + '-group_choice">\n' +
                 groupOptions +
                 '</select>' +
                 '</td>\n';

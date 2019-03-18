@@ -154,26 +154,32 @@ class DistantAnalysis(View):
 
 class IndividualAnalysis(View):
     context_dict = {}
+    gex = m21ToXml.GeneralObjectExporter()
 
     def get(self, request):
+        print("get")
         # parsed_file = access_save_parsed_file_from_cookie(request)
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
         print(choice)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
-        print(parsed_file)
-        gex = m21ToXml.GeneralObjectExporter()
-        parsed_file = gex.parse(parsed_file).decode('utf-8')
+        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
+        keys = get_key_possibilities(parsed_file)
+        key_form = KeyForm(keys, prefix="key", initial={"key_choice": keys[0].tonicPitchNameWithCase})
+
+
+        parsed_file = self.gex.parse(parsed_file).decode('utf-8')
 
         analysis_form = IndividualAnalysisForm(prefix=Prefix.individual_analysis.value)
         chords_form = ChordRepresentationForm(prefix=Prefix.chord_representation.value,
                                               initial={"chord_representation": ChordRepresentation.roman.value})
         self.context_dict.update(
-            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form})
-        # return render(request, "MusicAnalyzer/music_piece.html", self.context_dict)
+            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form, "key_form": key_form})
+        # return render(request, "MusicAnalyzer/Results.html", self.context_dict)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
+        print("post")
         if request.is_ajax():
             analysis_form = IndividualAnalysisForm(request.POST, prefix=Prefix.individual_analysis.value)
             if analysis_form.is_valid():
@@ -183,6 +189,18 @@ class IndividualAnalysis(View):
                 chosen = analysis_form.cleaned_data.get('individual_analysis', [])
                 keys = get_key_possibilities(parsed_file)
                 key = keys[0]
+                key_form = KeyForm(keys, request.POST, prefix="key")
+
+                if Analysis.key.value in chosen:
+                    print("analysing key")
+                    if key_form.is_valid():
+                        chosen_key = key_form.cleaned_data.get("key_choice", "")
+                        key = m21.key.Key(chosen_key)
+                    else:
+                        key = keys[0]
+                        self.context_dict["key_form_error_message"] = "Error during key choice, the default key, "+get_better_key_name(key) +", was used instead."
+
+
 
                 if Analysis.chords.value in chosen:
                     print("analysing chords")
@@ -208,22 +226,26 @@ class IndividualAnalysis(View):
 
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
+                    ambitus = get_ambitus_for_display(parsed_file, self.gex, self.context_dict)
+                    print("ambitus")
+                    self.context_dict["ambitus_display"] = ambitus
+                else:
+                    if 'ambitus_display' in self.context_dict.keys():
+                        del self.context_dict["ambitus_display"]
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
                     self.context_dict["key_possibilities"] = keys
 
-                gex = m21ToXml.GeneralObjectExporter()
-                parsed_file = gex.parse(parsed_file).decode('utf-8')
+                parsed_file = self.gex.parse(parsed_file).decode('utf-8')
+
                 self.context_dict['music_piece'] = parsed_file
-                print("test")
-                print(self.context_dict)
-                return render_to_response('MusicAnalyzer/MusicPiece.html', self.context_dict)
+                # print(self.context_dict)
+                # return JsonResponse(self.context_dict)
+                return render_to_response('MusicAnalyzer/Results.html', self.context_dict)
                 # return JsonResponse({"result": "success"})
             else:
-                pass
-                # TODO error handling
-
+                print(analysis_form.errors)
         # return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
 
@@ -315,8 +337,32 @@ def transform_music_source_to_dict(path, number, file_source, group=None):
     return music_piece
 
 
-def get_interval_between_highest_and_lowest_pitch(stream):
-    return stream.analyze('ambitus')
+def get_ambitus_for_display(stream, gex, context_dict):
+    ambitus = get_ambitus(stream)
+    display = m21.stream.Stream()
+    display_part = m21.stream.Part()
+    display_part.append(m21.note.Note(ambitus["pitches"][0]))
+    display_part.append(m21.note.Note(ambitus["pitches"][1]))
+    display.append(display_part)
+    display.insert(0, m21.metadata.Metadata())
+    # not necessary anymore because osmd provides the option to not display those, seemed cleaner that way.
+    # display_part.partName = " "
+    # display.metadata.title = ambitus["interval"].niceName
+    # display.metadata.alternativeTitle = ""
+    # display.metadata.movementName = str(ambitus["interval"].semitones) + " semitones"
+    display.metadata.composer = " "
+    context_dict["ambitus_interval"] = ambitus["interval"].niceName
+    context_dict["semitones"] = str(ambitus["interval"].semitones) + " semitones"
+    ambitus_display = gex.parse(display).decode("utf-8")
+    return ambitus_display
+
+
+def get_ambitus(stream):
+    ambitus = m21.analysis.discrete.Ambitus(stream)
+    pitch_span = ambitus.getPitchSpan(stream)
+    interval = ambitus.getSolution(stream)
+
+    return {"pitches": pitch_span, "interval": interval}
 
 
 # get chords and summary stats on chords from parsed file
