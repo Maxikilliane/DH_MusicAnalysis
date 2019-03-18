@@ -204,6 +204,8 @@ class IndividualAnalysis(View):
                     ambitus = get_ambitus_for_display(parsed_file, self.gex, self.context_dict)
                     print("ambitus")
                     self.context_dict["ambitus_display"] = ambitus
+                else:
+                    del self.context_dict["ambitus_display"]
 
                 if Analysis.key.value in chosen:
                     print("analysing key")
