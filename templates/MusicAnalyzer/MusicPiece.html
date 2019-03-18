@@ -1,0 +1,8 @@
+{% load staticfiles %}
+<script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
+<script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static "/css/musicPiece.css" %}"/>
+<div id="musicCanvas" class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
+    <div class="uk-padding" id="osmdCanvas"></div>
+</div>
+<input type="hidden" id="musicPiece" value="{{ music_piece }}">

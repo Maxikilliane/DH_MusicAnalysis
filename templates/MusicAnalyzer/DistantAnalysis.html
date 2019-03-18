@@ -1,0 +1,17 @@
+{% extends 'MusicAnalyzer/Base.html' %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block head_block %}
+    {# JQUERY FILE UPLOAD SCRIPTS #}
+    <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
+    <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
+    <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+    {# fontawesome for icons #}
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+          integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    {# add static files here #}
+{% endblock %}
+
+{% block body_block %}
+
+{% endblock %}

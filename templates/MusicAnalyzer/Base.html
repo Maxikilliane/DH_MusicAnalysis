@@ -13,6 +13,7 @@
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <!-- own CSS -->
+    <link rel="icon" href="{% static "/images/favicon.png" %}" type="image/png"/>
     <link rel="stylesheet" type="text/css" href="{% static "/css/base.css" %}"/>
     {% block head_block %}{% endblock %}
 </head>
@@ -22,7 +23,9 @@
         <nav class="uk-navbar-container uk-navbar-default" uk-navbar>
             <div class="uk-navbar-left">
                 <ul class="uk-navbar-nav">
-                    <li class="uk-active"><a href="{% url 'MusicAnalyzer:index' %}">MusicAnalyzer</a></li>
+                    <li id="listItem">
+                        <a id="logo" href="{% url 'MusicAnalyzer:index' %}"><img src="{% static "/images/logo.png" %}" alt="logo"></a>
+                    </li>
                 </ul>
             </div>
         </nav>
