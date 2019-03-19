@@ -58,8 +58,6 @@ $(function () {
     });
 });
 
-/* tutorial code until here*/
-
 
 function search_corpus() {
 
@@ -95,7 +93,6 @@ function search_corpus() {
 }
 
 function add_group() {
-    console.log("add group");
     let form = $("#add_group_form");
     $.ajax({
         url: form.attr("data-add-group-url"),
@@ -155,9 +152,15 @@ $(document).ready(function () {
         addResultsToTable(json.results, typeOfSelection, "upload");
     }
     appendClickListeners();
-
 });
 
+$('html').bind('keypress', function(e) {
+   if(e.keyCode === 13)
+   {
+      add_group(e);
+      return false;
+   }
+});
 
 // adjust all the checkboxes to be in the same state (checked/unchecked) as the one in the table header
 function toggleSelectAll(source) {
