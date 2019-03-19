@@ -19,8 +19,9 @@ header nav {
     display: none;
 }
 
-#listItem {
-    width: 20%;
+img {
+    height: 80px;
+    padding-bottom: 2em;
 }
 
 #logo {

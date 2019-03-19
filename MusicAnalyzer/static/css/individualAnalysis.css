@@ -44,3 +44,14 @@
     display: -webkit-inline-box;
 }
 
+#chordDependent {
+    display: none;
+}
+
+#keyDependent {
+    display: none;
+}
+
+#id_key-key_choice input {
+    display: none;
+}

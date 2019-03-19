@@ -5,8 +5,7 @@
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
-
-    <script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
+   <script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
     {# fontawesome for icons #}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -21,14 +20,14 @@
         <li><span>Individual Analysis</span></li>
     </ul>
 
-        <div id="zoomBox" uk-sticky="bottom: #offset">
-            <div class="uk-position-right inZoomBox">
-                <i id="zoom-in-btn"
-                   class="fas fa-search-plus fa-2x"></i>
-                <i id="zoom-out-btn"
-                   class="fas fa-search-minus fa-2x"></i>
-            </div>
+    <div id="zoomBox" uk-sticky="bottom: #offset">
+        <div class="uk-position-right inZoomBox">
+            <i id="zoom-in-btn"
+               class="fas fa-search-plus fa-2x"></i>
+            <i id="zoom-out-btn"
+               class="fas fa-search-minus fa-2x"></i>
         </div>
+    </div>
     <div id="analysisChoiceForm" class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <div class="questionForm">
             {% if analysis_form %}
@@ -47,7 +46,18 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="uk-margin">
+
+                    {% if key_form %}
+                        <div class="question uk-text-center"  id="keyDependent">
+                            {% for field in key_form.visible_fields %}
+                                {{ field.errors }}
+                                <h4 id="keyHeading">{{ field.label }}</h4>
+                                {{ field.help_text }}
+                                <div class="uk-form-controls">{{ field }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="uk-margin" id="chordDependent">
                         <div class="question uk-text-center">
                             {% for field in chords_form.visible_fields %}
                                 {{ field.errors }}
@@ -59,8 +69,7 @@
                     </div>
                 </form>
                 <button id="individual_analysis_button" class="uk-button uk-button-default uk-align-center"
-                        onclick="start_analysis(event)"><i
-                        class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
+                        onclick="start_analysis(event)" disabled><i class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
                 </button>
             {% endif %}
@@ -68,12 +77,6 @@
     </div>
 
     <div class="musicPiece">
-        {% include 'MusicAnalyzer/MusicPiece.html' %}
-    </div>
-    <div class="results">
-        {% for key in key_possibilities %}
-            {{ key }}
-            {{ key.correlationCoefficient }}
-        {% endfor %}
+        {% include 'MusicAnalyzer/Results.html' %}
     </div>
 {% endblock %}
