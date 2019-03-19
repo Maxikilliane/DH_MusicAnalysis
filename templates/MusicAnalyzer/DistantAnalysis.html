@@ -1,5 +1,6 @@
 {% extends 'MusicAnalyzer/Base.html' %}
 {% load staticfiles %}
+{% load customFilters %}
 {% block title %}{{ title }}{% endblock %}
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
@@ -69,22 +70,27 @@
     <table class="uk-table uk-table-middle uk-table-divider">
         <thead>
         <tr>
+            <th>group</th>
             <th>composer</th>
             <th>title</th>
             <th>year</th>
         </tr>
         </thead>
         <tbody>
-        {% for music_piece in music_pieces_info %}
+
+        {% for music_piece in all_summary_stats.per_piece_stats.items %} {# needs bug fixing, doesn't work currently #}
             <tr>
-                <td>{{ music_piece.metadata.composer }}</td>
-                <td>{{ music_piece.metadata.title }}</td>
-                <td>{{ music_piece.metadata.year }}</td>
+                <td>{{ music_piece.group }}</td>
+                <td>{{ music_piece.composer }}</td>
+                <td>{{ music_piece.title }}</td>
+                <td>{{ music_piece.year }}</td>
             </tr>
         {% endfor %}
 
+
         </tbody>
     </table>
+
 
     <div id="chords">
         <h2>Chords</h2>
@@ -106,6 +112,6 @@
 
 
     <script type="text/javascript">
-    distantAnalysis({{ summary_stats|safe }});
-</script>
+        distantAnalysis({{ all_summary_stats|safe }});
+    </script>
 {% endblock %}

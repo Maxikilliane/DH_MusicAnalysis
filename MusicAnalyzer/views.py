@@ -160,7 +160,7 @@ class DistantAnalysis(View):
         summary_stats = get_group_and_overall_summary_stats(counter_dict)
         overall_results["per_group_stats"] = summary_stats["group_sum_stats"]#per_group_results_list
         overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
-        context_dict["summary_stats"] = json.dumps(overall_results)
+        context_dict["all_summary_stats"] = json.dumps(overall_results)
 
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
