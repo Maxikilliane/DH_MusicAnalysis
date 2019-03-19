@@ -80,6 +80,48 @@
             {% endif %}
         </div>
     </div>
+
+    {% if type == "distant" %}
+        <div class="uk-text-center space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="defineGroups">
+            <h3>Define groups</h3>
+            <div id="inputMask">
+                <form id="add_group_form" method="post"
+                      action="{% url 'MusicAnalyzer:distant_choice' %}"
+                      data-add-group-url="{% url 'MusicAnalyzer:distant_choice' %}">
+
+                    {% csrf_token %}
+                    <input type="hidden" name="state" value="new_group"/>
+                    {{ add_group_form.as_p }}
+                </form>
+
+
+                <button id="add_group_button" class="uk-button uk-button-default"
+                        onclick="add_group(event)"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add Group
+                </button>
+
+            </div>
+            <div id="groupLabels">
+                {% if groups %}
+                    {% for group in groups %}
+                        <span class="uk-label">{{ group.name }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <div class="invisible" id="group_options">
+            {% if groups %}
+                <option value="" selected=""></option>
+                {% for group in groups %}
+                    <option class="uk-label" value="{{ group.pk }}">{{ group.name }}</option>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        </div>
+    {% endif %}
     <div id="searchResults" class="invisible uk-grid uk-child-width-1-1">
         <hr class="uk-divider-icon">
         <div class="uk-container uk-align-center">
@@ -94,8 +136,19 @@
                     {% endif %}>
                 {% csrf_token %}
                 <input type="hidden" name="state" value="select_for_analysis"/>
+
+                {{ music_choice_form.management_form }}
+
+
                 <div class="uk-flex uk-flex-center">
-                    <button class="uk-button uk-button-default uk-align-center submitButton" type="submit" disabled id="analyzeButton1"><i
+                    <button class="uk-button uk-button-default uk-align-center submitButton"
+                            onclick="{% if type == 'distant' %}
+                                addSelected(event, 'checkbox');
+                            {% elif type == 'individual' %}
+                                addSelected(event, 'radio');
+                            {% endif %}"
+                            disabled
+                            id="analyzeButton1"><i
                             class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
                     </button>
@@ -114,16 +167,24 @@
                                 </a>
                             {% endif %}
                         </th>
+                        {% if type == "distant" %}
+                            <th>group</th>{% endif %}
                         <th>composer</th>
                         <th>title</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {{data|json_script:"already_uploaded" }}
+                    {{ data|json_script:"already_uploaded" }}
                     </tbody>
                 </table>
                 <div class="uk-flex uk-flex-center">
-                    <button class="uk-button uk-button-default analyzeButton" type="submit" disabled id ="analyzeButton2"><i
+                    <button class="uk-button uk-button-default analyzeButton"
+                            onclick="{% if type == 'distant' %}
+                                addSelected(event, 'checkbox');
+                            {% elif type == 'individual' %}
+                                addSelected(event, 'radio');
+                            {% endif %}" disabled
+                            id="analyzeButton2"><i
                             class="fas fa-chart-line"></i>&nbsp;&nbsp;Analyze
 
                     </button>

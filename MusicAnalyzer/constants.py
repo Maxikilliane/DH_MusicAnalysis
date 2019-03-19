@@ -9,11 +9,22 @@ CORPUS_FILE = 1
 STATE_SEARCH_CORPUS = "search_corpus"
 STATE_UPLOAD_FILE = "upload"
 STATE_SELECT_FOR_ANALYSIS = "select_for_analysis"
+STATE_ADD_NEW_GROUP = "new_group"
+
+
+class State(Enum):
+    search_corpus = "search_corpus"
+    upload_file = "upload"
+    select_for_analysis = "select_for_analysis"
+    add_new_group = "new_group"
 
 
 class Prefix(Enum):
     individual_analysis = "analysis_choice"
     chord_representation = "chord_rep"
+    add_group = "add_group"
+    choose_group = "choose_group"
+    choose_music_file = "choose_music_piece"
 
 
 # Cookie names
@@ -35,4 +46,3 @@ class Analysis(Enum):
     ambitus = 4
     key = 5
     pitches = 6
-
