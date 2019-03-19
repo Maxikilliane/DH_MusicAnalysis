@@ -15,7 +15,7 @@ from django.views import View
 from music21.converter import ConverterFileException
 from music21.musicxml import m21ToXml
 
-from MusicAnalyzer import constants
+from MusicAnalyzer import constants, texts
 from MusicAnalyzer.choice import upload_files, search_corpus, get_metadata_from_uploaded_files, add_group, \
     get_available_groups, get_relevant_metadata
 from MusicAnalyzer.constants import ChordRepresentation, Prefix
@@ -66,7 +66,9 @@ class Choice(View):
         elif self.state == constants.State.select_for_analysis.value:
             print("Post")
             print(request.POST)
-            music_choice_forms = self.musicChoiceFormset(request.POST, form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
+            music_choice_forms = self.musicChoiceFormset(request.POST,
+                                                         form_kwargs={'session_key': request.session.session_key},
+                                                         prefix=Prefix.choose_music_file.value)
             if music_choice_forms.is_valid():
 
                 music_pieces_list = []
@@ -90,7 +92,8 @@ class Choice(View):
                                 return redirect("MusicAnalyzer:individual_analysis")
                             elif context == constants.DISTANT_HEARING:
                                 print("distant")
-                                music_pieces_list.append(transform_music_source_to_dict(path, number, file_source, group_choice))
+                                music_pieces_list.append(
+                                    transform_music_source_to_dict(path, number, file_source, group_choice))
                     else:
                         print("non valid form")
                         # TODO error handling
@@ -99,7 +102,7 @@ class Choice(View):
                     return redirect("MusicAnalyzer:distant_analysis")
             else:
                 print(music_choice_forms.errors)
-            
+
         elif self.state == constants.State.add_new_group.value:
             print("add_new_group")
             if request.is_ajax():
@@ -144,50 +147,100 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        context_dict = {}
-        # context_dict["music_pieces"] = access_music_choice_from_cookie(request)  # make this instance variable and only change when updated?
-        context_dict["explanations"] = texts.distant_hearing_explanations
-        music_pieces = access_music_choice_from_cookie(
-            request)
-        analysis_results = []
-        music_pieces_list = []
+        context_dict={"explanations":texts.distant_hearing_explanations}
+        music_pieces = access_music_choice_from_cookie(request)
+        overall_results = {}  # all the results
 
-        for music_piece in music_pieces:
-            analysis_result = {}
-            parsed_file = parse_file(music_piece.get("path", ""), music_piece.get("number", None),
-                                     music_piece.get("file_source", None))
-            music_piece_info = {}
-            metadata_dict = get_relevant_metadata(parsed_file)
-            key = get_key_possibilities(parsed_file)[0]
-            chords_info = get_chord_information(parsed_file, key)
-            music_piece_info["metadata"] = metadata_dict
-            music_piece_info["chords"] = chords_info
-
-            analysis_result.update(metadata_dict)
-            analysis_result.update(chords_info)
-            analysis_results.append(analysis_result)
-
-            music_pieces_list.append(music_piece_info)
-
-        context_dict["music_pieces_info"] = music_pieces_list
-        # sum the values with same keys
-        dict_of_result_dicts = {}
-        chord_quality_counter = collections.Counter()
-        chord_name_counter = collections.Counter()
-        chord_root_counter = collections.Counter()
-        for d in analysis_results:
-            chord_quality_counter.update(d["chord_quality_count"])
-            chord_name_counter.update(d["chord_name_count"])
-            chord_root_counter.update(d["chord_root_count"])
-
-        total_result = {"chord_root_count": dict(chord_root_counter),
-                        "chord_name_count": dict(chord_name_counter),
-                        "chord_quality_count": dict(chord_quality_counter)}
-
-        context_dict["chord_summary_stats"] = json.dumps(total_result)
+        stats = get_summary_stats_for_individual_pieces(music_pieces)
+        per_piece_results_list = stats["per_piece"]
+        relevant_groups = stats["groups"]
+        overall_results["per_piece_stats"] = per_piece_results_list
+        counter_dict = getCounters(relevant_groups)
+        counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
+        summary_stats = get_group_and_overall_summary_stats(counter_dict)
+        overall_results["per_group_stats"] = summary_stats["group_sum_stats"]#per_group_results_list
+        overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
+        context_dict["summary_stats"] = json.dumps(overall_results)
 
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
+
+def get_results_from_counters(dictionary, accessor):
+    result = {}
+    result_key = accessor[:-2]
+    result[result_key] = dictionary[accessor]
+    return result
+
+
+def get_summary_stats_for_individual_pieces(music_pieces):
+    per_piece_results_list = []
+    relevant_groups = set()
+    for music_piece in music_pieces:
+        analysis_result_for_this_piece = {}  # results for every single music piece (chords, ambitus
+        parsed_file = parse_file(music_piece.get("path", ""), music_piece.get("number", None),
+                                 music_piece.get("file_source", None))
+        music_piece_info = {}
+        metadata_dict = get_relevant_metadata(parsed_file)
+        group_id = music_piece.get("group", None)
+        if group_id is not None:
+            group = DistantHearingGroup.objects.get(group_id=group_id)
+            metadata_dict["group"] = group.name
+            group_name = group.name
+        else:
+            metadata_dict["group"] = ""
+            group_name = ""
+        relevant_groups.add(group_name)
+        key = get_key_possibilities(parsed_file)[0]
+        chords_info = get_chord_information(parsed_file, key)
+        chords_info.pop("chords",
+                        None)  # chords are not json serializable and only in this dict, because the individual analysis method was reused
+        music_piece_info["metadata"] = metadata_dict
+        music_piece_info["chords"] = chords_info
+
+        analysis_result_for_this_piece.update(metadata_dict)
+        analysis_result_for_this_piece.update(chords_info)
+        per_piece_results_list.append(analysis_result_for_this_piece)
+    return {"groups":relevant_groups, "per_piece":per_piece_results_list}
+
+
+def getCounters(relevant_groups):
+    counter_dict = {}
+    for group in relevant_groups:
+        counter_dict[group] = get_dict_of_all_necessary_counters()
+    counter_dict["total"] = get_dict_of_all_necessary_counters()
+    return counter_dict
+
+
+# sum the values with same keys
+def get_group_and_total_counts(per_piece_results_list, counter_dict):
+    for d in per_piece_results_list:
+        group = d.get("group", "")
+        counter_dict[group]["chord_quality_counter"].update(d["chord_quality_count"])
+        counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
+        counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
+        counter_dict["total"]["chord_quality_counter"].update(d["chord_quality_count"])
+        counter_dict["total"]["chord_name_counter"].update(d["chord_name_count"])
+        counter_dict["total"]["chord_root_counter"].update(d["chord_root_count"])
+    return counter_dict
+
+
+def get_group_and_overall_summary_stats(counter_dict):
+    per_group_results_list = []
+    total = {}
+    for group, results_dict in counter_dict.items():
+        group_results = {}
+        for counter_name in results_dict.keys():
+            if group == "total":
+                total_sum_stats = get_results_from_counters(results_dict, counter_name)
+                total.update(total_sum_stats)
+            else:
+                group_sum_stats = get_results_from_counters(results_dict, counter_name)
+                group_results.update(group_sum_stats)
+
+        if group != "total":
+            group_results.update({"group_name": group})
+            per_group_results_list.append(group_results)
+    return {"total_sum_stats": total, "group_sum_stats": per_group_results_list}
 
 class IndividualAnalysis(View):
     context_dict = {}
@@ -204,14 +257,14 @@ class IndividualAnalysis(View):
         keys = get_key_possibilities(parsed_file)
         key_form = KeyForm(keys, prefix="key", initial={"key_choice": keys[0].tonicPitchNameWithCase})
 
-
         parsed_file = self.gex.parse(parsed_file).decode('utf-8')
 
         analysis_form = IndividualAnalysisForm(prefix=Prefix.individual_analysis.value)
         chords_form = ChordRepresentationForm(prefix=Prefix.chord_representation.value,
                                               initial={"chord_representation": ChordRepresentation.roman.value})
         self.context_dict.update(
-            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form, "key_form": key_form})
+            {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form,
+             "key_form": key_form})
         # return render(request, "MusicAnalyzer/Results.html", self.context_dict)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
@@ -235,9 +288,9 @@ class IndividualAnalysis(View):
                         key = m21.key.Key(chosen_key)
                     else:
                         key = keys[0]
-                        self.context_dict["key_form_error_message"] = "Error during key choice, the default key, "+get_better_key_name(key) +", was used instead."
-
-
+                        self.context_dict[
+                            "key_form_error_message"] = "Error during key choice, the default key, " + get_better_key_name(
+                            key) + ", was used instead."
 
                 if Analysis.chords.value in chosen:
                     print("analysing chords")
@@ -370,7 +423,8 @@ def get_already_uploaded_files(request, context):
 
 
 def transform_music_source_to_dict(path, number, file_source, group=None):
-    music_piece = {"path": path, "number": number, "file_source": file_source, "group": group}
+    print(group.pk)
+    music_piece = {"path": path, "number": number, "file_source": file_source, "group": group.pk}
     return music_piece
 
 
@@ -483,3 +537,11 @@ def get_key_possibilities(parsed_file):
     key = parsed_file.analyze('key')
     key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
     return key_list
+
+
+def get_dict_of_all_necessary_counters():
+    return {
+        "chord_quality_counter": collections.Counter(),
+        "chord_name_counter": collections.Counter(),
+        "chord_root_counter": collections.Counter()
+    }

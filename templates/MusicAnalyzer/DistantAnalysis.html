@@ -83,10 +83,6 @@
             </tr>
         {% endfor %}
 
-<input type="hidden" id="chord_summary_stats" value="{{ chord_summary_stats }}">
-        <script type="text/javascript">
-    distantAnalysis({{ chord_summary_stats|safe }});
-</script>
         </tbody>
     </table>
 
@@ -107,4 +103,9 @@
     <div id="ambitus">
         <h2>Ambitus</h2>
     </div>
+
+
+    <script type="text/javascript">
+    distantAnalysis({{ summary_stats|safe }});
+</script>
 {% endblock %}
