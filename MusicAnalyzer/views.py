@@ -68,21 +68,20 @@ class Choice(View):
             print(request.POST)
             music_choice_forms = self.musicChoiceFormset(request.POST, form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
             if music_choice_forms.is_valid():
-                print("clean formset")
+
                 music_pieces_list = []
                 for music_choice_form in music_choice_forms:
                     if music_choice_form.is_valid:
-                        print("clean form")
+
                         data = music_choice_form.cleaned_data
                         is_selected = data.get("is_selected", False)
-                        print("is_selected")
-                        print(is_selected)
+
                         if is_selected:
-                            print("true selected")
                             file_source = data.get("file_source")
                             path = data.get("path_to_source")
                             number = data.get("number")
                             group_choice = data.get("group_choice")
+                            print(group_choice)
                             if context == constants.INDIVIDUAL:
                                 print("individual")
                                 save_music_choice_to_cookie(request,

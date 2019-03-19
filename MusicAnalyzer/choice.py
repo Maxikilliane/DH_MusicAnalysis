@@ -172,8 +172,7 @@ def get_metadata_for_previously_uploaded_files(final_path, context, music):
 def get_metadata_for_newly_uploaded_files(final_path, context, music):
     upload = get_relevant_metadata(music)
     upload["path"] = final_path
-    upload["context"] = context
-    return {'is_valid': True, "upload": upload}
+    return {'is_valid': True, "context": context, "result": upload}
 
 
 def get_relevant_metadata(music):

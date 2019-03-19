@@ -41,10 +41,12 @@ $(function () {
 
     $("#fileupload").fileupload({
         dataType: 'json',
-        done: function (e, data) {  /* process server response */
-            if (data.result.is_valid) {
-                let results = [data.result.upload];
-                let typeOfSelection = adjustToContextAndFileSource(results, data.result.context, "upload");
+        success: function (data) {  /* process server response */
+            if (data.is_valid) {
+                let results = [];
+                let meta = data.result;
+                results.push(meta);
+                let typeOfSelection = adjustToContextAndFileSource(results, data.context, "upload");
                 addResultsToTable(results, typeOfSelection, "upload");
             } else {
                 UIkit.notification({
