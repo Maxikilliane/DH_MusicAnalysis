@@ -277,7 +277,6 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
 }
 
 function getGroupOptions() {
-    console.log($("#group_options").prop("innerHTML"));
     return $("#group_options").prop("innerHTML");
 }
 

@@ -115,7 +115,7 @@
             <option value="" selected=""></option>
             {% if groups %}
                 {% for group in groups %}
-                    <option class="uk-label" value="{{ group.pk }}">{{ group.name }}</option>
+                    <option value="{{ group.pk }}">{{ group.name }}</option>
                 {% endfor %}
             {% endif %}
         </div>
