@@ -147,19 +147,22 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        context_dict={"explanations":texts.distant_hearing_explanations}
+        context_dict = {"explanations": texts.distant_hearing_explanations}
         music_pieces = access_music_choice_from_cookie(request)
         overall_results = {}  # all the results
 
         stats = get_summary_stats_for_individual_pieces(music_pieces)
         per_piece_results_list = stats["per_piece"]
         relevant_groups = stats["groups"]
-        overall_results["per_piece_stats"] = per_piece_results_list
         counter_dict = getCounters(relevant_groups)
         counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
         summary_stats = get_group_and_overall_summary_stats(counter_dict)
-        overall_results["per_group_stats"] = summary_stats["group_sum_stats"]#per_group_results_list
+
+        overall_results["per_piece_stats"] = per_piece_results_list
+        overall_results["per_group_stats"] = summary_stats["group_sum_stats"]  # per_group_results_list
         overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
+
+        context_dict["metadata"] = stats["metadata"]
         context_dict["all_summary_stats"] = json.dumps(overall_results)
 
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
@@ -175,11 +178,12 @@ def get_results_from_counters(dictionary, accessor):
 def get_summary_stats_for_individual_pieces(music_pieces):
     per_piece_results_list = []
     relevant_groups = set()
+    metadata_list = []
     for music_piece in music_pieces:
-        analysis_result_for_this_piece = {}  # results for every single music piece (chords, ambitus
+        # metadata stuff
+        analysis_result_for_this_piece = {}
         parsed_file = parse_file(music_piece.get("path", ""), music_piece.get("number", None),
                                  music_piece.get("file_source", None))
-        music_piece_info = {}
         metadata_dict = get_relevant_metadata(parsed_file)
         group_id = music_piece.get("group", None)
         if group_id is not None:
@@ -190,17 +194,19 @@ def get_summary_stats_for_individual_pieces(music_pieces):
             metadata_dict["group"] = ""
             group_name = ""
         relevant_groups.add(group_name)
+        metadata_list.append(metadata_dict)
+
+        # analysis stuff
         key = get_key_possibilities(parsed_file)[0]
         chords_info = get_chord_information(parsed_file, key)
         chords_info.pop("chords",
                         None)  # chords are not json serializable and only in this dict, because the individual analysis method was reused
-        music_piece_info["metadata"] = metadata_dict
-        music_piece_info["chords"] = chords_info
 
+        # pass stuff to results
         analysis_result_for_this_piece.update(metadata_dict)
         analysis_result_for_this_piece.update(chords_info)
         per_piece_results_list.append(analysis_result_for_this_piece)
-    return {"groups":relevant_groups, "per_piece":per_piece_results_list}
+    return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 
 
 def getCounters(relevant_groups):
@@ -242,6 +248,7 @@ def get_group_and_overall_summary_stats(counter_dict):
             per_group_results_list.append(group_results)
     return {"total_sum_stats": total, "group_sum_stats": per_group_results_list}
 
+
 class IndividualAnalysis(View):
     context_dict = {}
     gex = m21ToXml.GeneralObjectExporter()
@@ -253,7 +260,6 @@ class IndividualAnalysis(View):
         choice = access_music_choice_from_cookie(request)
         print(choice)
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
-        analysis_form = IndividualAnalysisForm(prefix="analysis_choice")
         keys = get_key_possibilities(parsed_file)
         key_form = KeyForm(keys, prefix="key", initial={"key_choice": keys[0].tonicPitchNameWithCase})
 

@@ -77,8 +77,7 @@
         </tr>
         </thead>
         <tbody>
-
-        {% for music_piece in all_summary_stats.per_piece_stats.items %} {# needs bug fixing, doesn't work currently #}
+        {% for music_piece in metadata %}
             <tr>
                 <td>{{ music_piece.group }}</td>
                 <td>{{ music_piece.composer }}</td>
