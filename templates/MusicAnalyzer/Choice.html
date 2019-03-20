@@ -96,7 +96,7 @@
 
 
                 <button id="add_group_button" class="uk-button uk-button-default"
-                        onclick="add_group(event)"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add Group
+                        onclick="addGroup(event)"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add Group
                 </button>
 
             </div>
@@ -112,8 +112,8 @@
 
 
         <div class="invisible" id="group_options">
+            <option value="" selected=""></option>
             {% if groups %}
-                <option value="" selected=""></option>
                 {% for group in groups %}
                     <option class="uk-label" value="{{ group.pk }}">{{ group.name }}</option>
                 {% endfor %}
