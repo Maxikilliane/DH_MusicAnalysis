@@ -494,8 +494,7 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
         lyric_parts = get_chord_representation(chord, key, type_of_representation)
         for part in lyric_parts:
             chord.addLyric(part)
-
-        if root in chords_roots:
+        if root.name in chords_roots:
             chords_roots[root.name] += 1
         else:
             chords_roots[root.name] = 1
