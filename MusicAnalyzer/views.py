@@ -429,8 +429,11 @@ def get_already_uploaded_files(request, context):
 
 
 def transform_music_source_to_dict(path, number, file_source, group=None):
-    print(group.pk)
-    music_piece = {"path": path, "number": number, "file_source": file_source, "group": group.pk}
+    if group is not None:
+        group_id = group.pk
+    else:
+        group_id = None
+    music_piece = {"path": path, "number": number, "file_source": file_source, "group": group_id}
     return music_piece
 
 
