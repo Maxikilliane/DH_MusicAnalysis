@@ -19,6 +19,10 @@ h2 {
     background-color: rgba(187,222,251,0.5)
 }
 
+.chart-container {
+    border: 1px solid #ddd;
+    margin-bottom: 2em;
+}
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
     font-weight: 500;
     text-decoration: none;
