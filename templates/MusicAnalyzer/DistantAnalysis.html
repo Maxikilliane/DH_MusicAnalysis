@@ -11,6 +11,8 @@
     <link rel="stylesheet" type="text/css" href="{% static "/css/distantAnalysis.css" %}"/>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
     <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-legend@0.6.2/chartist-plugin-legend.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
@@ -22,79 +24,103 @@
     <li><a href="#durations">Durations</a></li>
     <li><a href="#key">Key</a></li>
     <li><a href="#ambitus">Ambitus</a></li>
+
 {% endblock %}
 
 {% block body_block %}
+    <ul class="uk-breadcrumb">
+        <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
+        <li><span>Distant Hearing Analysis</span></li>
+    </ul>
+    <h2 class="uk-text-center">Distant Analysis</h2>
     <div id="overview">
-        {% if  explanations %}
-            <ul class="uk-breadcrumb">
-                <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
-                <li><span>Distant Hearing Analysis</span></li>
+        <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
+            <ul uk-accordion>
+                <li>
+                    <a class="uk-accordion-title uk-text-center" href="#">Click to few explanations concerning the
+                        visualizations</a>
+                    <div class="uk-accordion-content">
+                        {% if  explanations %}
+                            <div class="uk-text-center" uk-grid>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Chords</h2>
+                                        {{ explanations.chords }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Pitches</h2>
+                                        {{ explanations.pitches }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Durations</h2>
+                                        {{ explanations.durations }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Key</h2>
+                                        {{ explanations.key }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Ambitus</h2>
+                                        {{ explanations.ambitus }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </li>
             </ul>
-            <h2 class="uk-text-center">Overview</h2>
-            <div class="uk-text-center" uk-grid>
-                <div class="uk-width-1-3">
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <h2 class="uk-card-title">Chords</h2>
-                        {{ explanations.chords }}
-                    </div>
-                </div>
-                <div class="uk-width-1-3">
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <h2 class="uk-card-title">Pitches</h2>
-                        {{ explanations.pitches }}
-                    </div>
-                </div>
-                <div class="uk-width-1-3">
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <h2 class="uk-card-title">Durations</h2>
-                        {{ explanations.durations }}
-                    </div>
-                </div>
-                <div class="uk-width-1-3">
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <h2 class="uk-card-title">Key</h2>
-                        {{ explanations.key }}
-                    </div>
-                </div>
-                <div class="uk-width-1-3">
-                    <div class="uk-card uk-card-default uk-card-body">
-                        <h2 class="uk-card-title">Ambitus</h2>
-                        {{ explanations.ambitus }}
-                    </div>
-                </div>
-            </div>
-        {% endif %}
+        </div>
     </div>
-    <h3>The following music pieces were analyzed</h3>
-    <table class="uk-table uk-table-middle uk-table-divider">
-        <thead>
-        <tr>
-            <th>group</th>
-            <th>composer</th>
-            <th>title</th>
-            <th>year</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for music_piece in metadata %}
-            <tr>
-                <td>{{ music_piece.group }}</td>
-                <td>{{ music_piece.composer }}</td>
-                <td>{{ music_piece.title }}</td>
-                <td>{{ music_piece.year }}</td>
-            </tr>
-        {% endfor %}
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
+        <ul uk-accordion>
+
+            <li>
+                <a class="uk-accordion-title uk-text-center" href="#">Click to view the analyzed music pieces</a>
+                <div class="uk-accordion-content">
+                    <table class="uk-table uk-table-middle uk-table-divider">
+                        <thead>
+                        <tr>
+                            <th>group</th>
+                            <th>composer</th>
+                            <th>title</th>
+                            <th>year</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for music_piece in metadata %}
+                            <tr>
+                                <td>{{ music_piece.group }}</td>
+                                <td>{{ music_piece.composer }}</td>
+                                <td>{{ music_piece.title }}</td>
+                                <td>{{ music_piece.year }}</td>
+                            </tr>
+                        {% endfor %}
 
 
-        </tbody>
-    </table>
+                        </tbody>
+                    </table>
 
+                </div>
+            </li>
+        </ul>
+    </div>
 
-    <div id="chords">
-        <h2>Chords</h2>
+  <hr class="uk-divider-icon">
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
+        <h2 class="uk-text-center">Chords</h2>
+        <h3 class="uk-text-center">Chord root count</h3>
         <div class="ct-chart ct-perfect-fourth"></div>
 
+        <h3 class="uk-text-center">Chord quality count</h3>
+        <div class="ct-chart-quality ct-perfect-fourth"></div>
     </div>
     <div id="pitches">
         <h2>Pitches</h2>
