@@ -17,17 +17,33 @@
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
 {% endblock %}
-{% block right_nav_block %}
-    <li><a href="#overview">Overview</a></li>
-    <li><a href="#chords">Chords</a></li>
-    <li><a href="#pitches">Pitches</a></li>
-    <li><a href="#durations">Durations</a></li>
-    <li><a href="#key">Key</a></li>
-    <li><a href="#ambitus">Ambitus</a></li>
-
-{% endblock %}
 
 {% block body_block %}
+    <header>
+        <div class="uk-position-top">
+            <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+                <nav class="uk-navbar-container uk-navbar-default" id="stickyNav" uk-navbar>
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+                            <li><a href="{% url 'MusicAnalyzer:index' %}"><img
+                                    syle="padding-bottom: 2em;" src="{% static "/images/logo.png" %}" alt="logo"></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="uk-navbar-right">
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#chords">Chords</a></li>
+                        <li><a href="#pitches">Pitches</a></li>
+                        <li><a href="#durations">Durations</a></li>
+                        <li><a href="#key">Key</a></li>
+                        <li><a href="#ambitus">Ambitus</a></li>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="column">
+    </div>
     <ul class="uk-breadcrumb">
         <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
         <li><span>Distant Hearing Analysis</span></li>
@@ -113,7 +129,7 @@
         </ul>
     </div>
 
-  <hr class="uk-divider-icon">
+    <hr class="uk-divider-icon">
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
         <h2 class="uk-text-center">Chords</h2>
         <h3 class="uk-text-center">Chord root count</h3>
