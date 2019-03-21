@@ -162,21 +162,24 @@ def get_metadata_from_uploaded_files(context, final_path, is_new):
 
 
 def get_metadata_for_previously_uploaded_files(final_path, context, music):
-    return {'is_valid': True,
-        'composer': convert_none_to_empty_string(music.metadata.composer),
-        'title': convert_none_to_empty_string(music.metadata.title),
-        'year': convert_none_to_empty_string(music.metadata.date),
-        'path': final_path,
-            'context': context}
+    metadata = get_relevant_metadata(music)
+    metadata["path"] = final_path
+    metadata["context"] = context
+    metadata["is_valid"] = True
+    return metadata
 
 
 def get_metadata_for_newly_uploaded_files(final_path, context, music):
-    return {'is_valid': True, "upload": {
-        'composer': convert_none_to_empty_string(music.metadata.composer),
-        'title': convert_none_to_empty_string(music.metadata.title),
-        'year': convert_none_to_empty_string(music.metadata.date),
-        'path': final_path},
-            'context': context}
+    upload = get_relevant_metadata(music)
+    upload["path"] = final_path
+    return {'is_valid': True, "context": context, "result": upload}
+
+
+def get_relevant_metadata(music):
+    return {'composer': convert_none_to_empty_string(music.metadata.composer),
+            'title': convert_none_to_empty_string(music.metadata.title),
+            'year': convert_none_to_empty_string(music.metadata.date)}
+
 
 def add_group(request, context):
     add_group_form = AddGroupForm(request.POST, prefix=Prefix.add_group.value)

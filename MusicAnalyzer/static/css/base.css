@@ -20,7 +20,8 @@ header nav {
 }
 
 img {
-    height:60px;
+    height: 80px;
+    padding-bottom: 2em;
 }
 
 #logo {

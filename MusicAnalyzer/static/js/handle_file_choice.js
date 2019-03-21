@@ -41,10 +41,12 @@ $(function () {
 
     $("#fileupload").fileupload({
         dataType: 'json',
-        done: function (e, data) {  /* process server response */
-            if (data.result.is_valid) {
-                let results = [data.result.upload];
-                let typeOfSelection = adjustToContextAndFileSource(results, data.result.context, "upload");
+        success: function (data) {  /* process server response */
+            if (data.is_valid) {
+                let results = [];
+                let meta = data.result;
+                results.push(meta);
+                let typeOfSelection = adjustToContextAndFileSource(results, data.context, "upload");
                 addResultsToTable(results, typeOfSelection, "upload");
             } else {
                 UIkit.notification({
@@ -75,7 +77,7 @@ function search_corpus() {
         dataType: 'json',
         success: function (json) {
             UIkit.notification.closeAll();
-            console.log(json);
+
             if (json.error) {
                 console.log(json.error);
             } else {
@@ -92,7 +94,7 @@ function search_corpus() {
 
 }
 
-function add_group() {
+function addGroup() {
     let form = $("#add_group_form");
     $.ajax({
         url: form.attr("data-add-group-url"),
@@ -115,6 +117,7 @@ function add_group() {
                 let pk = json.id;
                 let new_group_option = '<option value="' + pk + '">' + String(json.name) + '</option>\n';
                 $("[id$=-group_choice]").append(new_group_option);
+                $("#group_options").append(new_group_option);
 
                 let newLabel = '<span class="uk-label">' + String(json.name) + '</span>\n';
                 $("#groupLabels").append(newLabel);
@@ -157,7 +160,7 @@ $(document).ready(function () {
 $('html').bind('keypress', function(e) {
    if(e.keyCode === 13)
    {
-      add_group(e);
+      addGroup(e);
       return false;
    }
 });
@@ -250,7 +253,10 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
             '</td>';
 
         let group = "";
+        console.log("typeOfSelection:");
+        console.log(typeOfSelection);
         if (typeOfSelection === "checkbox") {
+            console.log("get group");
             let groupOptions = getGroupOptions();
             group += '<td>' +
                 '<select class="uk-select" name="choose_music_piece-' + formNum + '-group_choice" id="id_choose_music_piece-' + formNum + '-group_choice">\n' +
