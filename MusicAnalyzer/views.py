@@ -1,5 +1,6 @@
 import os
 import re
+import statistics
 import random
 import string
 from os.path import isfile, join
@@ -222,12 +223,19 @@ def getCounters(relevant_groups):
 # sum the values with same keys
 def get_group_and_total_counts(per_piece_results_list, counter_dict):
     for d in per_piece_results_list:
+
         group = d.get("group", "")
+        print(counter_dict[group])
+        counter_dict[group]["semitones_list"].append(d["num_semitones"])
         counter_dict[group]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
         counter_dict[group]["highest_pitch_counter"].update(d["highest_pitch_count"])
         counter_dict[group]["chord_quality_counter"].update(d["chord_quality_count"])
         counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
+
+        counter_dict["total"]["semitones_list"].append(d["num_semitones"])
+        counter_dict["total"]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
+        counter_dict["total"]["highest_pitch_counter"].update(d["highest_pitch_count"])
         counter_dict["total"]["chord_quality_counter"].update(d["chord_quality_count"])
         counter_dict["total"]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict["total"]["chord_root_counter"].update(d["chord_root_count"])
@@ -237,6 +245,7 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
 def get_group_and_overall_summary_stats(counter_dict):
     per_group_results_list = []
     total = {}
+    print(counter_dict)
     for group, results_dict in counter_dict.items():
         group_results = {}
         for counter_name in results_dict.keys():
@@ -249,8 +258,27 @@ def get_group_and_overall_summary_stats(counter_dict):
 
         if group != "total":
             group_results.update({"group_name": group})
+
+            semitones_sum_stats = get_additional_semitones_sum_stats(group_results)
+            group_results.update(semitones_sum_stats)
+
             per_group_results_list.append(group_results)
+        else:
+            semitones_sum_stats = get_additional_semitones_sum_stats(total)
+            total.update(semitones_sum_stats)
     return {"total_sum_stats": total, "group_sum_stats": per_group_results_list}
+
+
+def get_additional_semitones_sum_stats(results):
+    semitones_list = results.get("semitones_li", None)
+    if semitones_list is not None:
+        mean = statistics.mean(semitones_list)
+        median = statistics.median(semitones_list)
+        minimum = min(semitones_list)
+        maximum = max(semitones_list)
+        return {"mean_ambitus_semitones": mean, "median_ambitus_semitones": median, "max_ambitus_semitones": maximum, "min_ambitus_semitones": minimum}
+    else:
+        return{}
 
 
 class IndividualAnalysis(View):
@@ -559,6 +587,7 @@ def get_key_possibilities(parsed_file):
 
 def get_dict_of_all_necessary_counters():
     return {
+        "semitones_list":[],
         "lowest_pitch_counter": collections.Counter(),
         "highest_pitch_counter": collections.Counter(),
         "chord_quality_counter": collections.Counter(),
