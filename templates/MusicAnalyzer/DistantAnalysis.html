@@ -13,6 +13,7 @@
     <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-legend@0.6.2/chartist-plugin-legend.min.js"></script>
     <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
@@ -154,8 +155,13 @@
     <div id="key">
         <h2>Key</h2>
     </div>
-    <div id="ambitus">
-        <h2>Ambitus</h2>
+    <hr class="uk-divider-icon">
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">
+        <h2 class="uk-text-center">Ambitus</h2>
+        <div class="chart-container">
+            <h3 class="uk-text-center">Boxplots of ambitus semitones</h3>
+            <div id="boxplots"></div>
+        </div>
     </div>
 
 

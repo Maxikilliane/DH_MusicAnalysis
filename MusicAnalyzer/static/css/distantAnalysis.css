@@ -33,6 +33,12 @@ h2 {
     display: none;
 }
 
+#boxplots{
+    width: -webkit-fill-available;
+    overflow: -webkit-paged-x !important;
+}
+
+
 .uk-navbar-right {
     list-style: none;
     color: black;
