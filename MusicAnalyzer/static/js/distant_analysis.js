@@ -101,7 +101,10 @@ function createChordRootCountChart(analysisJson) {
 
     let uniqueKeys = getUniqueKeys(newGroup)
 
+    uniqueKeys = sortFunc(uniqueKeys)
+
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
 
 
     // draw the chart
@@ -135,6 +138,14 @@ function createChordRootCountChart(analysisJson) {
         });
     });
 }
+
+function sortFunc(arr) {
+    var sortingArray = ['C-', 'C', 'C#', 'D-', 'D', 'D#', 'E-', 'E', 'E#', 'F-', 'F', 'F#', 'G-', 'G', 'G#', 'A-', 'A', 'A#', 'B-', 'B', 'B#']
+    return sortingArray.map(key => arr.find(item => item === key))
+        .filter(item => item)
+
+}
+
 
 function createChordQualityCountChart(analysisJson) {
     // group stats by group
