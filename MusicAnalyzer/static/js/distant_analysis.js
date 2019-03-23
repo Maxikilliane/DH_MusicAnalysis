@@ -1,5 +1,4 @@
 function distantAnalysis(analysisJson) {
-    console.log(analysisJson.per_piece_stats)
     createChordQualityCountChart(analysisJson)
     createChordRootCountChart(analysisJson)
     createChordNameCountChart(analysisJson)
@@ -21,16 +20,12 @@ function createChordNameCountChart(analysisJson) {
     }
     for (groupName in newGroup) {
         for (group in newGroup[groupName]) {
-            console.log(newGroup[groupName][group])
-            if (newGroup[groupName][group] < 5) {
-                console.log("im if")
-                console.log(newGroup[groupName][group])
+            if (newGroup[groupName][group] < 3) {
                 delete newGroup[groupName][group]
             }
         }
 
     }
-    console.log(newGroup)
 
     // sum all group names in one array
     let groupNames = Object.keys(newGroup)
@@ -43,24 +38,8 @@ function createChordNameCountChart(analysisJson) {
     // draw the chart
     $(function () {
         var options = {
-            seriesBarDistance: 10,
-            axisX:
-                {
-                    offset: 60
-                }
-            ,
-            axisY: {
-                offset: 80,
-                labelInterpolationFnc:
-
-                    function (value) {
-                        return value + ' CHF'
-                    }
-
-                ,
-                scaleMinSpace: 15
-            }
-        }
+            seriesBarDistance: 10
+        };
 
         var responsiveOptions = [
             ['screen and (max-width: 640px)', {
@@ -73,33 +52,33 @@ function createChordNameCountChart(analysisJson) {
             }]
         ];
 
-        new Chartist.Bar('.ct-chart-name', {
-                labels: uniqueKeys,
+        for (let i = 0; i < data.length; i++) {
+            data[i] = data[i].map(function (v, idx) {
+                return {
+                    meta: uniqueKeys[idx], value: v
+                };
+
+            });
+        }
+
+        Chartist.Bar('.ct-chart-name', {
+                labels: [],
                 series: data,
-                responsiveOptions
-            }, {
+                options,
+                responsiveOptions,
+            },
+
+            {
                 plugins: [
                     Chartist.plugins.legend({
                         legendNames: groupNames,
-                    })
+                    }),
+                    Chartist.plugins.tooltip({class: 'uk-text-center'})
                 ]
             },
-            {
-                seriesBarDistance: 10,
-                axisX: {
-                    offset: 60
-                },
-                axisY: {
-                    offset: 80,
-                    labelInterpolationFnc: function (value) {
-                        return value + ' CHF'
-                    },
-                    scaleMinSpace: 15
-                }
+        );
 
-            }
-        )
-        ;
+
     });
 }
 
@@ -122,7 +101,10 @@ function createChordRootCountChart(analysisJson) {
 
     let uniqueKeys = getUniqueKeys(newGroup)
 
+    uniqueKeys = sortFunc(uniqueKeys)
+
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
 
 
     // draw the chart
@@ -156,6 +138,14 @@ function createChordRootCountChart(analysisJson) {
         });
     });
 }
+
+function sortFunc(arr) {
+    var sortingArray = ['C-', 'C', 'C#', 'D-', 'D', 'D#', 'E-', 'E', 'E#', 'F-', 'F', 'F#', 'G-', 'G', 'G#', 'A-', 'A', 'A#', 'B-', 'B', 'B#']
+    return sortingArray.map(key => arr.find(item => item === key))
+        .filter(item => item)
+
+}
+
 
 function createChordQualityCountChart(analysisJson) {
     // group stats by group
