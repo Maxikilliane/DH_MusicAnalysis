@@ -15,6 +15,8 @@
     <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
     <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
@@ -160,6 +162,10 @@
     <hr class="uk-divider-icon">
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">
         <h2 class="uk-text-center">Ambitus</h2>
+        <div class="chart-container" id="rangeCharts">
+            <h3 class="uk-text-center">Range between highest and lowest pitch by group</h3>
+            <p class="uk-text-center">Please hover over the bars to few more detailed information.</p>
+        </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Boxplots of ambitus semitones</h3>
             <div id="boxplots"></div>
