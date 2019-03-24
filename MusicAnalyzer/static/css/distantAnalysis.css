@@ -15,6 +15,21 @@ h2 {
     padding-bottom: 2em;
 }
 
+.ct-tooltip {
+    position: absolute;
+    display: inline-block;
+    min-width: 5em;
+    padding: 8px 10px;
+    background: #383838;
+    color: #fff;
+    text-align: center;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity .2s linear;
+
+
+}
+
 #stickyNav {
     background-color: rgba(187,222,251,0.5)
 }
@@ -36,6 +51,10 @@ h2 {
 #boxplots{
     width: -webkit-fill-available;
     overflow: -webkit-paged-x !important;
+}
+
+p {
+    padding: 1em;
 }
 
 

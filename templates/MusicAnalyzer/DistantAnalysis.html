@@ -1,7 +1,7 @@
 {% extends 'MusicAnalyzer/Base.html' %}
 {% load staticfiles %}
 {% load customFilters %}
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Distant Anaylsis{% endblock %}
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
@@ -14,6 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-legend@0.6.2/chartist-plugin-legend.min.js"></script>
     <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
     <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
@@ -133,8 +134,9 @@
     <hr class="uk-divider-icon">
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
         <h2 class="uk-text-center">Chords</h2>
-        <div class="chart-container">
+        <div class="chart-container" id="chartChordNames">
             <h3 class="uk-text-center">Chord name count</h3>
+            <p class="uk-text-center">Please hover over the bars to view the chord names and their corresponding occurrences. Note, that only the chords with more than three occurrences are displayed.</p>
             <div class="ct-chart-name"></div>
         </div>
         <div class="chart-container">
