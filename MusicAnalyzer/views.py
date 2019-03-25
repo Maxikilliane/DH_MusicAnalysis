@@ -346,13 +346,6 @@ class IndividualAnalysis(View):
                     self.context_dict.update({"chord_names": chord_information["chord_name_count"],
                                               "chord_qualities": chord_information["chord_quality_count"],
                                               "chord_roots": chord_information["chord_root_count"]})
-
-                if Analysis.intervals.value in chosen:
-                    print("analysing intervals")
-
-                if Analysis.leading_notes.value in chosen:
-                    print("analysing leading notes")
-
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
                     ambitus = get_ambitus_for_display(parsed_file, self.gex, self.context_dict)
