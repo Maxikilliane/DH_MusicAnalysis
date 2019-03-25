@@ -83,7 +83,9 @@
 
     {% if type == "distant" %}
         <div class="uk-text-center space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="defineGroups">
-            <h3>Define groups</h3>
+            <h3>Define groups <span class="uk-icon-button" uk-icon="question" uk-tooltip="title:The groups by which you want to perform the distant hearing. E.g. Mozart, Beethoven, Schumann,...">
+
+            </span></h3>
             <div id="inputMask">
                 <form id="add_group_form" method="post"
                       action="{% url 'MusicAnalyzer:distant_choice' %}"
