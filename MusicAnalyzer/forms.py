@@ -67,8 +67,6 @@ class MusicChoicessFormSet(BaseFormSet):
 
 class IndividualAnalysisForm(forms.Form):
     analysis_choices = [(Analysis.chords.value, 'Chords'),
-                        (Analysis.intervals.value, 'Intervals'),
-                        (Analysis.leading_notes.value, 'Leading notes'),
                         (Analysis.ambitus.value, 'Ambitus'),
                         (Analysis.key.value, 'Key')
                         ]

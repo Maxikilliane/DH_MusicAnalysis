@@ -31,10 +31,8 @@ function triggerUpload() {
     let zoomOut = document.getElementById("zoom-out-btn");
     let chordCheckbox = document.getElementById("id_analysis_choice-individual_analysis_0");
     let chordTypeSelectionElement = document.getElementById("chordDependent");
-    let keyCheckbox = document.getElementById("id_analysis_choice-individual_analysis_4");
-    let intervalsCheckbox = document.getElementById("id_analysis_choice-individual_analysis_1");
-    let leadingNotesCheckbox = document.getElementById("id_analysis_choice-individual_analysis_2");
-    let ambitusCheckbox = document.getElementById("id_analysis_choice-individual_analysis_3");
+    let keyCheckbox = document.getElementById("id_analysis_choice-individual_analysis_2");
+    let ambitusCheckbox = document.getElementById("id_analysis_choice-individual_analysis_1");
     let keyProbabilityElement = document.getElementById("keyDependent");
     let keyHeading = document.getElementById("keyHeading");
     let keyRadios = document.getElementById("id_key-key_choice").getElementsByTagName("input");
@@ -112,8 +110,7 @@ function triggerUpload() {
     }
 
     function isBoxClicked() {
-        return ambitusCheckbox.checked === true || intervalsCheckbox.checked === true ||
-            chordCheckbox.checked === true || leadingNotesCheckbox.checked === true
+        return ambitusCheckbox.checked === true || chordCheckbox.checked === true
     }
 
 
