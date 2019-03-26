@@ -37,6 +37,9 @@ h2 {
 .chart-container {
     border: 1px solid #ddd;
     margin-bottom: 2em;
+    -webkit-column-count: 1;
+    -moz-column-count: 1;
+    column-count: 1;
 }
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
     font-weight: 500;
@@ -50,8 +53,11 @@ h2 {
 
 #boxplots{
     width: -webkit-fill-available;
-    overflow: -webkit-paged-x !important;
+    width: -moz-available !important;          /* WebKit-based browsers will ignore this. */
+    width: fill-available !important;
+    overflow: inherit !important;
 }
+
 
 p {
     padding: 1em;
