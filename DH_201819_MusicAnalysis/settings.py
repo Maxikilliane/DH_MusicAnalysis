@@ -157,3 +157,6 @@ if SESSION_EXPIRE_AT_BROWSER_CLOSE:
 
 # Configure Django App for Heroku.
 django_heroku.settings(locals())
+
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
