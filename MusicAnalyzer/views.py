@@ -1,5 +1,6 @@
 import os
 import re
+import statistics
 import random
 import string
 from os.path import isfile, join
@@ -137,6 +138,7 @@ class DistantHearingChoice(Choice):
         self.context_dict["type"] = constants.DISTANT_HEARING
         data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
         self.context_dict["data"] = data
+        self.context_dict["explanation"] = "You can perform distant hearing, also referred to as digital musicology or (TODO ANNI: gabs da nicht noch nen anderen fancy namen für, der auch oft benutzt wird?). It transfers the principles of distant reading to music. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. Then you have to define the groups by which you want to perform the analysis. This can be everything, that makes sense to you, e.g. the componist (Mozart or Beethoven) or the the type of music (symphony or folk songs) and so on. Before you click the ‚Analyse‘ button you should assign one of the predefined group to each music piece and check the ones you want to use for the anylsis."
         self.context_dict["groups"] = get_available_groups(request)
         return render(request, self.template_name, self.context_dict)
 
@@ -201,10 +203,12 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         chords_info = get_chord_information(parsed_file, key)
         chords_info.pop("chords",
                         None)  # chords are not json serializable and only in this dict, because the individual analysis method was reused
-
+        ambitus_info = get_ambitus_for_distant_hearing(parsed_file)
         # pass stuff to results
         analysis_result_for_this_piece.update(metadata_dict)
         analysis_result_for_this_piece.update(chords_info)
+        analysis_result_for_this_piece.update(ambitus_info)
+        print(analysis_result_for_this_piece)
         per_piece_results_list.append(analysis_result_for_this_piece)
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 
@@ -220,10 +224,19 @@ def getCounters(relevant_groups):
 # sum the values with same keys
 def get_group_and_total_counts(per_piece_results_list, counter_dict):
     for d in per_piece_results_list:
+
         group = d.get("group", "")
+        print(counter_dict[group])
+        counter_dict[group]["semitones_list"].append(d["num_semitones"])
+        counter_dict[group]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
+        counter_dict[group]["highest_pitch_counter"].update(d["highest_pitch_count"])
         counter_dict[group]["chord_quality_counter"].update(d["chord_quality_count"])
         counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
+
+        counter_dict["total"]["semitones_list"].append(d["num_semitones"])
+        counter_dict["total"]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
+        counter_dict["total"]["highest_pitch_counter"].update(d["highest_pitch_count"])
         counter_dict["total"]["chord_quality_counter"].update(d["chord_quality_count"])
         counter_dict["total"]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict["total"]["chord_root_counter"].update(d["chord_root_count"])
@@ -233,6 +246,7 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
 def get_group_and_overall_summary_stats(counter_dict):
     per_group_results_list = []
     total = {}
+    print(counter_dict)
     for group, results_dict in counter_dict.items():
         group_results = {}
         for counter_name in results_dict.keys():
@@ -245,8 +259,27 @@ def get_group_and_overall_summary_stats(counter_dict):
 
         if group != "total":
             group_results.update({"group_name": group})
+
+            semitones_sum_stats = get_additional_semitones_sum_stats(group_results)
+            group_results.update(semitones_sum_stats)
+
             per_group_results_list.append(group_results)
+        else:
+            semitones_sum_stats = get_additional_semitones_sum_stats(total)
+            total.update(semitones_sum_stats)
     return {"total_sum_stats": total, "group_sum_stats": per_group_results_list}
+
+
+def get_additional_semitones_sum_stats(results):
+    semitones_list = results.get("semitones_li", None)
+    if semitones_list is not None:
+        mean = statistics.mean(semitones_list)
+        median = statistics.median(semitones_list)
+        minimum = min(semitones_list)
+        maximum = max(semitones_list)
+        return {"mean_ambitus_semitones": mean, "median_ambitus_semitones": median, "max_ambitus_semitones": maximum, "min_ambitus_semitones": minimum}
+    else:
+        return{}
 
 
 class IndividualAnalysis(View):
@@ -313,13 +346,6 @@ class IndividualAnalysis(View):
                     self.context_dict.update({"chord_names": chord_information["chord_name_count"],
                                               "chord_qualities": chord_information["chord_quality_count"],
                                               "chord_roots": chord_information["chord_root_count"]})
-
-                if Analysis.intervals.value in chosen:
-                    print("analysing intervals")
-
-                if Analysis.leading_notes.value in chosen:
-                    print("analysing leading notes")
-
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
                     ambitus = get_ambitus_for_display(parsed_file, self.gex, self.context_dict)
@@ -437,6 +463,12 @@ def transform_music_source_to_dict(path, number, file_source, group=None):
     return music_piece
 
 
+def get_ambitus_for_distant_hearing(stream):
+    ambitus = get_ambitus(stream)
+    return {"lowest_pitch_count": {ambitus["pitches"][0].nameWithOctave: 1},
+            "highest_pitch_count": {ambitus["pitches"][1].nameWithOctave: 1}, "num_semitones": ambitus["interval"].semitones}
+
+
 def get_ambitus_for_display(stream, gex, context_dict):
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
@@ -549,6 +581,9 @@ def get_key_possibilities(parsed_file):
 
 def get_dict_of_all_necessary_counters():
     return {
+        "semitones_list":[],
+        "lowest_pitch_counter": collections.Counter(),
+        "highest_pitch_counter": collections.Counter(),
         "chord_quality_counter": collections.Counter(),
         "chord_name_counter": collections.Counter(),
         "chord_root_counter": collections.Counter()
