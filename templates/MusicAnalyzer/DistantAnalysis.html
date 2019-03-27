@@ -62,8 +62,8 @@
                     <div class="uk-accordion-content">
                         {% if  explanations %}
 
-                            <div  uk-grid>
-                            <div class="uk-width-3-3">
+                            <div uk-grid>
+                                <div class="uk-width-3-3">
                                     <div class="uk-card uk-card-default uk-card-body">
                                         <h2 class="uk-card-title">General</h2>
                                         {{ explanations.general }}
@@ -141,11 +141,13 @@
     </div>
 
     <hr class="uk-divider-icon">
+
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
         <h2 class="uk-text-center">Chords</h2>
         <div class="chart-container" id="chartChordNames">
             <h3 class="uk-text-center">Chord name count</h3>
-            <p class="uk-text-center">Please hover over the bars to view the chord names and their corresponding occurrences. Note, that only the chords with more than three occurrences are displayed.</p>
+            <p class="uk-text-center">Please hover over the bars to view the chord names and their corresponding
+                occurrences. Note, that only the chords with more than three occurrences are displayed.</p>
             <div class="ct-chart-name"></div>
         </div>
         <div class="chart-container">
@@ -157,8 +159,25 @@
             <div class="ct-chart-quality"></div>
         </div>
     </div>
-    <div id="pitches">
-        <h2>Pitches</h2>
+    <hr class="uk-divider-icon">
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="pitches">
+        <h2 class="uk-text-center">Pitches</h2>
+        <div class="chart-container">
+            <h3 class="uk-text-center">Pitch name count</h3>
+            <div class="ct-chart-pitch-name"></div>
+        </div>
+        <div class="chart-container">
+            <h3 class="uk-text-center">Pitch octave count</h3>
+            <div class="ct-chart-pitch-octave"></div>
+        </div>
+
+        <div class="chart-container">
+            <h3 class="uk-text-center">Pitch name with octave count</h3>
+            <div class="uk-width-1-1" id="pitchOctaveName">
+                <div class="ct-chart-pitch-octave-name"></div>
+            </div>
+        </div>
+
     </div>
     <div id="durations">
         <h2>Durations</h2>

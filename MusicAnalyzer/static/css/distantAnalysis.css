@@ -47,6 +47,14 @@ h2 {
     color: black;
 }
 
+.ct-chart-pitch-octave-name {
+    width: 3000px;
+}
+
+#pitchOctaveName {
+    overflow: scroll;
+}
+
 #masterNav {
     display: none;
 }
