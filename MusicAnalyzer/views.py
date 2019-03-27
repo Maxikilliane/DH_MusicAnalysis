@@ -475,7 +475,7 @@ def get_pitches_for_distant_hearing(stream):
     pitch_name_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'name'))
     pitch_name_octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'nameWithOctave'))
     # keep this a dictionary and not a list of numbers
-    octave_count = {str(key): val for key, val in octave_count.items()} 
+    octave_count = {str(key): val for key, val in octave_count.items()}
     return {"pitch_octave_count":octave_count,
             "pitch_name_count":pitch_name_count,
             "pitch_name_with_octave_count":pitch_name_octave_count}
