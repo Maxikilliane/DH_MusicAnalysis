@@ -166,3 +166,8 @@ try:
   from DH_201819_MusicAnalysis.local_settings import *
 except Exception as e:
   pass
+
+
+
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
