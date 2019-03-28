@@ -1,17 +1,179 @@
 {% extends 'MusicAnalyzer/Base.html' %}
 {% load staticfiles %}
-{% block title %}{{ title }}{% endblock %}
+{% load customFilters %}
+{% block title %}Distant Anaylsis{% endblock %}
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
     {# fontawesome for icons #}
+    <link rel="stylesheet" type="text/css" href="{% static "/css/distantAnalysis.css" %}"/>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-legend@0.6.2/chartist-plugin-legend.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-    {# add static files here #}
+    <script src="{% static 'js/distant_analysis.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
+    <header>
+        <div class="uk-position-top">
+            <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
+                <nav class="uk-navbar-container uk-navbar-default" id="stickyNav" uk-navbar>
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+                            <li><a href="{% url 'MusicAnalyzer:index' %}"><img
+                                    syle="padding-bottom: 2em;" src="{% static "/images/logo.png" %}" alt="logo"></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="uk-navbar-right">
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#chords">Chords</a></li>
+                        <li><a href="#pitches">Pitches</a></li>
+                        <li><a href="#durations">Durations</a></li>
+                        <li><a href="#key">Key</a></li>
+                        <li><a href="#ambitus">Ambitus</a></li>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <div class="column">
+    </div>
+    <ul class="uk-breadcrumb">
+        <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
+        <li><span>Distant Hearing Analysis</span></li>
+    </ul>
+    <h2 class="uk-text-center">Distant Analysis</h2>
+    <div id="overview">
+        <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
+            <ul uk-accordion>
+                <li>
+                    <a class="uk-accordion-title uk-text-center" href="#">Click to few explanations concerning the
+                        visualizations</a>
+                    <div class="uk-accordion-content">
+                        {% if  explanations %}
+                            <div  uk-grid>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Chords</h2>
+                                        {{ explanations.chords }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Pitches</h2>
+                                        {{ explanations.pitches }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Durations</h2>
+                                        {{ explanations.durations }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Key</h2>
+                                        {{ explanations.key }}
+                                    </div>
+                                </div>
+                                <div class="uk-width-1-3">
+                                    <div class="uk-card uk-card-default uk-card-body">
+                                        <h2 class="uk-card-title">Ambitus</h2>
+                                        {{ explanations.ambitus }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
+        <ul uk-accordion>
 
+            <li>
+                <a class="uk-accordion-title uk-text-center" href="#">Click to view the analyzed music pieces</a>
+                <div class="uk-accordion-content">
+                    <table class="uk-table uk-table-middle uk-table-divider">
+                        <thead>
+                        <tr>
+                            <th>group</th>
+                            <th>composer</th>
+                            <th>title</th>
+                            <th>year</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for music_piece in metadata %}
+                            <tr>
+                                <td>{{ music_piece.group }}</td>
+                                <td>{{ music_piece.composer }}</td>
+                                <td>{{ music_piece.title }}</td>
+                                <td>{{ music_piece.year }}</td>
+                            </tr>
+                        {% endfor %}
+
+
+                        </tbody>
+                    </table>
+
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <hr class="uk-divider-icon">
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
+        <h2 class="uk-text-center">Chords</h2>
+        <div class="chart-container" id="chartChordNames">
+            <h3 class="uk-text-center">Chord name count</h3>
+            <p class="uk-text-center">Please hover over the bars to view the chord names and their corresponding occurrences. Note, that only the chords with more than three occurrences are displayed.</p>
+            <div class="ct-chart-name"></div>
+        </div>
+        <div class="chart-container">
+            <h3 class="uk-text-center">Chord root count</h3>
+            <div class="ct-chart-root"></div>
+        </div>
+        <div class="chart-container">
+            <h3 class="uk-text-center">Chord quality count</h3>
+            <div class="ct-chart-quality"></div>
+        </div>
+    </div>
+    <div id="pitches">
+        <h2>Pitches</h2>
+    </div>
+    <div id="durations">
+        <h2>Durations</h2>
+    </div>
+    <div id="key">
+        <h2>Key</h2>
+    </div>
+    <hr class="uk-divider-icon">
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">
+        <h2 class="uk-text-center">Ambitus</h2>
+        <div class="chart-container" id="rangeCharts">
+            <h3 class="uk-text-center">Range between highest and lowest pitch by group</h3>
+            <p class="uk-text-center">Please hover over the bars to view more detailed information.</p>
+        </div>
+        <div class="chart-container">
+            <h3 class="uk-text-center">Boxplots of ambitus semitones</h3>
+            <div id="boxplots"></div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        distantAnalysis({{ all_summary_stats|safe }});
+    </script>
 {% endblock %}

@@ -1,3 +1,5 @@
+
+
 import os
 
 from django.core.files.storage import default_storage
@@ -8,7 +10,10 @@ from DH_201819_MusicAnalysis.settings import MEDIA_ROOT
 from MusicAnalyzer import constants
 import music21 as m21
 
+from MusicAnalyzer.constants import Prefix
+from MusicAnalyzer.forms import AddGroupForm
 from MusicAnalyzer.general import convert_str_to_int, convert_none_to_empty_string
+from MusicAnalyzer.models import DistantHearingGroup
 
 
 def search_corpus(request, context):
@@ -159,18 +164,38 @@ def get_metadata_from_uploaded_files(context, final_path, is_new):
 
 
 def get_metadata_for_previously_uploaded_files(final_path, context, music):
-    return {'is_valid': True,
-        'composer': convert_none_to_empty_string(music.metadata.composer),
-        'title': convert_none_to_empty_string(music.metadata.title),
-        'year': convert_none_to_empty_string(music.metadata.date),
-        'path': final_path,
-            'context': context}
+    metadata = get_relevant_metadata(music)
+    metadata["path"] = final_path
+    metadata["context"] = context
+    metadata["is_valid"] = True
+    return metadata
 
 
 def get_metadata_for_newly_uploaded_files(final_path, context, music):
-    return {'is_valid': True, "upload": {
-        'composer': convert_none_to_empty_string(music.metadata.composer),
-        'title': convert_none_to_empty_string(music.metadata.title),
-        'year': convert_none_to_empty_string(music.metadata.date),
-        'path': final_path},
-            'context': context}
+    upload = get_relevant_metadata(music)
+    upload["path"] = final_path
+    return {'is_valid': True, "context": context, "result": upload}
+
+
+def get_relevant_metadata(music):
+    return {'composer': convert_none_to_empty_string(music.metadata.composer),
+            'title': convert_none_to_empty_string(music.metadata.title),
+            'year': convert_none_to_empty_string(music.metadata.date)}
+
+
+def add_group(request, context):
+    add_group_form = AddGroupForm(request.POST, prefix=Prefix.add_group.value)
+    if add_group_form.is_valid():
+        name = add_group_form.cleaned_data.get("name", "")
+        # TODO check if group name unique for this session
+        new_group = DistantHearingGroup.objects.create(name=name, ref_django_session_id=request.session.session_key)
+        return JsonResponse({"result": "success", "name": name, "id":new_group.pk})
+    else:
+        return JsonResponse({"result": "error", "error": "Form invalid!"})
+
+def get_available_groups(request):
+    groups = DistantHearingGroup.objects.filter(ref_django_session_id = request.session.session_key)
+    groups_list = []
+    for group in groups:
+        groups_list.append({"name": group.name, "pk": group.pk})
+    return groups_list

@@ -22,6 +22,22 @@ h2 {
     margin-bottom: 2.5em;
 }
 
+#defineGroups {
+    margin-top: 4em;
+    border: 1px solid #ddd;
+    padding: 30px;
+}
+
+#groupLabels {
+    display: inline-flex;
+}
+
+.uk-label {
+    margin-right: 1em;
+    margin-top: 2em;
+}
+
+
 .uk-button-default {
     background-color: transparent;
     color: #333;
