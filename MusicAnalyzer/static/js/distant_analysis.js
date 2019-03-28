@@ -14,6 +14,7 @@ $(document).ready(function () {
         dataType: 'json',
         success: function (json) {
             distantAnalysis(json.all_summary_stats);
+            addMetadata(json.metadata);
             UIkit.notification.closeAll();
         },
         error: function (xhr, errmsg, err) {
@@ -24,8 +25,23 @@ $(document).ready(function () {
     });
 });
 
+function addMetadata(metadata) {
+    let table_content = "";
+    for (let i = 0; i < metadata.length; ++i) {
+        let music_piece = metadata[i];
+        let row = "<tr>\n" +
+            "             <td>" + music_piece.group + "</td>\n" +
+            "             <td>" + music_piece.composer + "</td>\n" +
+            "             <td>" + music_piece.title + "</td>\n" +
+            "             <td>" + music_piece.year + "</td>\n" +
+            "    </tr>";
+        table_content = table_content.concat(row);
+    }
+    $("#metadata_table tbody").append(table_content);
+}
+
 function distantAnalysis(analysisJson) {
-    console.log(analysisJson)
+    console.log(analysisJson);
     createChordQualityCountChart(analysisJson)
     createChordRootCountChart(analysisJson)
     createChordNameCountChart(analysisJson)
@@ -451,7 +467,7 @@ function drawAmbitusRangeChart(analysisJson) {
                 "backgroundColor": "none",
                 "font-size": "22px",
                 "alpha": 1,
-                "adjust-layout":true,
+                "adjust-layout": true,
             },
 
             globals: {
@@ -460,7 +476,7 @@ function drawAmbitusRangeChart(analysisJson) {
             "legend": {
                 "alpha": 0.05,
                 "shadow": false,
-                "align":"left",
+                "align": "left",
                 "marker": {
                     "type": "circle",
                     "border-color": "none",
