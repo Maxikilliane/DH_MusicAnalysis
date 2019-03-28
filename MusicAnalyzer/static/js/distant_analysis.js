@@ -142,7 +142,6 @@ function createChordRootCountChart(analysisJson) {
 
     // sum all group names in one array
     let groupNames = Object.keys(newGroup)
-    console.log(groupNames)
     let uniqueKeys = getUniqueKeys(newGroup)
 
     uniqueKeys = sortRootCount(uniqueKeys)
@@ -314,7 +313,6 @@ function drawBoxplots(analysisJson) {
                 analysisJson.per_group_stats[group].max_ambitus_semitones]
         }
     }
-    console.log(groupNames);
     var myConfig = {
         "graphset": [
             {

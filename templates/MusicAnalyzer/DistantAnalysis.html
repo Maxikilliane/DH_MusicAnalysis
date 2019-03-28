@@ -115,15 +115,6 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for music_piece in metadata %}
-                            <tr>
-                                <td>{{ music_piece.group }}</td>
-                                <td>{{ music_piece.composer }}</td>
-                                <td>{{ music_piece.title }}</td>
-                                <td>{{ music_piece.year }}</td>
-                            </tr>
-                        {% endfor %}
-
 
                         </tbody>
                     </table>
@@ -172,12 +163,6 @@
         </div>
     </div>
 
-    {% if all_summary_stats %}
-    <script type="text/javascript">
-        distantAnalysis({{ all_summary_stats|safe }});
-    </script>
-    {% endif %}
-
     <div class="invisible">
     <form id="start_distant_analysis_form" action="/MusicAnalyzer/distantAnalysis/"
                       method="post"
@@ -187,9 +172,5 @@
                     <input type="text" name="state" value="{{ state }}">
 
                 </form>
-                <button id="distant_analysis_button"
-                        onclick="start_analysis(event)">
-
-                </button>
     </div>
 {% endblock %}
