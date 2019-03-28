@@ -1,6 +1,10 @@
+import os
+import shutil
+
+from django.contrib.sessions.models import Session
 from django.db import models
 
-# Create your models here. (models = equivalent of db tables)
+
 # This is an auto-generated Django model module.
 # You'll have to do the following manually to clean this up:
 #   * Rearrange models' order
@@ -9,6 +13,21 @@ from django.db import models
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 
+from django.db.models.signals import pre_delete
+
+from DH_201819_MusicAnalysis import settings
+
+
+def session_end_handler(sender, **kwargs):
+    session_folder = kwargs.get('instance').session_key
+    path = settings.MEDIA_ROOT
+    dir_to_delete = os.path.join(path, session_folder)
+    if os.path.exists(dir_to_delete):
+        shutil.rmtree(dir_to_delete)
+    print("session %s ended" % kwargs.get('instance').session_key)
+
+
+pre_delete.connect(session_end_handler, sender=Session)
 
 class AuthGroup(models.Model):
     id = models.IntegerField(primary_key=True)  # AutoField?
@@ -141,3 +160,4 @@ class DistantHearingGroup(models.Model):
             return str(self.name)
         else:
             return "-"
+
