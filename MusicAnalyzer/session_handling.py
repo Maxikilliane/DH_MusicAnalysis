@@ -12,11 +12,12 @@ def on_session_start(request):
     # 0 means that session is expired on browser closing
     s = request.session
     s.set_expiry(0)
-    new_path = os.path.join(settings.MEDIA_ROOT, s.session_key)
-    path_to_graphs = os.path.join(new_path, "graphs")
-    if not os.path.exists(new_path):
-        os.makedirs(new_path)
-        os.makedirs(path_to_graphs)
+    if s.session_key is not None:
+        new_path = os.path.join(settings.MEDIA_ROOT, s.session_key)
+        path_to_graphs = os.path.join(new_path, "graphs")
+        if not os.path.exists(new_path):
+            os.makedirs(new_path)
+            os.makedirs(path_to_graphs)
 
 
 # persists music choices for the duration of a session
