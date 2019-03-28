@@ -48,12 +48,7 @@ function createChordNameCountChart(analysisJson) {
 
         var responsiveOptions = [
             ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
+                seriesBarDistance: 5
             }]
         ];
 
@@ -65,9 +60,9 @@ function createChordNameCountChart(analysisJson) {
 
             });
         }
-
+        var someDiv = document.getElementById('any-div-anywhere');
         Chartist.Bar('.ct-chart-name', {
-                labels: [],
+                labels: uniqueKeys,
                 series: data,
                 options,
                 responsiveOptions,
@@ -76,9 +71,9 @@ function createChordNameCountChart(analysisJson) {
             {
                 plugins: [
                     Chartist.plugins.legend({
-                        legendNames: groupNames,
+                        position: someDiv, legendNames: groupNames
                     }),
-                    Chartist.plugins.tooltip({class: 'uk-text-center'})
+                    Chartist.plugins.tooltip({appendToBody: true})
                 ]
             },
         );
@@ -145,7 +140,7 @@ function createChordRootCountChart(analysisJson) {
                 Chartist.plugins.legend({
                     legendNames: groupNames,
                 }),
-                Chartist.plugins.tooltip({class: 'uk-text-center'})
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
             ]
         });
     });
@@ -211,7 +206,7 @@ function createPitchNameCountChart(analysisJson) {
                 Chartist.plugins.legend({
                     legendNames: groupNames,
                 }),
-                Chartist.plugins.tooltip({class: 'uk-text-center'})
+                Chartist.plugins.tooltip({appendToBody: true})
             ]
         });
     });
@@ -274,7 +269,7 @@ function createPitchOctaveCountChart(analysisJson) {
                 Chartist.plugins.legend({
                     legendNames: groupNames,
                 }),
-                Chartist.plugins.tooltip({class: 'uk-text-center'})
+                Chartist.plugins.tooltip({appendToBody: true})
             ]
         });
     });
@@ -346,7 +341,7 @@ function createChordQualityCountChart(analysisJson) {
                 Chartist.plugins.legend({
                     legendNames: groupNames,
                 }),
-                Chartist.plugins.tooltip({class: 'uk-text-center'})
+                Chartist.plugins.tooltip({appendToBody: true})
             ]
         });
     });
@@ -401,7 +396,7 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
                 }
             }]
         ];
-
+ var someDiv = document.getElementById('any-div-anywhere2');
         new Chartist.Bar('.ct-chart-pitch-octave-name', {
             labels: uniqueKeys,
             series: data,
@@ -410,9 +405,9 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
         }, {
             plugins: [
                 Chartist.plugins.legend({
-                    legendNames: groupNames,
+                    legendNames: groupNames, position: someDiv
                 }),
-                Chartist.plugins.tooltip({class: 'uk-text-center'})
+                Chartist.plugins.tooltip({appendToBody: true})
             ]
         });
     });
