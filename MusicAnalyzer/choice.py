@@ -1,6 +1,7 @@
-
-
+import filecmp
 import os
+from os import listdir
+from os.path import isfile, join
 
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
@@ -123,27 +124,42 @@ def upload_files(self, request, context):
 
     if file_form.is_valid():
         for f in files:
-            path = os.path.join(request.session.session_key, f.name)
-            final_path = os.path.join(MEDIA_ROOT, path)
-            default_storage.save(final_path, f)
+            path = os.path.join(MEDIA_ROOT, request.session.session_key)
+            temp_path = os.path.join(path, os.path.join("temp", f.name))
+            final_path = os.path.join(path, f.name)
+            default_storage.save(temp_path, f)
+            if is_file_already_uploaded(path, temp_path):
+                os.remove(temp_path)
+                context_dict = {"is_valid": False, "error_message": "This file has already been uploaded"}
+                return JsonResponse(context_dict)
+            else:
+                default_storage.save(final_path, f)
+                try:
+                    data = get_metadata_from_uploaded_files(context, final_path, True)
+                except ConverterFileException:
+                    data = {"is_valid": False,
+                            "error_message": "This file format cannot be parsed. Please try a different one."}
 
-            try:
-                data = get_metadata_from_uploaded_files(context, final_path, True)
-            except ConverterFileException:
-                data = {"is_valid": False,
-                        "error_message": "This file format cannot be parsed. Please try a different one."}
+                    os.remove(final_path)
 
-                os.remove(final_path)
-
-            except ValueError:
-                data = {"is_valid": False,
-                        "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
-                os.remove(final_path)
-            return JsonResponse(data)
+                except ValueError:
+                    data = {"is_valid": False,
+                            "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
+                    os.remove(final_path)
+                return JsonResponse(data)
     else:
         self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
         data = {'is_valid': False}
         return JsonResponse(data)
+
+
+def is_file_already_uploaded(path_to_folder, file):
+    files_in_dir = [f for f in listdir(path_to_folder) if isfile(join(path_to_folder, f))]
+    for dir_file in files_in_dir:
+        dir_file = os.path.join(path_to_folder, dir_file)
+        if filecmp.cmp(dir_file, file, shallow=True):
+            return True
+    return False
 
 
 def get_metadata_from_uploaded_files(context, final_path, is_new):
@@ -183,18 +199,19 @@ def get_relevant_metadata(music):
             'year': convert_none_to_empty_string(music.metadata.date)}
 
 
-def add_group(request, context):
+def add_group(request):
     add_group_form = AddGroupForm(request.POST, prefix=Prefix.add_group.value)
     if add_group_form.is_valid():
         name = add_group_form.cleaned_data.get("name", "")
         # TODO check if group name unique for this session
         new_group = DistantHearingGroup.objects.create(name=name, ref_django_session_id=request.session.session_key)
-        return JsonResponse({"result": "success", "name": name, "id":new_group.pk})
+        return JsonResponse({"result": "success", "name": name, "id": new_group.pk})
     else:
         return JsonResponse({"result": "error", "error": "Form invalid!"})
 
+
 def get_available_groups(request):
-    groups = DistantHearingGroup.objects.filter(ref_django_session_id = request.session.session_key)
+    groups = DistantHearingGroup.objects.filter(ref_django_session_id=request.session.session_key)
     groups_list = []
     for group in groups:
         groups_list.append({"name": group.name, "pk": group.pk})

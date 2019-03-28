@@ -50,7 +50,7 @@ $(function () {
                 addResultsToTable(results, typeOfSelection, "upload");
             } else {
                 UIkit.notification({
-                    message: data.result.error_message,
+                    message: data.error_message,
                     status: 'warning',
                     pos: 'bottom-center',
                     timeout: 2000
@@ -82,6 +82,7 @@ function search_corpus() {
                 console.log(json.error);
             } else {
                 console.log("success");
+                console.log(json);
                 let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "search");
                 addResultsToTable(json.results, typeOfSelection, "search");
             }

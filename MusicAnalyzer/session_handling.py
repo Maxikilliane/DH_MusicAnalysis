@@ -18,10 +18,10 @@ def on_session_start(request):
         s = request.session
     s.set_expiry(0)
     new_path = os.path.join(settings.MEDIA_ROOT, s.session_key)
-    path_to_graphs = os.path.join(new_path, "graphs")
+    path_to_temp = os.path.join(new_path, "temp")
     if not os.path.exists(new_path):
         os.makedirs(new_path)
-        os.makedirs(path_to_graphs)
+        os.makedirs(path_to_temp)
 
 
 # persists music choices for the duration of a session
@@ -31,7 +31,6 @@ def save_music_choice_to_cookie(request, music_pieces):
 # retrieves the music choices
 def access_music_choice_from_cookie(request):
     if request.session.get(constants.CHOSEN_MUSIC_COOKIE):
-        print(request.session[constants.CHOSEN_MUSIC_COOKIE])
         return request.session[constants.CHOSEN_MUSIC_COOKIE]
 
 
@@ -41,5 +40,4 @@ def save_parsed_file_to_cookie(request, file):
 
 def access_save_parsed_file_from_cookie(request):
     if request.session.get(constants.PARSED_FILE_COOKIE):
-        print(request.session[constants.PARSED_FILE_COOKIE])
         return request.session[constants.PARSED_FILE_COOKIE]
