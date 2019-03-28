@@ -194,8 +194,8 @@ def get_summary_stats_for_individual_pieces(music_pieces):
             metadata_dict["group"] = group.name
             group_name = group.name
         else:
-            metadata_dict["group"] = ""
-            group_name = ""
+            metadata_dict["group"] = "No group defined"
+            group_name = "No group defined"
         relevant_groups.add(group_name)
         metadata_list.append(metadata_dict)
 

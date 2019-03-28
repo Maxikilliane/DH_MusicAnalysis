@@ -110,7 +110,14 @@ function createChordRootCountChart(analysisJson) {
 
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
 
+        });
+    }
     // draw the chart
     $(function () {
         var options = {
@@ -137,7 +144,8 @@ function createChordRootCountChart(analysisJson) {
             plugins: [
                 Chartist.plugins.legend({
                     legendNames: groupNames,
-                })
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center'})
             ]
         });
     });
@@ -145,7 +153,7 @@ function createChordRootCountChart(analysisJson) {
 }
 
 function createPitchNameCountChart(analysisJson) {
-        // group stats by group
+    // group stats by group
     var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
         clist => clist.map(car => _.omit(car, 'group')));
 
@@ -167,6 +175,14 @@ function createPitchNameCountChart(analysisJson) {
 
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
 
     // draw the chart
     $(function () {
@@ -194,14 +210,15 @@ function createPitchNameCountChart(analysisJson) {
             plugins: [
                 Chartist.plugins.legend({
                     legendNames: groupNames,
-                })
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center'})
             ]
         });
     });
 }
 
 function createPitchOctaveCountChart(analysisJson) {
-        // group stats by group
+    // group stats by group
     var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
         clist => clist.map(car => _.omit(car, 'group')));
 
@@ -221,6 +238,14 @@ function createPitchOctaveCountChart(analysisJson) {
 
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
 
     // draw the chart
     $(function () {
@@ -248,7 +273,8 @@ function createPitchOctaveCountChart(analysisJson) {
             plugins: [
                 Chartist.plugins.legend({
                     legendNames: groupNames,
-                })
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center'})
             ]
         });
     });
@@ -284,6 +310,14 @@ function createChordQualityCountChart(analysisJson) {
 
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
 
     // draw the chart
     $(function () {
@@ -311,14 +345,15 @@ function createChordQualityCountChart(analysisJson) {
             plugins: [
                 Chartist.plugins.legend({
                     legendNames: groupNames,
-                })
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center'})
             ]
         });
     });
 }
 
 function createPitchNameWithOctaveCountChart(analysisJson) {
-         // group stats by group
+    // group stats by group
     var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
         clist => clist.map(car => _.omit(car, 'group')));
 
@@ -342,7 +377,14 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
 
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
 
+        });
+    }
     // draw the chart
     $(function () {
         var options = {
@@ -369,7 +411,8 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
             plugins: [
                 Chartist.plugins.legend({
                     legendNames: groupNames,
-                })
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center'})
             ]
         });
     });
@@ -597,7 +640,7 @@ function drawAmbitusRangeChart(analysisJson) {
                 "backgroundColor": "none",
                 "font-size": "22px",
                 "alpha": 1,
-                "adjust-layout":true,
+                "adjust-layout": true,
             },
 
             globals: {
@@ -606,7 +649,7 @@ function drawAmbitusRangeChart(analysisJson) {
             "legend": {
                 "alpha": 0.05,
                 "shadow": false,
-                "align":"left",
+                "align": "left",
                 "marker": {
                     "type": "circle",
                     "border-color": "none",
