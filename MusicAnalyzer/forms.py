@@ -42,8 +42,7 @@ class MusicChoiceForm(forms.Form):
 
     def __init__(self, session_key, *args, **kwargs):
         super(MusicChoiceForm, self).__init__(*args, **kwargs)
-        self.fields['group_choice'] = forms.ModelChoiceField(queryset=self.get_group_choices(session_key),
-                                                             label="", required=False)
+        self.fields['group_choice'] = forms.ModelChoiceField(queryset=self.get_group_choices(session_key), label="", required=False)
 
     # get choices for key_choice_form
     def get_group_choices(self, session_key):
@@ -111,5 +110,4 @@ class ChordRepresentationForm(forms.Form):
     chord_representation = forms.TypedChoiceField(choices=representation_choices, coerce=int,
                                                   label="Choose the type of chord representation:",
                                                   widget=forms.RadioSelect, required=False)
-
 

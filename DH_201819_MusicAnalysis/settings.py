@@ -22,7 +22,7 @@ TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates/')
 STATIC_PATH = os.path.join(BASE_DIR, 'MusicAnalyzer', 'static/')
 STATIC_ROOT = STATIC_PATH
 STATIC_URL = '/static/'
-STATIC_FILES_DIRS = [STATIC_PATH,]
+STATIC_FILES_DIRS = [STATIC_PATH, ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -59,7 +59,6 @@ SECRET_KEY = '8y3u15nm@((k$kllp2&%wg&^i7#7=@kc_6v+c)fu!u-y%=s91%'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -104,17 +103,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'DH_201819_MusicAnalysis.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
+SITE_ID = 1
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -133,7 +125,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
@@ -157,3 +148,21 @@ if SESSION_EXPIRE_AT_BROWSER_CLOSE:
 
 # Configure Django App for Heroku.
 django_heroku.settings(locals())
+
+
+# Allow all host hosts/domain names for this site
+ALLOWED_HOSTS = ['*']
+
+# Parse database configuration from $DATABASE_URL
+import dj_database_url
+
+DATABASES = { 'default' : dj_database_url.config()}
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# try to load local_settings.py if it exists
+try:
+  from DH_201819_MusicAnalysis.local_settings import *
+except Exception as e:
+  pass
