@@ -17,6 +17,7 @@ class State(Enum):
     upload_file = "upload"
     select_for_analysis = "select_for_analysis"
     add_new_group = "new_group"
+    distant_hearing = "get_distant_hearing_results"
 
 
 class Prefix(Enum):

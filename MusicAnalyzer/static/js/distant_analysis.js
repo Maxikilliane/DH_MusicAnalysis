@@ -1,3 +1,29 @@
+$(document).ready(function () {
+    console.log("doc ready");
+    UIkit.notification({
+        message: 'processing analysis',
+        status: 'primary',
+        pos: 'bottom-center',
+        timeout: 5000000 // basically endless time, gets closed on success or error
+    });
+    let form = $("#start_distant_analysis_form");
+    $.ajax({
+        url: form.attr("data-analysis-choice-url"),
+        data: form.serialize(),
+        type: "POST",
+        dataType: 'json',
+        success: function (json) {
+            distantAnalysis(json.all_summary_stats);
+            UIkit.notification.closeAll();
+        },
+        error: function (xhr, errmsg, err) {
+            UIkit.notification.closeAll();
+            console.log("error");
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    });
+});
+
 function distantAnalysis(analysisJson) {
     console.log(analysisJson)
     createChordQualityCountChart(analysisJson)
@@ -100,7 +126,7 @@ function createChordRootCountChart(analysisJson) {
 
     // sum all group names in one array
     let groupNames = Object.keys(newGroup)
-
+    console.log(groupNames)
     let uniqueKeys = getUniqueKeys(newGroup)
 
     uniqueKeys = sortRootCount(uniqueKeys)
@@ -272,6 +298,7 @@ function drawBoxplots(analysisJson) {
                 analysisJson.per_group_stats[group].max_ambitus_semitones]
         }
     }
+    console.log(groupNames);
     var myConfig = {
         "graphset": [
             {
@@ -341,7 +368,6 @@ function drawBoxplots(analysisJson) {
             }
         ]
     };
-
     zingchart.render({
         id: 'boxplots',
         data: myConfig,

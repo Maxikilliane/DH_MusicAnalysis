@@ -172,8 +172,24 @@
         </div>
     </div>
 
-
+    {% if all_summary_stats %}
     <script type="text/javascript">
         distantAnalysis({{ all_summary_stats|safe }});
     </script>
+    {% endif %}
+
+    <div class="invisible">
+    <form id="start_distant_analysis_form" action="/MusicAnalyzer/distantAnalysis/"
+                      method="post"
+                      data-analysis-choice-url="/MusicAnalyzer/distantAnalysis/"
+                      class="uk-form-stacked">
+                    {% csrf_token %}
+                    <input type="text" name="state" value="{{ state }}">
+
+                </form>
+                <button id="distant_analysis_button"
+                        onclick="start_analysis(event)">
+
+                </button>
+    </div>
 {% endblock %}
