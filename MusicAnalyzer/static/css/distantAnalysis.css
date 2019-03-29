@@ -41,6 +41,9 @@ h2 {
     width: 3000px;
 }
 
+.chartist-tooltip {
+    display: none;
+}
 .tooltip-show{
     position: absolute;
     display: inline-block;
