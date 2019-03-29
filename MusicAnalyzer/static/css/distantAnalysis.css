@@ -15,23 +15,8 @@ h2 {
     padding-bottom: 2em;
 }
 
-.ct-tooltip {
-    position: absolute;
-    display: inline-block;
-    min-width: 5em;
-    padding: 8px 10px;
-    background: #383838;
-    color: #fff;
-    text-align: center;
-    pointer-events: none;
-    z-index: 100;
-    transition: opacity .2s linear;
-
-
-}
-
 #stickyNav {
-    background-color: rgba(187,222,251,0.5)
+    background-color: rgba(187, 222, 251, 0.5)
 }
 
 .chart-container {
@@ -41,19 +26,65 @@ h2 {
     -moz-column-count: 1;
     column-count: 1;
 }
+
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
     font-weight: 500;
     text-decoration: none;
     color: black;
 }
 
+.ct-chart-pitch-octave-name {
+    width: 3000px;
+}
+
+.ct-chart-name {
+    width: 3000px;
+}
+
+.tooltip-show{
+    position: absolute;
+    display: inline-block;
+    min-width: 5em;
+    padding: 8px 10px;
+    background: #F4C63D;
+    color: #453D3F;
+    text-align: center;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity .2s linear;
+}
+
+.tooltip-show:before {
+    position: absolute;
+    font-size: 300px;
+    bottom: -14px;
+    left: 50%;
+    border: solid transparent;
+    content: ' ';
+    height: 0;
+    width: 0;
+    pointer-events: none;
+    border-color: rgba(251, 249, 228, 0);
+    border-top-color: #F4C63D;
+    border-width: 7px;
+    margin-left: -8px;
+}
+
+#pitchOctaveName {
+    overflow: scroll;
+}
+
+#chordChartName {
+    overflow: scroll;
+}
+
 #masterNav {
     display: none;
 }
 
-#boxplots{
+#boxplots {
     width: -webkit-fill-available;
-    width: -moz-available !important;          /* WebKit-based browsers will ignore this. */
+    width: -moz-available !important; /* WebKit-based browsers will ignore this. */
     width: fill-available !important;
     overflow: inherit !important;
 }
@@ -78,10 +109,15 @@ h3 {
 }
 
 .ct-legend {
-    position: relative;
     z-index: 10;
+    padding: 5px;
     list-style: none;
     text-align: center;
+}
+
+.intro {
+    font-size: 1em;
+    padding-bottom: 2em;
 }
 
 .ct-legend li {

@@ -194,8 +194,8 @@ def get_summary_stats_for_individual_pieces(music_pieces):
             metadata_dict["group"] = group.name
             group_name = group.name
         else:
-            metadata_dict["group"] = ""
-            group_name = ""
+            metadata_dict["group"] = "No group defined"
+            group_name = "No group defined"
         relevant_groups.add(group_name)
         metadata_list.append(metadata_dict)
 
@@ -205,10 +205,12 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         chords_info.pop("chords",
                         None)  # chords are not json serializable and only in this dict, because the individual analysis method was reused
         ambitus_info = get_ambitus_for_distant_hearing(parsed_file)
+        pitch_info = get_pitches_for_distant_hearing(parsed_file)
         # pass stuff to results
         analysis_result_for_this_piece.update(metadata_dict)
         analysis_result_for_this_piece.update(chords_info)
         analysis_result_for_this_piece.update(ambitus_info)
+        analysis_result_for_this_piece.update(pitch_info)
         print(analysis_result_for_this_piece)
         per_piece_results_list.append(analysis_result_for_this_piece)
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
@@ -227,7 +229,9 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
     for d in per_piece_results_list:
 
         group = d.get("group", "")
-        print(counter_dict[group])
+        counter_dict[group]["pitch_octave_counter"].update(d["pitch_octave_count"])
+        counter_dict[group]["pitch_name_counter"].update(d["pitch_name_count"])
+        counter_dict[group]["pitch_name_with_octave_counter"].update(d["pitch_name_with_octave_count"])
         counter_dict[group]["semitones_list"].append(d["num_semitones"])
         counter_dict[group]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
         counter_dict[group]["highest_pitch_counter"].update(d["highest_pitch_count"])
@@ -235,6 +239,9 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
         counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
 
+        counter_dict["total"]["pitch_octave_counter"].update(d["pitch_octave_count"])
+        counter_dict["total"]["pitch_name_counter"].update(d["pitch_name_count"])
+        counter_dict["total"]["pitch_name_with_octave_counter"].update(d["pitch_name_with_octave_count"])
         counter_dict["total"]["semitones_list"].append(d["num_semitones"])
         counter_dict["total"]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
         counter_dict["total"]["highest_pitch_counter"].update(d["highest_pitch_count"])
@@ -464,6 +471,17 @@ def transform_music_source_to_dict(path, number, file_source, group=None):
     return music_piece
 
 
+def get_pitches_for_distant_hearing(stream):
+    octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'pitchClass'))
+    pitch_name_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'name'))
+    pitch_name_octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'nameWithOctave'))
+    # keep this a dictionary and not a list of numbers
+    octave_count = {str(key): val for key, val in octave_count.items()}
+    return {"pitch_octave_count":octave_count,
+            "pitch_name_count":pitch_name_count,
+            "pitch_name_with_octave_count":pitch_name_octave_count}
+
+
 def get_ambitus_for_distant_hearing(stream):
     ambitus = get_ambitus(stream)
     return {"lowest_pitch_count": {ambitus["pitches"][0].nameWithOctave: 1},
@@ -582,10 +600,13 @@ def get_key_possibilities(parsed_file):
 
 def get_dict_of_all_necessary_counters():
     return {
+        "pitch_octave_counter": collections.Counter(),
+        "pitch_name_counter": collections.Counter(),
+        "pitch_name_with_octave_counter": collections.Counter(),
         "semitones_list":[],
         "lowest_pitch_counter": collections.Counter(),
         "highest_pitch_counter": collections.Counter(),
         "chord_quality_counter": collections.Counter(),
         "chord_name_counter": collections.Counter(),
-        "chord_root_counter": collections.Counter()
+        "chord_root_counter": collections.Counter(),
     }
