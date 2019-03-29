@@ -5,6 +5,9 @@ function distantAnalysis(analysisJson) {
     createChordNameCountChart(analysisJson)
     drawBoxplots(analysisJson)
     drawAmbitusRangeChart(analysisJson)
+    createPitchNameCountChart(analysisJson)
+    createPitchOctaveCountChart(analysisJson)
+    createPitchNameWithOctaveCountChart(analysisJson)
 }
 
 function createChordNameCountChart(analysisJson) {
@@ -45,12 +48,7 @@ function createChordNameCountChart(analysisJson) {
 
         var responsiveOptions = [
             ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
+                seriesBarDistance: 5
             }]
         ];
 
@@ -62,9 +60,9 @@ function createChordNameCountChart(analysisJson) {
 
             });
         }
-
+        var someDiv = document.getElementById('any-div-anywhere');
         Chartist.Bar('.ct-chart-name', {
-                labels: [],
+                labels: uniqueKeys,
                 series: data,
                 options,
                 responsiveOptions,
@@ -73,9 +71,9 @@ function createChordNameCountChart(analysisJson) {
             {
                 plugins: [
                     Chartist.plugins.legend({
-                        legendNames: groupNames,
+                        position: someDiv, legendNames: groupNames
                     }),
-                    Chartist.plugins.tooltip({class: 'uk-text-center'})
+                    Chartist.plugins.tooltip({appendToBody: true})
                 ]
             },
         );
@@ -107,7 +105,14 @@ function createChordRootCountChart(analysisJson) {
 
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
 
+        });
+    }
     // draw the chart
     $(function () {
         var options = {
@@ -134,11 +139,140 @@ function createChordRootCountChart(analysisJson) {
             plugins: [
                 Chartist.plugins.legend({
                     legendNames: groupNames,
-                })
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
             ]
         });
     });
 
+}
+
+function createPitchNameCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].pitch_name_count)
+        }
+    }
+
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    uniqueKeys = sortRootCount(uniqueKeys)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-pitch-name', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({appendToBody: true})
+            ]
+        });
+    });
+}
+
+function createPitchOctaveCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].pitch_octave_count)
+        }
+    }
+
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-pitch-octave', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({appendToBody: true})
+            ]
+        });
+    });
 }
 
 function sortRootCount(arr) {
@@ -171,6 +305,14 @@ function createChordQualityCountChart(analysisJson) {
 
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
 
     // draw the chart
     $(function () {
@@ -198,11 +340,79 @@ function createChordQualityCountChart(analysisJson) {
             plugins: [
                 Chartist.plugins.legend({
                     legendNames: groupNames,
-                })
+                }),
+                Chartist.plugins.tooltip({appendToBody: true})
             ]
         });
     });
 }
+
+function createPitchNameWithOctaveCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].pitch_name_with_octave_count)
+        }
+    }
+
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    var sortingArray = ['C-1', 'C1', 'C#1', 'D-1', 'D1', 'D#1', 'E-1', 'E1', 'E#1', 'F-1', 'F1', 'F#1', 'G-1', 'G1', 'G#1', 'A-1', 'A1', 'A#1', 'B-1', 'B1', 'B#1', 'C-2', 'C2', 'C#2', 'D-2', 'D2', 'D#2', 'E-2', 'E2', 'E#2', 'F-2', 'F2', 'F#2', 'G-2', 'G2', 'G#2', 'A-2', 'A2', 'A#2', 'B-2', 'B2', 'B#2', 'C-3', 'C3', 'C#3', 'D-3', 'D3', 'D#3', 'E-3', 'E3', 'E#3', 'F-3', 'F3', 'F#3', 'G-3', 'G3', 'G#3', 'A-3', 'A3', 'A#3', 'B-3', 'B3', 'B#3', 'C-4', 'C4', 'C#4', 'D-4', 'D4', 'D#4', 'E-4', 'E4', 'E#4', 'F-4', 'F4', 'F#4', 'G-4', 'G4', 'G#4', 'A-4', 'A4', 'A#4', 'B-4', 'B4', 'B#4', 'C-5', 'C5', 'C#5', 'D-5', 'D5', 'D#5', 'E-5', 'E5', 'E#5', 'F-5', 'F5', 'F#5', 'G-5', 'G5', 'G#5', 'A-5', 'A5', 'A#5', 'B-5', 'B5', 'B#5', 'C-6', 'C6', 'C#6', 'D-6', 'D6', 'D#6', 'E-6', 'E6', 'E#6', 'F-6', 'F6', 'F#6', 'G-6', 'G6', 'G#6', 'A-6', 'A6', 'A#6', 'B-6', 'B6', 'B#6', 'C-7', 'C7', 'C#7', 'D-7', 'D7', 'D#7', 'E-7', 'E7', 'E#7', 'F-7', 'F7', 'F#7', 'G-7', 'G7', 'G#7', 'A-7', 'A7', 'A#7', 'B-7', 'B7', 'B#7']
+    uniqueKeys = sortingArray.map(key => uniqueKeys.find(item => item === key))
+        .filter(item => item)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 100
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+ var someDiv = document.getElementById('any-div-anywhere2');
+        new Chartist.Bar('.ct-chart-pitch-octave-name', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames, position: someDiv
+                }),
+                Chartist.plugins.tooltip({appendToBody: true})
+            ]
+        });
+    });
+}
+
 
 function getUniqueKeys(newGroup) {
     // get only the keys of chord root count (e.g. A,C# etc.)
@@ -425,7 +635,7 @@ function drawAmbitusRangeChart(analysisJson) {
                 "backgroundColor": "none",
                 "font-size": "22px",
                 "alpha": 1,
-                "adjust-layout":true,
+                "adjust-layout": true,
             },
 
             globals: {
@@ -434,7 +644,7 @@ function drawAmbitusRangeChart(analysisJson) {
             "legend": {
                 "alpha": 0.05,
                 "shadow": false,
-                "align":"left",
+                "align": "left",
                 "marker": {
                     "type": "circle",
                     "border-color": "none",
