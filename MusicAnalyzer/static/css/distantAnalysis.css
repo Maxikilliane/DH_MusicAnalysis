@@ -38,12 +38,115 @@ h2 {
 }
 
 .ct-chart-name {
-    width: 3000px;
+    width: 10000px;
 }
 
 .chartist-tooltip {
     display: none;
 }
+
+.ct-chart .ct-series.ct-series-e .ct-point, .ct-chart .ct-series.ct-series-e .ct-line {
+  stroke: #453d3f;
+}
+
+.ct-legend .ct-series-5:before {
+    background-color: #453d3f;
+    border-color: #453d3f;
+}
+.ct-chart .ct-series.ct-series-f .ct-point, .ct-chart .ct-series.ct-series-f .ct-line {
+  stroke: #59922b;
+}
+
+.ct-legend .ct-series-6:before {
+    background-color: #59922b;
+    border-color: #59922b;
+}
+
+.ct-chart .ct-series.ct-series-g .ct-point, .ct-chart .ct-series.ct-series-g .ct-line {
+  stroke: #0544d3;
+}
+
+.ct-legend .ct-series-7:before {
+    background-color: #0544d3;
+    border-color: #0544d3;
+}
+
+.ct-chart .ct-series.ct-series-h .ct-point, .ct-chart .ct-series.ct-series-h .ct-line {
+  stroke: #6b0392;
+}
+
+.ct-legend .ct-series-7:before {
+    background-color: #6b0392;
+    border-color: #6b0392;
+}
+
+.ct-chart .ct-series.ct-series-i .ct-point, .ct-chart .ct-series.ct-series-i .ct-line {
+  stroke: #f05b4f;
+}
+
+.ct-legend .ct-series-7:before {
+    background-color: #f05b4f;
+    border-color: #f05b4f;
+}
+
+
+.ct-chart .ct-series.ct-series-j .ct-point, .ct-chart .ct-series.ct-series-j .ct-line {
+  stroke: #dda458;
+}
+
+.ct-legend .ct-series-8:before {
+    background-color: #dda458;
+    border-color: #dda458;
+}
+
+.ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
+  stroke: #eacf7d;
+}
+
+.ct-legend .ct-series-9:before {
+    background-color: #eacf7d;
+    border-color: #eacf7d;
+}
+
+
+.ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
+  stroke: #86797d;
+}
+
+.ct-legend .ct-series-10:before {
+    background-color: #86797d;
+    border-color: #86797d;
+}
+
+
+.ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
+  stroke: #b2c326;
+}
+
+.ct-legend .ct-series-11:before {
+    background-color: #b2c326;
+    border-color: #b2c326;
+}
+
+.ct-chart .ct-series.ct-series-l .ct-point, .ct-chart .ct-series.ct-series-l .ct-line {
+  stroke: #6188e2;
+}
+
+.ct-legend .ct-series-12:before {
+    background-color: #6188e2;
+    border-color: #6188e2;
+}
+
+.ct-chart .ct-series.ct-series-m .ct-point, .ct-chart .ct-series.ct-series-m .ct-line {
+  stroke: #a748ca;
+}
+
+.ct-legend .ct-series-13:before {
+    background-color: #a748ca;
+    border-color: #a748ca;
+}
+
+
 .tooltip-show{
     position: absolute;
     display: inline-block;
