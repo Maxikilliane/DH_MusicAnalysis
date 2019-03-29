@@ -209,15 +209,15 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         pitch_info = get_pitches_for_distant_hearing(parsed_file)
         durations_info = get_durations_for_distant_hearing(parsed_file)
 
-    # pass stuff to results
-    analysis_result_for_this_piece.update(metadata_dict)
-    analysis_result_for_this_piece.update(chords_info)
-    analysis_result_for_this_piece.update(ambitus_info)
-    analysis_result_for_this_piece.update(key_info)
-    analysis_result_for_this_piece.update(pitch_info)
-    analysis_result_for_this_piece.update(durations_info)
-    print(analysis_result_for_this_piece)
-    per_piece_results_list.append(analysis_result_for_this_piece)
+        # pass stuff to results
+        analysis_result_for_this_piece.update(metadata_dict)
+        analysis_result_for_this_piece.update(chords_info)
+        analysis_result_for_this_piece.update(ambitus_info)
+        analysis_result_for_this_piece.update(key_info)
+        analysis_result_for_this_piece.update(pitch_info)
+        analysis_result_for_this_piece.update(durations_info)
+        print(analysis_result_for_this_piece)
+        per_piece_results_list.append(analysis_result_for_this_piece)
 
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 

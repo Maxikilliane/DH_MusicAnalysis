@@ -11,6 +11,326 @@ function distantAnalysis(analysisJson) {
     createKeyNameCountChart(analysisJson)
     createKeyModeCountChart(analysisJson)
     createKeyProbabilityLineChart(analysisJson)
+    createDurationFullNameNotesCountChart(analysisJson)
+    createDurationFullNameRestsCountChart(analysisJson)
+    createDurationLengthInQuartersNotesCountChart(analysisJson)
+    createDurationLengthInQuartersNotesRestsCountChart(analysisJson)
+    createDurationLengthInQuartersRestsCountChart(analysisJson)
+}
+
+function createDurationLengthInQuartersRestsCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_length_in_quarters_rests_count)
+        }
+    }
+
+    console.log(newGroup)
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-duration-length-rests-count', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+            ]
+        });
+    });
+}
+
+function createDurationLengthInQuartersNotesRestsCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_length_in_quarters_notes_rests_count)
+        }
+    }
+
+    console.log(newGroup)
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-duration-length-notes-rests-count', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+            ]
+        });
+    });
+}
+
+function createDurationLengthInQuartersNotesCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_length_in_quarters_notes_count)
+        }
+    }
+
+    console.log(newGroup)
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-duration-length-notes-count', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+            ]
+        });
+    });
+}
+
+function createDurationFullNameRestsCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_fullname_rests_count)
+        }
+    }
+
+    console.log(newGroup)
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-duration-fullname-rests-count', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+            ]
+        });
+    });
+}
+
+function createDurationFullNameNotesCountChart(analysisJson) {
+    // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_fullname_notes_count)
+        }
+    }
+
+    console.log(newGroup)
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-duration-fullname-notes-count', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+            ]
+        });
+    });
 }
 
 function createKeyNameCountChart(analysisJson) {
@@ -183,11 +503,6 @@ function createKeyProbabilityLineChart(analysisJson) {
             }
         }
     }
-
-    console.log(musicPiecesResult)
-
-
-    console.log(resultValues)
 
     let labels = [1, 2, 3, 4]
 
