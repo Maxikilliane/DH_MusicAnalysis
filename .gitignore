@@ -2,3 +2,4 @@ venv/
 *.pyc
 .idea/
 DH_201819_MusicAnalysis/local_settings.py
+.DS_Store
