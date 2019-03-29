@@ -128,59 +128,102 @@ function createKeyProbabilityLineChart(analysisJson) {
         clist => clist.map(key => _.omit(key, 'group')));
 
 
-    var keyInformationObject = []
-    var musicPieces = []
-    let firstGroup = grouped['Anni']
-    for (let musicPiece in firstGroup) {
-        keyInformationObject.push(firstGroup[musicPiece].key_information)
-        musicPieces.push(firstGroup[musicPiece].title)
-
-    }
-    musicPieces.pop()
-    console.log(musicPieces)
-    console.log(keyInformationObject)
-    let values = []
-    let keys = []
-    for (let y = 0; y < keyInformationObject.length; y++) {
-        let probabilitiesPerPiece = []
-        let keysPerPiece = []
-        if (keyInformationObject[y] !== undefined) {
-            for (let i = 0; i < keyInformationObject[y].length; i++) {
-                probabilitiesPerPiece.push(keyInformationObject[y][i].probability)
-                keysPerPiece.push(keyInformationObject[y][i].key_name)
+    var keyInformationObjectResult = []
+    var musicPiecesResult = []
+    for (group in grouped) {
+        let keyInformationObject = []
+        let musicPieces = []
+        let firstGroup = grouped[group]
+        for (let musicPiece in firstGroup) {
+            if (firstGroup[musicPiece].key_information !== undefined) {
+                keyInformationObject.push(firstGroup[musicPiece].key_information)
+            }
+            if (firstGroup[musicPiece].title !== undefined) {
+                musicPieces.push(firstGroup[musicPiece].title)
             }
         }
-        values[y] = probabilitiesPerPiece
-        keys[y] = keysPerPiece
+
+        keyInformationObjectResult[group] = keyInformationObject
+
+        musicPiecesResult[group] = musicPieces
     }
-    keys.pop()
-    values.pop()
 
-    console.log(keys)
+    let resultKeys = []
+    let resultValues = []
 
-    for (let i = 0; i < values.length; i++) {
-        let object = values[i]
-        let keyObject = keys[i]
-        for (let y = 0; y < object.length; y++) {
-            object[y] = { meta: keyObject[y], value: object[y]};
+    for (let group in keyInformationObjectResult) {
+        let values = []
+        let keys = []
+        let keyGroup = keyInformationObjectResult[group]
+
+        for (let y = 0; y < keyGroup.length; y++) {
+            let probabilitiesPerPiece = []
+            let keysPerPiece = []
+            if (keyGroup[y] !== undefined) {
+                for (let i = 0; i < keyGroup[y].length; i++) {
+                    probabilitiesPerPiece.push(keyGroup[y][i].probability)
+                    keysPerPiece.push(keyGroup[y][i].key_name)
+                }
+            }
+            values[y] = probabilitiesPerPiece
+            keys[y] = keysPerPiece
+        }
+        resultKeys[group] = keys
+        resultValues[group] = values
+    }
+
+    for (let group in resultValues) {
+        let value = resultValues[group]
+        let key = resultKeys[group]
+        for (let i = 0; i < value.length; i++) {
+            let object = value[i]
+            let keyObject = key[i]
+            for (let y = 0; y < object.length; y++) {
+                object[y] = {meta: keyObject[y], value: object[y]};
+            }
         }
     }
 
-    console.log(values)
+    console.log(musicPiecesResult)
+
+
+    console.log(resultValues)
 
     let labels = [1, 2, 3, 4]
 
-    new Chartist.Line('.ct-chart-key-probability', {
-            labels: labels,
-            series: values
-        },
-        {
-            plugins: [
-                Chartist.plugins.legend({legendNames: musicPieces}),
-                Chartist.plugins.tooltip({appendToBody: true})
-            ]
-        },
-    );
+    for (let group in resultValues) {
+        if (group !== 'unique') {
+            var newDiv = document.createElement('div');
+            var newHeading = document.createElement('h4');
+            newHeading.className = 'uk-text-center';
+            newHeading.innerHTML = group;
+            newDiv.className = 'ct-chart-key-probability-' + group;
+            document.getElementById('probabilityCharts').appendChild(newHeading);
+            document.getElementById('probabilityCharts').appendChild(newDiv);
+        }
+    }
+
+    for (let group in resultValues) {
+        if (group !== 'unique') {
+            new Chartist.Line('.ct-chart-key-probability-' + group, {
+                    labels: labels,
+                    series: resultValues[group]
+                },
+                {
+                    plugins: [
+                        Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
+                        Chartist.plugins.tooltip({appendToBody: true})
+                    ]
+                },
+                {
+                    fullWidth: true,
+                    chartPadding: {
+                        right: 40
+                    }
+                },
+            );
+        }
+    }
 }
 
 function createChordNameCountChart(analysisJson) {
@@ -227,8 +270,6 @@ function createChordNameCountChart(analysisJson) {
         ];
 
         for (let i = 0; i < data.length; i++) {
-            console.log("data an der stelle i ")
-            console.log(data[i])
             data[i] = data[i].map(function (v, idx) {
                 return {
                     meta: uniqueKeys[idx], value: v
@@ -808,9 +849,9 @@ function drawAmbitusRangeChart(analysisJson) {
             type: 'hbar',
             "title": {
                 "text": titles[result],
-                "font-color": "#7E7E7E",
+                "font-color": "#000000",
                 "backgroundColor": "none",
-                "font-size": "22px",
+                "font-size": "20px",
                 "alpha": 1,
                 "adjust-layout": true,
             },
