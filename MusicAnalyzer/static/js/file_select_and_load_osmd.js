@@ -24,7 +24,7 @@ function displayMusic(containerId, fileId) {
 function triggerUpload() {
     console.log("uploading file");
     let initialZoom = 0.6;
-    let canvas = document.getElementById("osmdCanvas")
+    let canvas = document.getElementById("osmdCanvas");
     let localFile = document.getElementById("musicPiece").value;
     let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdCanvas", {autoResize: true});
     let zoomIn = document.getElementById("zoom-in-btn");
@@ -37,9 +37,9 @@ function triggerUpload() {
     let keyHeading = document.getElementById("keyHeading");
     let keyRadios = document.getElementById("id_key-key_choice").getElementsByTagName("input");
 
-    openSheetMusicDisplay.load(localFile)
+    openSheetMusicDisplay.load(localFile);
     openSheetMusicDisplay.zoom = initialZoom;
-    openSheetMusicDisplay.render()
+    openSheetMusicDisplay.render();
 
     // Create zoom controls
     zoomIn.onclick = function () {
