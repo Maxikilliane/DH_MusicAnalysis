@@ -495,7 +495,6 @@ def transform_music_source_to_dict(path, number, file_source, group=None):
 
 
 def get_durations_for_distant_hearing(stream):
-    print(stream)
     duration_length_in_quarters_notes = {}
     duration_type_notes = {}
     duration_fullname_notes = {}
@@ -506,17 +505,12 @@ def get_durations_for_distant_hearing(stream):
     duration_length_in_quarters_notes_and_rests_counter = collections.Counter()
 
     for note in stream.flat.notesAndRests:
-        print(note)
         duration = note.duration
         is_note = note.isNote
         length_in_quarters = duration.quarterLength
         type = duration.type
         full_name = duration.fullName
-        print(full_name)
-        print(type)
-        print(length_in_quarters)
         if is_note:
-            print("is Note")
             if length_in_quarters in duration_length_in_quarters_notes:
                 duration_length_in_quarters_notes[length_in_quarters] += 1
             else:
