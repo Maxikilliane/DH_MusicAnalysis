@@ -205,16 +205,20 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         chords_info.pop("chords",
                         None)  # chords are not json serializable and only in this dict, because the individual analysis method was reused
         ambitus_info = get_ambitus_for_distant_hearing(parsed_file)
+        key_info = get_key_for_distant_hearing(parsed_file)
         pitch_info = get_pitches_for_distant_hearing(parsed_file)
         durations_info = get_durations_for_distant_hearing(parsed_file)
-        # pass stuff to results
-        analysis_result_for_this_piece.update(metadata_dict)
-        analysis_result_for_this_piece.update(chords_info)
-        analysis_result_for_this_piece.update(ambitus_info)
-        analysis_result_for_this_piece.update(pitch_info)
-        analysis_result_for_this_piece.update(durations_info)
-        print(analysis_result_for_this_piece)
-        per_piece_results_list.append(analysis_result_for_this_piece)
+
+    # pass stuff to results
+    analysis_result_for_this_piece.update(metadata_dict)
+    analysis_result_for_this_piece.update(chords_info)
+    analysis_result_for_this_piece.update(ambitus_info)
+    analysis_result_for_this_piece.update(key_info)
+    analysis_result_for_this_piece.update(pitch_info)
+    analysis_result_for_this_piece.update(durations_info)
+    print(analysis_result_for_this_piece)
+    per_piece_results_list.append(analysis_result_for_this_piece)
+
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 
 
@@ -230,6 +234,15 @@ def getCounters(relevant_groups):
 def get_group_and_total_counts(per_piece_results_list, counter_dict):
     for d in per_piece_results_list:
         group = d.get("group", "")
+        print(counter_dict[group])
+        for key_info in d["key_information"]:
+            print("inside for")
+            print(key_info)
+            if key_info["order"] == 1:
+                counter_dict[group]["key_mode_counter"].update({key_info["key_mode"]: 1})
+                counter_dict["total"]["key_mode_counter"].update({key_info["key_mode"]: 1})
+                counter_dict[group]["key_name_counter"].update({key_info["key_name"]: 1})
+                counter_dict["total"]["key_name_counter"].update({key_info["key_name"]: 1})
 
         counter_dict[group]["duration_length_in_quarters_notes_counter"].update(
             d["duration_length_in_quarters_notes_count"])
@@ -298,6 +311,30 @@ def get_group_and_overall_summary_stats(counter_dict):
             semitones_sum_stats = get_additional_semitones_sum_stats(total)
             total.update(semitones_sum_stats)
     return {"total_sum_stats": total, "group_sum_stats": per_group_results_list}
+
+
+def get_dict_of_all_necessary_counters():
+    return {
+
+        "duration_length_in_quarters_notes_counter": collections.Counter(),
+        "duration_length_in_quarters_rests_counter": collections.Counter(),
+        "duration_type_notes_counter": collections.Counter(),
+        "duration_type_rests_counter": collections.Counter(),
+        "duration_fullname_notes_counter": collections.Counter(),
+        "duration_fullname_rests_counter": collections.Counter(),
+        "duration_length_in_quarters_notes_rests_counter": collections.Counter(),
+        "pitch_octave_counter": collections.Counter(),
+        "pitch_name_counter": collections.Counter(),
+        "pitch_name_with_octave_counter": collections.Counter(),
+        "key_mode_counter": collections.Counter(),
+        "key_name_counter": collections.Counter(),
+        "semitones_list": [],
+        "lowest_pitch_counter": collections.Counter(),
+        "highest_pitch_counter": collections.Counter(),
+        "chord_quality_counter": collections.Counter(),
+        "chord_name_counter": collections.Counter(),
+        "chord_root_counter": collections.Counter()
+    }
 
 
 def get_additional_semitones_sum_stats(results):
@@ -555,6 +592,19 @@ def get_durations_for_distant_hearing(stream):
     }
 
 
+def get_key_for_distant_hearing(parsed_file):
+    keys = get_key_possibilities(parsed_file)
+    key_list = []
+    counter = 1
+    for key in keys:
+        key_list.append({"key_name": get_better_key_name(key),
+                         "probability": key.correlationCoefficient,
+                         "order": counter,
+                         "key_mode": key.mode})
+        counter += 1
+    return {"key_information": key_list}
+
+
 def get_pitches_for_distant_hearing(stream):
     octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'pitchClass'))
     pitch_name_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'name'))
@@ -566,6 +616,7 @@ def get_pitches_for_distant_hearing(stream):
             "pitch_name_with_octave_count": pitch_name_octave_count}
 
 
+# get ambitus and additional information for distant hearing
 def get_ambitus_for_distant_hearing(stream):
     ambitus = get_ambitus(stream)
     return {"lowest_pitch_count": {ambitus["pitches"][0].nameWithOctave: 1},
@@ -573,6 +624,7 @@ def get_ambitus_for_distant_hearing(stream):
             "num_semitones": ambitus["interval"].semitones}
 
 
+# get musicxml which displays the ambitus
 def get_ambitus_for_display(stream, gex, context_dict):
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
@@ -581,11 +633,6 @@ def get_ambitus_for_display(stream, gex, context_dict):
     display_part.append(m21.note.Note(ambitus["pitches"][1]))
     display.append(display_part)
     display.insert(0, m21.metadata.Metadata())
-    # not necessary anymore because osmd provides the option to not display those, seemed cleaner that way.
-    # display_part.partName = " "
-    # display.metadata.title = ambitus["interval"].niceName
-    # display.metadata.alternativeTitle = ""
-    # display.metadata.movementName = str(ambitus["interval"].semitones) + " semitones"
     display.metadata.composer = " "
     context_dict["ambitus_interval"] = ambitus["interval"].niceName
     context_dict["semitones"] = str(ambitus["interval"].semitones) + " semitones"
@@ -681,24 +728,3 @@ def get_key_possibilities(parsed_file):
     key = parsed_file.analyze('key')
     key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
     return key_list
-
-
-def get_dict_of_all_necessary_counters():
-    return {
-        "duration_length_in_quarters_notes_counter": collections.Counter(),
-        "duration_length_in_quarters_rests_counter": collections.Counter(),
-        "duration_type_notes_counter": collections.Counter(),
-        "duration_type_rests_counter": collections.Counter(),
-        "duration_fullname_notes_counter": collections.Counter(),
-        "duration_fullname_rests_counter": collections.Counter(),
-        "duration_length_in_quarters_notes_rests_counter": collections.Counter(),
-        "pitch_octave_counter": collections.Counter(),
-        "pitch_name_counter": collections.Counter(),
-        "pitch_name_with_octave_counter": collections.Counter(),
-        "semitones_list": [],
-        "lowest_pitch_counter": collections.Counter(),
-        "highest_pitch_counter": collections.Counter(),
-        "chord_quality_counter": collections.Counter(),
-        "chord_name_counter": collections.Counter(),
-        "chord_root_counter": collections.Counter(),
-    }
