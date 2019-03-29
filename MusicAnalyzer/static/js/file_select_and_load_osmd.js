@@ -1,9 +1,9 @@
-
-
 function displayMusic(containerId, fileId) {
     let initialZoom = 0.6;
     let container = document.getElementById(containerId);
+
     let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay(container, {
+            backend: "canvas",
             drawCredits: false,
             drawTitle: false,
             drawPartNames: false,
@@ -26,7 +26,11 @@ function triggerUpload() {
     let initialZoom = 0.6;
     let canvas = document.getElementById("osmdCanvas");
     let localFile = document.getElementById("musicPiece").value;
-    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdCanvas", {autoResize: true});
+    let openSheetMusicDisplay = new opensheetmusicdisplay.OpenSheetMusicDisplay("osmdCanvas", {
+            backend: "canvas",
+            autoResize: true
+        }
+    );
     let zoomIn = document.getElementById("zoom-in-btn");
     let zoomOut = document.getElementById("zoom-out-btn");
     let chordCheckbox = document.getElementById("id_analysis_choice-individual_analysis_0");
