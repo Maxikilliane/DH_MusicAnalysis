@@ -164,7 +164,7 @@ def get_distant_hearing_analysis_results(request):
     stats = get_summary_stats_for_individual_pieces(music_pieces)
     per_piece_results_list = stats["per_piece"]
     relevant_groups = stats["groups"]
-    counter_dict = getCounters(relevant_groups)
+    counter_dict = get_counters(relevant_groups)
     counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
     summary_stats = get_group_and_overall_summary_stats(counter_dict)
 
@@ -227,7 +227,7 @@ def get_summary_stats_for_individual_pieces(music_pieces):
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 
 
-def getCounters(relevant_groups):
+def get_counters(relevant_groups):
     counter_dict = {}
     for group in relevant_groups:
         counter_dict[group] = get_dict_of_all_necessary_counters()
@@ -248,6 +248,7 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
                 counter_dict[group]["key_name_counter"].update({key_info["key_name"]: 1})
                 counter_dict["total"]["key_name_counter"].update({key_info["key_name"]: 1})
 
+        counter_dict[group]["duration_total_notes_vs_rests_counter"].update(d["duration_total_notes_vs_rests_count"])
         counter_dict[group]["duration_length_in_quarters_notes_counter"].update(
             d["duration_length_in_quarters_notes_count"])
         counter_dict[group]["duration_length_in_quarters_rests_counter"].update(
@@ -268,6 +269,7 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
         counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
 
+        counter_dict["total"]["duration_total_notes_vs_rests_counter"].update(d["duration_total_notes_vs_rests_count"])
         counter_dict["total"]["duration_length_in_quarters_notes_counter"].update(
             d["duration_length_in_quarters_notes_count"])
         counter_dict["total"]["duration_length_in_quarters_rests_counter"].update(
@@ -319,7 +321,7 @@ def get_group_and_overall_summary_stats(counter_dict):
 
 def get_dict_of_all_necessary_counters():
     return {
-
+        "duration_total_notes_vs_rests_counter":collections.Counter(),
         "duration_length_in_quarters_notes_counter": collections.Counter(),
         "duration_length_in_quarters_rests_counter": collections.Counter(),
         "duration_type_notes_counter": collections.Counter(),
@@ -601,7 +603,7 @@ def get_durations_for_distant_hearing(stream):
         "duration_fullname_notes_count": duration_fullname_notes,
         "duration_fullname_rests_count": duration_fullname_rests,
         "duration_length_in_quarters_notes_rests_count": duration_length_in_quarters_notes_and_rests,
-        "duration_total_notes_vs_rests": {"notes":sum_note_duration, "rests":sum_rest_duration}
+        "duration_total_notes_vs_rests_count": {"notes":sum_note_duration, "rests":sum_rest_duration}
     }
 
 
@@ -611,6 +613,7 @@ def convert_number_string_to_numeral(key_string):
     except ValueError as e:
         key = Fraction(key_string)
     return key
+
 
 def get_key_for_distant_hearing(parsed_file):
     keys = get_key_possibilities(parsed_file)
