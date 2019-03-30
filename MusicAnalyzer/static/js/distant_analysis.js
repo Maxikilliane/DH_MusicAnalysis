@@ -1,3 +1,45 @@
+$(document).ready(function () {
+    console.log("doc ready");
+    UIkit.notification({
+        message: 'processing analysis',
+        status: 'primary',
+        pos: 'bottom-center',
+        timeout: 5000000 // basically endless time, gets closed on success or error
+    });
+    let form = $("#start_distant_analysis_form");
+    $.ajax({
+        url: form.attr("data-analysis-choice-url"),
+        data: form.serialize(),
+        type: "POST",
+        dataType: 'json',
+        success: function (json) {
+            distantAnalysis(json.all_summary_stats);
+            addMetadata(json.metadata);
+            UIkit.notification.closeAll();
+        },
+        error: function (xhr, errmsg, err) {
+            UIkit.notification.closeAll();
+            console.log("error");
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+        }
+    });
+});
+
+function addMetadata(metadata) {
+    let table_content = "";
+    for (let i = 0; i < metadata.length; ++i) {
+        let music_piece = metadata[i];
+        let row = "<tr>\n" +
+            "             <td>" + music_piece.group + "</td>\n" +
+            "             <td>" + music_piece.composer + "</td>\n" +
+            "             <td>" + music_piece.title + "</td>\n" +
+            "             <td>" + music_piece.year + "</td>\n" +
+            "    </tr>";
+        table_content = table_content.concat(row);
+    }
+    $("#metadata_table tbody").append(table_content);
+}
+
 function distantAnalysis(analysisJson) {
     console.log(analysisJson);
     createChordQualityCountChart(analysisJson);
@@ -395,6 +437,7 @@ function createDurationFullNameNotesCountChart(analysisJson) {
             ]
         });
     });
+
 }
 
 function createKeyNameCountChart(analysisJson) {
@@ -694,7 +737,6 @@ function createChordRootCountChart(analysisJson) {
 
     // sum all group names in one array
     let groupNames = Object.keys(newGroup)
-
     let uniqueKeys = getUniqueKeys(newGroup)
 
 
@@ -1148,7 +1190,6 @@ function drawBoxplots(analysisJson) {
             }
         ]
     };
-
     zingchart.render({
         id: 'boxplots',
         data: myConfig,

@@ -65,8 +65,6 @@ class Choice(View):
             if request.is_ajax():
                 return search_corpus(request, context)
         elif self.state == constants.State.select_for_analysis.value:
-            print("Post")
-            print(request.POST)
             music_choice_forms = self.musicChoiceFormset(request.POST,
                                                          form_kwargs={'session_key': request.session.session_key},
                                                          prefix=Prefix.choose_music_file.value)
@@ -150,26 +148,31 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        context_dict = {"explanations": texts.distant_hearing_explanations}
-        music_pieces = access_music_choice_from_cookie(request)
-        overall_results = {}  # all the results
-
-        stats = get_summary_stats_for_individual_pieces(music_pieces)
-        per_piece_results_list = stats["per_piece"]
-        relevant_groups = stats["groups"]
-        counter_dict = getCounters(relevant_groups)
-        counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
-        summary_stats = get_group_and_overall_summary_stats(counter_dict)
-
-        overall_results["per_piece_stats"] = per_piece_results_list
-        overall_results["per_group_stats"] = summary_stats["group_sum_stats"]  # per_group_results_list
-        overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
-
-        context_dict["metadata"] = stats["metadata"]
-        context_dict["all_summary_stats"] = json.dumps(overall_results)
-
+        context_dict = {"explanations": texts.distant_hearing_explanations, "state":State.distant_hearing.value}
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
+    def post(self, request):
+        if request.is_ajax():
+            return get_distant_hearing_analysis_results(request)
+
+def get_distant_hearing_analysis_results(request):
+    music_pieces = access_music_choice_from_cookie(request)
+    overall_results = {}  # all the results
+
+    stats = get_summary_stats_for_individual_pieces(music_pieces)
+    per_piece_results_list = stats["per_piece"]
+    relevant_groups = stats["groups"]
+    counter_dict = getCounters(relevant_groups)
+    counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
+    summary_stats = get_group_and_overall_summary_stats(counter_dict)
+
+    overall_results["per_piece_stats"] = per_piece_results_list
+    overall_results["per_group_stats"] = summary_stats["group_sum_stats"]  # per_group_results_list
+    overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
+
+    context_dict = {"metadata":stats["metadata"], "all_summary_stats":overall_results}
+
+    return JsonResponse(context_dict)
 
 def get_results_from_counters(dictionary, accessor):
     result = {}
@@ -430,10 +433,8 @@ class IndividualAnalysis(View):
                 parsed_file = self.gex.parse(parsed_file).decode('utf-8')
 
                 self.context_dict['music_piece'] = parsed_file
-                # print(self.context_dict)
-                # return JsonResponse(self.context_dict)
+
                 return render_to_response('MusicAnalyzer/Results.html', self.context_dict)
-                # return JsonResponse({"result": "success"})
             else:
                 print(analysis_form.errors)
         # return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
