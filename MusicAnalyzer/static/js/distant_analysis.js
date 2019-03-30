@@ -50,6 +50,222 @@ function distantAnalysis(analysisJson) {
     createPitchNameCountChart(analysisJson)
     createPitchOctaveCountChart(analysisJson)
     createPitchNameWithOctaveCountChart(analysisJson)
+    createKeyNameCountChart(analysisJson)
+    createKeyModeCountChart(analysisJson)
+    createKeyProbabilityLineChart(analysisJson)
+}
+
+function createKeyNameCountChart(analysisJson) {
+    // group stats by group
+    var grouped = analysisJson.per_group_stats
+
+    // sum all group names in one array
+    let groupNames = []
+    for (group in grouped) {
+        groupNames.push(grouped[group].group_name)
+    }
+    groupNames.pop()
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let i = 0; i < grouped.length; i++) {
+        newGroup[groupNames[i]] = sumObjectsByKey(newGroup[i], grouped[i].key_name_count)
+    }
+
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-key-name', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                })
+            ]
+        });
+    });
+
+}
+
+function createKeyModeCountChart(analysisJson) {
+    // group stats by group
+    var grouped = analysisJson.per_group_stats
+
+    // sum all group names in one array
+    let groupNames = []
+    for (group in grouped) {
+        groupNames.push(grouped[group].group_name)
+    }
+    groupNames.pop()
+
+
+    // group stats by chord root count and sum up values
+    var newGroup = []
+    for (let i = 0; i < grouped.length; i++) {
+        newGroup[groupNames[i]] = sumObjectsByKey(newGroup[i], grouped[i].key_mode_count)
+    }
+
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-key-mode', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                })
+            ]
+        });
+    });
+}
+
+function createKeyProbabilityLineChart(analysisJson) {
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(key => _.omit(key, 'group')));
+
+
+    var keyInformationObjectResult = []
+    var musicPiecesResult = []
+    for (group in grouped) {
+        let keyInformationObject = []
+        let musicPieces = []
+        let firstGroup = grouped[group]
+        for (let musicPiece in firstGroup) {
+            if (firstGroup[musicPiece].key_information !== undefined) {
+                keyInformationObject.push(firstGroup[musicPiece].key_information)
+            }
+            if (firstGroup[musicPiece].title !== undefined) {
+                musicPieces.push(firstGroup[musicPiece].title)
+            }
+        }
+
+        keyInformationObjectResult[group] = keyInformationObject
+
+        musicPiecesResult[group] = musicPieces
+    }
+
+    let resultKeys = []
+    let resultValues = []
+
+    for (let group in keyInformationObjectResult) {
+        let values = []
+        let keys = []
+        let keyGroup = keyInformationObjectResult[group]
+
+        for (let y = 0; y < keyGroup.length; y++) {
+            let probabilitiesPerPiece = []
+            let keysPerPiece = []
+            if (keyGroup[y] !== undefined) {
+                for (let i = 0; i < keyGroup[y].length; i++) {
+                    probabilitiesPerPiece.push(keyGroup[y][i].probability)
+                    keysPerPiece.push(keyGroup[y][i].key_name)
+                }
+            }
+            values[y] = probabilitiesPerPiece
+            keys[y] = keysPerPiece
+        }
+        resultKeys[group] = keys
+        resultValues[group] = values
+    }
+
+    for (let group in resultValues) {
+        let value = resultValues[group]
+        let key = resultKeys[group]
+        for (let i = 0; i < value.length; i++) {
+            let object = value[i]
+            let keyObject = key[i]
+            for (let y = 0; y < object.length; y++) {
+                object[y] = {meta: keyObject[y], value: object[y]};
+            }
+        }
+    }
+
+    console.log(musicPiecesResult)
+
+
+    console.log(resultValues)
+
+    let labels = [1, 2, 3, 4]
+
+    for (let group in resultValues) {
+        if (group !== 'unique') {
+            var newDiv = document.createElement('div');
+            var newHeading = document.createElement('h4');
+            newHeading.className = 'uk-text-center';
+            newHeading.innerHTML = group;
+            newDiv.className = 'ct-chart-key-probability-' + group;
+            document.getElementById('probabilityCharts').appendChild(newHeading);
+            document.getElementById('probabilityCharts').appendChild(newDiv);
+        }
+    }
+
+    for (let group in resultValues) {
+        if (group !== 'unique') {
+            new Chartist.Line('.ct-chart-key-probability-' + group, {
+                    labels: labels,
+                    series: resultValues[group]
+                },
+                {
+                    plugins: [
+                        Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
+                        Chartist.plugins.tooltip({appendToBody: true})
+                    ]
+                },
+                {
+                    fullWidth: true,
+                    chartPadding: {
+                        right: 40
+                    }
+                },
+            );
+        }
+    }
 }
 
 function createChordNameCountChart(analysisJson) {
@@ -65,6 +281,7 @@ function createChordNameCountChart(analysisJson) {
             newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].chord_name_count)
         }
     }
+
     for (groupName in newGroup) {
         for (group in newGroup[groupName]) {
             if (newGroup[groupName][group] < 3) {
@@ -141,6 +358,7 @@ function createChordRootCountChart(analysisJson) {
     // sum all group names in one array
     let groupNames = Object.keys(newGroup)
     let uniqueKeys = getUniqueKeys(newGroup)
+
 
     uniqueKeys = sortRootCount(uniqueKeys)
 
@@ -343,7 +561,7 @@ function createChordQualityCountChart(analysisJson) {
 
 
     let uniqueKeys = getUniqueKeys(newGroup)
-
+    uniqueKeys.pop()
     let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
 
     for (let i = 0; i < data.length; i++) {
@@ -437,7 +655,7 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
                 }
             }]
         ];
- var someDiv = document.getElementById('any-div-anywhere2');
+        var someDiv = document.getElementById('any-div-anywhere2');
         new Chartist.Bar('.ct-chart-pitch-octave-name', {
             labels: uniqueKeys,
             series: data,
@@ -479,16 +697,16 @@ function getUniqueKeys(newGroup) {
         uniqueKeys = uniqueKeys.concat(allKeys[groupOfKeys])
     }
     uniqueKeys = uniqueKeys.unique()
-    uniqueKeys.pop()
+
     return uniqueKeys
 }
 
 function getMatchingVals(newGroup, uniqueKeys, groupNames) {
     // map the groups by the keys from the unique array so that the values are in the right order
     let matchingVals = [];
-    for (let chord in newGroup) {
-        let toCheck = newGroup[chord]
-        matchingVals[chord] = uniqueKeys.map(key => toCheck[key])
+    for (let group in newGroup) {
+        let toCheck = newGroup[group]
+        matchingVals[group] = uniqueKeys.map(key => toCheck[key])
     }
 
     var data = [];
@@ -671,9 +889,9 @@ function drawAmbitusRangeChart(analysisJson) {
             type: 'hbar',
             "title": {
                 "text": titles[result],
-                "font-color": "#7E7E7E",
+                "font-color": "#000000",
                 "backgroundColor": "none",
-                "font-size": "22px",
+                "font-size": "20px",
                 "alpha": 1,
                 "adjust-layout": true,
             },

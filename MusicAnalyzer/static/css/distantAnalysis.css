@@ -38,12 +38,72 @@ h2 {
 }
 
 .ct-chart-name {
-    width: 3000px;
+    width: 10000px;
 }
 
 .chartist-tooltip {
     display: none;
 }
+
+
+
+.ct-legend .ct-series-5:before {
+    background-color: #59922b;
+    border-color: #59922b;
+}
+.ct-legend .ct-series-6:before {
+    background-color: #0544d3;
+    border-color: #0544d3;
+}
+
+
+.ct-legend .ct-series-7:before {
+    background-color: #6b0392;
+    border-color: #6b0392;
+}
+
+
+.ct-legend .ct-series-8:before {
+    background-color: #dda458;
+    border-color: #dda458;
+}
+
+.ct-legend .ct-series-9:before {
+    background-color: #eacf7d;
+    border-color: #eacf7d;
+}
+
+
+.ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
+  stroke: #86797d;
+}
+
+.ct-legend .ct-series-10:before {
+    background-color: #86797d;
+    border-color: #86797d;
+}
+
+
+.ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
+  stroke: #b2c326;
+}
+
+.ct-legend .ct-series-11:before {
+    background-color: #b2c326;
+    border-color: #b2c326;
+}
+
+.ct-chart .ct-series.ct-series-l .ct-point, .ct-chart .ct-series.ct-series-l .ct-line {
+  stroke: #6188e2;
+}
+
+.ct-legend .ct-series-12:before {
+    background-color: #6188e2;
+    border-color: #6188e2;
+}
+
+
+
 .tooltip-show{
     position: absolute;
     display: inline-block;
