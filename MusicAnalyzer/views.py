@@ -577,6 +577,14 @@ def get_durations_for_distant_hearing(stream):
                 duration_fullname_rests[full_name] += 1
             else:
                 duration_fullname_rests[full_name] = 1
+    sum_note_duration = 0
+    sum_rest_duration = 0
+    for key, value in duration_length_in_quarters_notes.items():
+        sum_note_duration += key*value
+
+    for key, value in duration_length_in_quarters_rests.items():
+        sum_rest_duration += key*value
+
     duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
     duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
     duration_length_in_quarters_notes_and_rests = dict(duration_length_in_quarters_notes_and_rests_counter)
@@ -588,7 +596,8 @@ def get_durations_for_distant_hearing(stream):
         "duration_type_rests_count": duration_type_rests,
         "duration_fullname_notes_count": duration_fullname_notes,
         "duration_fullname_rests_count": duration_fullname_rests,
-        "duration_length_in_quarters_notes_rests_count": duration_length_in_quarters_notes_and_rests
+        "duration_length_in_quarters_notes_rests_count": duration_length_in_quarters_notes_and_rests,
+        "duration_total_notes_vs_rests": {"notes":sum_note_duration, "rests":sum_rest_duration}
     }
 
 

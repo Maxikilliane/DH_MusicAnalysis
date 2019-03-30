@@ -1,7 +1,7 @@
 {% extends 'MusicAnalyzer/Base.html' %}
 {% load staticfiles %}
 {% load customFilters %}
-{% block title %}Distant Anaylsis{% endblock %}
+{% block title %}Distant Analysis{% endblock %}
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
@@ -199,6 +199,10 @@
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of rests and notes - count by value [length in quarters]</h3>
             <div class="ct-chart-duration-length-rests-count"></div>
+        </div>
+        <div class="chart-container">
+            <h3 class="uk-text-center">Sound to silence ratio</h3>
+            <div class="ct-chart-sound_silence_ratio"></div>
         </div>
     </div>
 

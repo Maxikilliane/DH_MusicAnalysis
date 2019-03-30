@@ -1,21 +1,85 @@
 function distantAnalysis(analysisJson) {
-    console.log(analysisJson)
-    createChordQualityCountChart(analysisJson)
-    createChordRootCountChart(analysisJson)
-    createChordNameCountChart(analysisJson)
-    drawBoxplots(analysisJson)
-    drawAmbitusRangeChart(analysisJson)
-    createPitchNameCountChart(analysisJson)
-    createPitchOctaveCountChart(analysisJson)
-    createPitchNameWithOctaveCountChart(analysisJson)
-    createKeyNameCountChart(analysisJson)
-    createKeyModeCountChart(analysisJson)
-    createKeyProbabilityLineChart(analysisJson)
-    createDurationFullNameNotesCountChart(analysisJson)
-    createDurationFullNameRestsCountChart(analysisJson)
-    createDurationLengthInQuartersNotesCountChart(analysisJson)
-    createDurationLengthInQuartersNotesRestsCountChart(analysisJson)
-    createDurationLengthInQuartersRestsCountChart(analysisJson)
+    console.log(analysisJson);
+    createChordQualityCountChart(analysisJson);
+    createChordRootCountChart(analysisJson);
+    createChordNameCountChart(analysisJson);
+    drawBoxplots(analysisJson);
+    drawAmbitusRangeChart(analysisJson);
+    createPitchNameCountChart(analysisJson);
+    createPitchOctaveCountChart(analysisJson);
+    createPitchNameWithOctaveCountChart(analysisJson);
+    createKeyNameCountChart(analysisJson);
+    createKeyModeCountChart(analysisJson);
+    createKeyProbabilityLineChart(analysisJson);
+    createDurationFullNameNotesCountChart(analysisJson);
+    createDurationFullNameRestsCountChart(analysisJson);
+    createDurationLengthInQuartersNotesCountChart(analysisJson);
+    createDurationLengthInQuartersNotesRestsCountChart(analysisJson);
+    createDurationLengthInQuartersRestsCountChart(analysisJson);
+    createDurationSoundSilenceRatioChart(analysisJson);
+}
+
+function createDurationSoundSilenceRatioChart(analysisJson){
+       // group stats by group
+    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(car => _.omit(car, 'group')));
+
+
+    // group stats by metric and sum up values
+    var newGroup = []
+    for (let group in grouped) {
+        for (let arrayIndex in grouped[group]) {
+            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_total_notes_vs_rests)
+        }
+    }
+
+    console.log(newGroup)
+    // sum all group names in one array
+    let groupNames = Object.keys(newGroup)
+
+    let uniqueKeys = getUniqueKeys(newGroup)
+
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+
+    for (let i = 0; i < data.length; i++) {
+        data[i] = data[i].map(function (v, idx) {
+            return {
+                meta: uniqueKeys[idx], value: v
+            };
+
+        });
+    }
+    // draw the chart
+    $(function () {
+        var options = {
+            seriesBarDistance: 10
+        };
+
+        var responsiveOptions = [
+            ['screen and (max-width: 640px)', {
+                seriesBarDistance: 5,
+                axisX: {
+                    labelInterpolationFnc: function (value) {
+                        return value[0];
+                    }
+                }
+            }]
+        ];
+
+        new Chartist.Bar('.ct-chart-sound_silence_ratio', {
+            labels: uniqueKeys,
+            series: data,
+            options,
+            responsiveOptions
+        }, {
+            plugins: [
+                Chartist.plugins.legend({
+                    legendNames: groupNames,
+                }),
+                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+            ]
+        });
+    });
 }
 
 function createDurationLengthInQuartersRestsCountChart(analysisJson) {
