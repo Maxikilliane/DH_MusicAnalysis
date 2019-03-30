@@ -210,6 +210,7 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         ambitus_info = get_ambitus_for_distant_hearing(parsed_file)
         key_info = get_key_for_distant_hearing(parsed_file)
         pitch_info = get_pitches_for_distant_hearing(parsed_file)
+        durations_info = get_durations_for_distant_hearing(parsed_file)
 
         # pass stuff to results
         analysis_result_for_this_piece.update(metadata_dict)
@@ -217,9 +218,9 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         analysis_result_for_this_piece.update(ambitus_info)
         analysis_result_for_this_piece.update(key_info)
         analysis_result_for_this_piece.update(pitch_info)
+        analysis_result_for_this_piece.update(durations_info)
         print(analysis_result_for_this_piece)
         per_piece_results_list.append(analysis_result_for_this_piece)
-
 
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 
@@ -246,6 +247,16 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
                 counter_dict[group]["key_name_counter"].update({key_info["key_name"]: 1})
                 counter_dict["total"]["key_name_counter"].update({key_info["key_name"]: 1})
 
+        counter_dict[group]["duration_length_in_quarters_notes_counter"].update(
+            d["duration_length_in_quarters_notes_count"])
+        counter_dict[group]["duration_length_in_quarters_rests_counter"].update(
+            d["duration_length_in_quarters_rests_count"])
+        counter_dict[group]["duration_type_notes_counter"].update(d["duration_type_notes_count"])
+        counter_dict[group]["duration_type_rests_counter"].update(d["duration_type_rests_count"])
+        counter_dict[group]["duration_fullname_notes_counter"].update(d["duration_fullname_notes_count"])
+        counter_dict[group]["duration_fullname_rests_counter"].update(d["duration_fullname_rests_count"])
+        counter_dict[group]["duration_length_in_quarters_notes_rests_counter"].update(
+            d["duration_length_in_quarters_notes_rests_count"])
         counter_dict[group]["pitch_octave_counter"].update(d["pitch_octave_count"])
         counter_dict[group]["pitch_name_counter"].update(d["pitch_name_count"])
         counter_dict[group]["pitch_name_with_octave_counter"].update(d["pitch_name_with_octave_count"])
@@ -256,6 +267,16 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
         counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
 
+        counter_dict["total"]["duration_length_in_quarters_notes_counter"].update(
+            d["duration_length_in_quarters_notes_count"])
+        counter_dict["total"]["duration_length_in_quarters_rests_counter"].update(
+            d["duration_length_in_quarters_rests_count"])
+        counter_dict["total"]["duration_type_notes_counter"].update(d["duration_type_notes_count"])
+        counter_dict["total"]["duration_type_rests_counter"].update(d["duration_type_rests_count"])
+        counter_dict["total"]["duration_fullname_notes_counter"].update(d["duration_fullname_notes_count"])
+        counter_dict["total"]["duration_fullname_rests_counter"].update(d["duration_fullname_rests_count"])
+        counter_dict["total"]["duration_length_in_quarters_notes_rests_counter"].update(
+            d["duration_length_in_quarters_notes_rests_count"])
         counter_dict["total"]["pitch_octave_counter"].update(d["pitch_octave_count"])
         counter_dict["total"]["pitch_name_counter"].update(d["pitch_name_count"])
         counter_dict["total"]["pitch_name_with_octave_counter"].update(d["pitch_name_with_octave_count"])
@@ -297,6 +318,14 @@ def get_group_and_overall_summary_stats(counter_dict):
 
 def get_dict_of_all_necessary_counters():
     return {
+
+        "duration_length_in_quarters_notes_counter": collections.Counter(),
+        "duration_length_in_quarters_rests_counter": collections.Counter(),
+        "duration_type_notes_counter": collections.Counter(),
+        "duration_type_rests_counter": collections.Counter(),
+        "duration_fullname_notes_counter": collections.Counter(),
+        "duration_fullname_rests_counter": collections.Counter(),
+        "duration_length_in_quarters_notes_rests_counter": collections.Counter(),
         "pitch_octave_counter": collections.Counter(),
         "pitch_name_counter": collections.Counter(),
         "pitch_name_with_octave_counter": collections.Counter(),
@@ -503,6 +532,76 @@ def transform_music_source_to_dict(path, number, file_source, group=None):
     return music_piece
 
 
+def get_durations_for_distant_hearing(stream):
+    duration_length_in_quarters_notes = {}
+    duration_type_notes = {}
+    duration_fullname_notes = {}
+    duration_length_in_quarters_rests = {}
+    duration_type_rests = {}
+    duration_fullname_rests = {}
+
+    duration_length_in_quarters_notes_and_rests_counter = collections.Counter()
+
+    for note in stream.flat.notesAndRests:
+        duration = note.duration
+        is_note = note.isNote
+        length_in_quarters = duration.quarterLength
+        type = duration.type
+        full_name = duration.fullName
+        if is_note:
+            if length_in_quarters in duration_length_in_quarters_notes:
+                duration_length_in_quarters_notes[length_in_quarters] += 1
+            else:
+                duration_length_in_quarters_notes[length_in_quarters] = 1
+
+            if type in duration_type_notes:
+                duration_type_notes[type] += 1
+            else:
+                duration_type_notes[type] = 1
+
+            if full_name in duration_fullname_notes:
+                duration_fullname_notes[full_name] += 1
+            else:
+                duration_fullname_notes[full_name] = 1
+        else:
+            if length_in_quarters in duration_length_in_quarters_rests:
+                duration_length_in_quarters_rests[length_in_quarters] += 1
+            else:
+                duration_length_in_quarters_rests[length_in_quarters] = 1
+
+            if type in duration_type_rests:
+                duration_type_rests[type] += 1
+            else:
+                duration_type_rests[type] = 1
+
+            if full_name in duration_fullname_rests:
+                duration_fullname_rests[full_name] += 1
+            else:
+                duration_fullname_rests[full_name] = 1
+    sum_note_duration = 0
+    sum_rest_duration = 0
+    for key, value in duration_length_in_quarters_notes.items():
+        sum_note_duration += key*value
+
+    for key, value in duration_length_in_quarters_rests.items():
+        sum_rest_duration += key*value
+
+    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
+    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
+    duration_length_in_quarters_notes_and_rests = dict(duration_length_in_quarters_notes_and_rests_counter)
+
+    return {
+        "duration_length_in_quarters_notes_count": duration_length_in_quarters_notes,
+        "duration_length_in_quarters_rests_count": duration_length_in_quarters_rests,
+        "duration_type_notes_count": duration_type_notes,
+        "duration_type_rests_count": duration_type_rests,
+        "duration_fullname_notes_count": duration_fullname_notes,
+        "duration_fullname_rests_count": duration_fullname_rests,
+        "duration_length_in_quarters_notes_rests_count": duration_length_in_quarters_notes_and_rests,
+        "duration_total_notes_vs_rests": {"notes":sum_note_duration, "rests":sum_rest_duration}
+    }
+
+
 def get_key_for_distant_hearing(parsed_file):
     keys = get_key_possibilities(parsed_file)
     key_list = []
@@ -639,5 +738,3 @@ def get_key_possibilities(parsed_file):
     key = parsed_file.analyze('key')
     key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
     return key_list
-
-
