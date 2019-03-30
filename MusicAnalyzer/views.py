@@ -577,9 +577,9 @@ def get_durations_for_distant_hearing(stream):
                 duration_fullname_rests[full_name] += 1
             else:
                 duration_fullname_rests[full_name] = 1
-        duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
-        duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
-        duration_length_in_quarters_notes_and_rests = dict(duration_length_in_quarters_notes_and_rests_counter)
+    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
+    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
+    duration_length_in_quarters_notes_and_rests = dict(duration_length_in_quarters_notes_and_rests_counter)
 
     return {
         "duration_length_in_quarters_notes_count": duration_length_in_quarters_notes,
