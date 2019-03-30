@@ -42,109 +42,138 @@ function addMetadata(metadata) {
 
 function distantAnalysis(analysisJson) {
     console.log(analysisJson);
-    createChordQualityCountChart(analysisJson);
-    createChordRootCountChart(analysisJson);
-    createChordNameCountChart(analysisJson);
-    drawBoxplots(analysisJson);
-    drawAmbitusRangeChart(analysisJson);
-    createPitchNameCountChart(analysisJson);
-    createPitchOctaveCountChart(analysisJson);
-    createPitchNameWithOctaveCountChart(analysisJson);
-    createKeyNameCountChart(analysisJson);
-    createKeyModeCountChart(analysisJson);
-    createKeyProbabilityLineChart(analysisJson);
-    createDurationFullNameNotesCountChart(analysisJson);
-    createDurationFullNameRestsCountChart(analysisJson);
-    createDurationLengthInQuartersNotesCountChart(analysisJson);
-    createDurationLengthInQuartersNotesRestsCountChart(analysisJson);
-    createDurationLengthInQuartersRestsCountChart(analysisJson);
-    createDurationSoundSilenceRatioChart(analysisJson);
+    let groupNames = getGroupNames(analysisJson);
+    createChordQualityCountChart(analysisJson, groupNames);
+    createChordRootCountChart(analysisJson, groupNames);
+    createChordNameCountChart(analysisJson, groupNames);
+    drawBoxplots(analysisJson, groupNames);
+    drawAmbitusRangeChart(analysisJson, groupNames);
+    createPitchNameCountChart(analysisJson, groupNames);
+    createPitchOctaveCountChart(analysisJson, groupNames);
+    createPitchNameWithOctaveCountChart(analysisJson, groupNames);
+    createKeyNameCountChart(analysisJson, groupNames);
+    createKeyModeCountChart(analysisJson, groupNames);
+    createKeyProbabilityLineChart(analysisJson, groupNames);
+    createDurationFullNameNotesCountChart(analysisJson, groupNames);
+    createDurationFullNameRestsCountChart(analysisJson, groupNames);
+    createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames);
+    createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupNames);
+    createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames);
+    createDurationSoundSilenceRatioChart(analysisJson, groupNames);
 }
 
-function createDurationSoundSilenceRatioChart(analysisJson){
-       // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
 
+function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
+    let statsAccessor = "duration_total_notes_vs_rests_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-sound_silence_ratio', groupNames);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
 
+}
+
+function startWorker(worker, workerSourcePath, chartSelector, groupNames, isLabelToDiv) {
+    if (typeof(Worker) !== "undefined") {
+        if (typeof(w) == "undefined") {
+            worker = new Worker(workerSourcePath);
+        }
+        worker.onmessage = function (e) {
+            let data = e.data.data;
+            let uniqueKeys = e.data.uniqueKeys;
+            let options = e.data.options;
+            console.log(data);
+
+            const responsiveOptions = [
+                ['screen and (max-width: 640px)', {
+                    seriesBarDistance: 5,
+                    axisX: {
+                        labelInterpolationFnc: function (value) {
+                            return value[0];
+                        }
+                    }
+                }]
+            ];
+            let plugins = [];
+            if (isLabelToDiv) {
+                let someDiv = document.getElementById('any-div-anywhere');
+                plugins = [
+                    Chartist.plugins.legend({
+                        position: someDiv, legendNames: groupNames
+                    }),
+                    Chartist.plugins.tooltip({appendToBody: true})
+                ];
+            } else {
+                plugins = [
+                    Chartist.plugins.legend({
+                        legendNames: groupNames,
+                    }),
+                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+                ];
+
+            }
+            new Chartist.Bar(chartSelector, {
+                labels: uniqueKeys,
+                series: data,
+                options,
+                responsiveOptions
+            }, {
+                plugins: plugins
+            });
+        };
+        return worker;
+    } else {
+        console.log("Sorry! No Web Worker support.");
+    }
+}
+
+function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames) {
+    let statsAccessor = "duration_length_in_quarters_rests_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-length-rests-count', groupNames);
+
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+}
+
+function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupNames) {
+    let statsAccessor = "duration_length_in_quarters_notes_rests_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js',
+        '.ct-chart-duration-length-notes-rests-count', groupNames);
+
+    console.log(worker);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
     // group stats by metric and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_total_notes_vs_rests)
-        }
-    }
-
-    console.log(newGroup)
-    // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        var options = {
-            seriesBarDistance: 10
-        };
-
-        var responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-sound_silence_ratio', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-            ]
-        });
-    });
-}
-
-function createDurationLengthInQuartersRestsCountChart(analysisJson) {
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
     // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
 
-
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_length_in_quarters_rests_count)
-        }
-    }
-
-    console.log(newGroup)
     // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
+    //let groupNames = Object.keys(newGroup)
 
-    let uniqueKeys = getUniqueKeys(newGroup)
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
+    // sum all group names in one array
 
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -156,74 +185,11 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson) {
     }
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-duration-length-rests-count', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-            ]
-        });
-    });
-}
-
-function createDurationLengthInQuartersNotesRestsCountChart(analysisJson) {
-    // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
-
-
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_length_in_quarters_notes_rests_count)
-        }
-    }
-
-    console.log(newGroup)
-    // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        var options = {
-            seriesBarDistance: 10
-        };
-
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -248,29 +214,34 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson) {
             ]
         });
     });
+    */
 }
 
-function createDurationLengthInQuartersNotesCountChart(analysisJson) {
+function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames) {
+    let statsAccessor = "duration_length_in_quarters_notes_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-length-notes-count', groupNames);
+
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+    // group stats by metric and sum up values
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, statsAccessor);
     // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
 
-
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_length_in_quarters_notes_count)
-        }
-    }
-
-    console.log(newGroup)
     // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
+    //let groupNames = Object.keys(newGroup)
 
-    let uniqueKeys = getUniqueKeys(newGroup)
+    let uniqueKeys = getUniqueKeys(newGroup, statsAccessor);
+    // sum all group names in one array
 
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -282,11 +253,11 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson) {
     }
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -311,29 +282,31 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson) {
             ]
         });
     });
+    */
 }
 
-function createDurationFullNameRestsCountChart(analysisJson) {
+function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
+    let statsAccessor = "duration_fullname_rests_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-fullname-rests-count', groupNames);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+    // group stats by metric and sum up values
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
     // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
 
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_fullname_rests_count)
-        }
-    }
-
-    console.log(newGroup)
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
     // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
 
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -345,11 +318,11 @@ function createDurationFullNameRestsCountChart(analysisJson) {
     }
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -374,29 +347,33 @@ function createDurationFullNameRestsCountChart(analysisJson) {
             ]
         });
     });
+    */
 }
 
-function createDurationFullNameNotesCountChart(analysisJson) {
+function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
+    let statsAccessor = "duration_fullname_notes_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-fullname-notes-count', groupNames);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+    // group stats by metric and sum up values
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
     // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
 
-
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].duration_fullname_notes_count)
-        }
-    }
-
-    console.log(newGroup)
     // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
+    //let groupNames = Object.keys(newGroup)
 
-    let uniqueKeys = getUniqueKeys(newGroup)
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
+    // sum all group names in one array
 
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -408,11 +385,11 @@ function createDurationFullNameNotesCountChart(analysisJson) {
     }
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -438,37 +415,40 @@ function createDurationFullNameNotesCountChart(analysisJson) {
         });
     });
 
+*/
 }
 
-function createKeyNameCountChart(analysisJson) {
+function createKeyNameCountChart(analysisJson, groupNames) {
+    let statsAccessor = "key_name_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-key-name', groupNames);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+    // group stats by metric and sum up values
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
     // group stats by group
-    var grouped = analysisJson.per_group_stats
 
     // sum all group names in one array
-    let groupNames = []
-    for (group in grouped) {
-        groupNames.push(grouped[group].group_name)
-    }
-    groupNames.pop()
+    //let groupNames = Object.keys(newGroup)
 
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
+    // sum all group names in one array
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let i = 0; i < grouped.length; i++) {
-        newGroup[groupNames[i]] = sumObjectsByKey(newGroup[i], grouped[i].key_name_count)
-    }
-
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -492,39 +472,40 @@ function createKeyNameCountChart(analysisJson) {
             ]
         });
     });
-
+*/
 }
 
-function createKeyModeCountChart(analysisJson) {
+function createKeyModeCountChart(analysisJson, groupNames) {
+    let statsAccessor = "key_mode_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-key-mode', groupNames);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+    // group stats by metric and sum up values
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
     // group stats by group
-    var grouped = analysisJson.per_group_stats
 
     // sum all group names in one array
-    let groupNames = []
-    for (group in grouped) {
-        groupNames.push(grouped[group].group_name)
-    }
-    groupNames.pop()
+    //let groupNames = Object.keys(newGroup)
 
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
+    // sum all group names in one array
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let i = 0; i < grouped.length; i++) {
-        newGroup[groupNames[i]] = sumObjectsByKey(newGroup[i], grouped[i].key_mode_count)
-    }
-
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -548,19 +529,22 @@ function createKeyModeCountChart(analysisJson) {
             ]
         });
     });
+    */
 }
 
+
+//TODO define web worker for key-probability line chart
 function createKeyProbabilityLineChart(analysisJson) {
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+    let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
         clist => clist.map(key => _.omit(key, 'group')));
 
 
-    var keyInformationObjectResult = []
-    var musicPiecesResult = []
+    let keyInformationObjectResult = [];
+    let musicPiecesResult = [];
     for (group in grouped) {
-        let keyInformationObject = []
-        let musicPieces = []
-        let firstGroup = grouped[group]
+        let keyInformationObject = [];
+        let musicPieces = [];
+        let firstGroup = grouped[group];
         for (let musicPiece in firstGroup) {
             if (firstGroup[musicPiece].key_information !== undefined) {
                 keyInformationObject.push(firstGroup[musicPiece].key_information)
@@ -570,53 +554,53 @@ function createKeyProbabilityLineChart(analysisJson) {
             }
         }
 
-        keyInformationObjectResult[group] = keyInformationObject
+        keyInformationObjectResult[group] = keyInformationObject;
 
         musicPiecesResult[group] = musicPieces
     }
 
-    let resultKeys = []
-    let resultValues = []
+    let resultKeys = [];
+    let resultValues = [];
 
     for (let group in keyInformationObjectResult) {
-        let values = []
-        let keys = []
-        let keyGroup = keyInformationObjectResult[group]
+        let values = [];
+        let keys = [];
+        let keyGroup = keyInformationObjectResult[group];
 
         for (let y = 0; y < keyGroup.length; y++) {
-            let probabilitiesPerPiece = []
-            let keysPerPiece = []
+            let probabilitiesPerPiece = [];
+            let keysPerPiece = [];
             if (keyGroup[y] !== undefined) {
                 for (let i = 0; i < keyGroup[y].length; i++) {
-                    probabilitiesPerPiece.push(keyGroup[y][i].probability)
+                    probabilitiesPerPiece.push(keyGroup[y][i].probability);
                     keysPerPiece.push(keyGroup[y][i].key_name)
                 }
             }
-            values[y] = probabilitiesPerPiece
+            values[y] = probabilitiesPerPiece;
             keys[y] = keysPerPiece
         }
-        resultKeys[group] = keys
-        resultValues[group] = values
+        resultKeys[group] = keys;
+        resultValues[group] = values;
     }
 
     for (let group in resultValues) {
-        let value = resultValues[group]
-        let key = resultKeys[group]
+        let value = resultValues[group];
+        let key = resultKeys[group];
         for (let i = 0; i < value.length; i++) {
-            let object = value[i]
-            let keyObject = key[i]
+            let object = value[i];
+            let keyObject = key[i];
             for (let y = 0; y < object.length; y++) {
                 object[y] = {meta: keyObject[y], value: object[y]};
             }
         }
     }
 
-    let labels = [1, 2, 3, 4]
+    let labels = [1, 2, 3, 4];
 
     for (let group in resultValues) {
         if (group !== 'unique') {
-            var newDiv = document.createElement('div');
-            var newHeading = document.createElement('h4');
+            let newDiv = document.createElement('div');
+            let newHeading = document.createElement('h4');
             newHeading.className = 'uk-text-center';
             newHeading.innerHTML = group;
             newDiv.className = 'ct-chart-key-probability-' + group;
@@ -648,44 +632,37 @@ function createKeyProbabilityLineChart(analysisJson) {
     }
 }
 
-function createChordNameCountChart(analysisJson) {
-    // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(key => _.omit(key, 'group')));
+function createChordNameCountChart(analysisJson, groupNames) {
+    let statsAccessor = "chord_name_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-name', groupNames, true);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: true,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+
+    // group stats by metric and sum up values
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor, true);
 
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].chord_name_count)
-        }
-    }
-
-    for (groupName in newGroup) {
-        for (group in newGroup[groupName]) {
-            if (newGroup[groupName][group] < 3) {
-                delete newGroup[groupName][group]
-            }
-        }
-
-    }
-
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
     // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
 
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
 
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5
             }]
@@ -699,7 +676,7 @@ function createChordNameCountChart(analysisJson) {
 
             });
         }
-        var someDiv = document.getElementById('any-div-anywhere');
+        let someDiv = document.getElementById('any-div-anywhere');
         Chartist.Bar('.ct-chart-name', {
                 labels: uniqueKeys,
                 series: data,
@@ -719,30 +696,30 @@ function createChordNameCountChart(analysisJson) {
 
 
     });
+
+*/
 }
 
-function createChordRootCountChart(analysisJson) {
-    // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
+function createChordRootCountChart(analysisJson, groupNames) {
+    let statsAccessor = "chord_root_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-root', groupNames, false);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: true,
+        isSortableByRoot: true
+    };
+    worker.postMessage(message);
+    /*
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].chord_root_count)
-        }
-    }
+    uniqueKeys = sortRootCount(uniqueKeys);
 
-    // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-
-    uniqueKeys = sortRootCount(uniqueKeys)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -754,11 +731,11 @@ function createChordRootCountChart(analysisJson) {
     }
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -783,31 +760,29 @@ function createChordRootCountChart(analysisJson) {
             ]
         });
     });
-
+*/
 }
 
-function createPitchNameCountChart(analysisJson) {
-    // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
+function createPitchNameCountChart(analysisJson, groupNames) {
+    let statsAccessor = "pitch_name_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-pitch-name', groupNames, false);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: true
+    };
+    worker.postMessage(message);
+    /*
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].pitch_name_count)
-        }
-    }
+    uniqueKeys = sortRootCount(uniqueKeys);
 
-    // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    uniqueKeys = sortRootCount(uniqueKeys)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -820,11 +795,11 @@ function createPitchNameCountChart(analysisJson) {
 
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -849,28 +824,27 @@ function createPitchNameCountChart(analysisJson) {
             ]
         });
     });
+    */
 }
 
-function createPitchOctaveCountChart(analysisJson) {
-    // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
+function createPitchOctaveCountChart(analysisJson, groupNames) {
+    let statsAccessor = "pitch_octave_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-pitch-octave', groupNames, false);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].pitch_octave_count)
-        }
-    }
-
-    // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -883,11 +857,11 @@ function createPitchOctaveCountChart(analysisJson) {
 
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -912,37 +886,37 @@ function createPitchOctaveCountChart(analysisJson) {
             ]
         });
     });
+    */
 }
 
 function sortRootCount(arr) {
-    var sortingArray = ['C-', 'C', 'C#', 'D-', 'D', 'D#', 'E-', 'E', 'E#', 'F-', 'F', 'F#', 'G-', 'G', 'G#', 'A-', 'A', 'A#', 'B-', 'B', 'B#']
+    let sortingArray = ['C-', 'C', 'C#', 'D-', 'D', 'D#', 'E-', 'E', 'E#', 'F-', 'F', 'F#', 'G-', 'G', 'G#', 'A-', 'A', 'A#', 'B-', 'B', 'B#']
     return sortingArray.map(key => arr.find(item => item === key))
         .filter(item => item)
 
 }
 
 
-function createChordQualityCountChart(analysisJson) {
-    // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
+function createChordQualityCountChart(analysisJson, groupNames) {
+    let statsAccessor = "chord_quality_count";
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-quality', groupNames, false);
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortableByRoot: false
+    };
+    worker.postMessage(message);
+    /*
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
+    uniqueKeys.pop(); // adds stringified function otherwise
+    //uniqueKeys = sortRootCount(uniqueKeys);
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].chord_quality_count)
-        }
-    }
-
-    // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
-
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-    uniqueKeys.pop()
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -955,11 +929,11 @@ function createChordQualityCountChart(analysisJson) {
 
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 10
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -984,32 +958,21 @@ function createChordQualityCountChart(analysisJson) {
             ]
         });
     });
+    */
 }
 
-function createPitchNameWithOctaveCountChart(analysisJson) {
-    // group stats by group
-    var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(car => _.omit(car, 'group')));
+function createPitchNameWithOctaveCountChart(analysisJson, groupNames) {
+    let stats_accessor = "pitch_name_with_octave_count";
 
+    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
-    // group stats by chord root count and sum up values
-    var newGroup = []
-    for (let group in grouped) {
-        for (let arrayIndex in grouped[group]) {
-            newGroup[group] = sumObjectsByKey(newGroup[group], grouped[group][arrayIndex].pitch_name_with_octave_count)
-        }
-    }
+    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
 
-    // sum all group names in one array
-    let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup)
-
-    var sortingArray = ['C-1', 'C1', 'C#1', 'D-1', 'D1', 'D#1', 'E-1', 'E1', 'E#1', 'F-1', 'F1', 'F#1', 'G-1', 'G1', 'G#1', 'A-1', 'A1', 'A#1', 'B-1', 'B1', 'B#1', 'C-2', 'C2', 'C#2', 'D-2', 'D2', 'D#2', 'E-2', 'E2', 'E#2', 'F-2', 'F2', 'F#2', 'G-2', 'G2', 'G#2', 'A-2', 'A2', 'A#2', 'B-2', 'B2', 'B#2', 'C-3', 'C3', 'C#3', 'D-3', 'D3', 'D#3', 'E-3', 'E3', 'E#3', 'F-3', 'F3', 'F#3', 'G-3', 'G3', 'G#3', 'A-3', 'A3', 'A#3', 'B-3', 'B3', 'B#3', 'C-4', 'C4', 'C#4', 'D-4', 'D4', 'D#4', 'E-4', 'E4', 'E#4', 'F-4', 'F4', 'F#4', 'G-4', 'G4', 'G#4', 'A-4', 'A4', 'A#4', 'B-4', 'B4', 'B#4', 'C-5', 'C5', 'C#5', 'D-5', 'D5', 'D#5', 'E-5', 'E5', 'E#5', 'F-5', 'F5', 'F#5', 'G-5', 'G5', 'G#5', 'A-5', 'A5', 'A#5', 'B-5', 'B5', 'B#5', 'C-6', 'C6', 'C#6', 'D-6', 'D6', 'D#6', 'E-6', 'E6', 'E#6', 'F-6', 'F6', 'F#6', 'G-6', 'G6', 'G#6', 'A-6', 'A6', 'A#6', 'B-6', 'B6', 'B#6', 'C-7', 'C7', 'C#7', 'D-7', 'D7', 'D#7', 'E-7', 'E7', 'E#7', 'F-7', 'F7', 'F#7', 'G-7', 'G7', 'G#7', 'A-7', 'A7', 'A#7', 'B-7', 'B7', 'B#7']
+    let sortingArray = ['C-1', 'C1', 'C#1', 'D-1', 'D1', 'D#1', 'E-1', 'E1', 'E#1', 'F-1', 'F1', 'F#1', 'G-1', 'G1', 'G#1', 'A-1', 'A1', 'A#1', 'B-1', 'B1', 'B#1', 'C-2', 'C2', 'C#2', 'D-2', 'D2', 'D#2', 'E-2', 'E2', 'E#2', 'F-2', 'F2', 'F#2', 'G-2', 'G2', 'G#2', 'A-2', 'A2', 'A#2', 'B-2', 'B2', 'B#2', 'C-3', 'C3', 'C#3', 'D-3', 'D3', 'D#3', 'E-3', 'E3', 'E#3', 'F-3', 'F3', 'F#3', 'G-3', 'G3', 'G#3', 'A-3', 'A3', 'A#3', 'B-3', 'B3', 'B#3', 'C-4', 'C4', 'C#4', 'D-4', 'D4', 'D#4', 'E-4', 'E4', 'E#4', 'F-4', 'F4', 'F#4', 'G-4', 'G4', 'G#4', 'A-4', 'A4', 'A#4', 'B-4', 'B4', 'B#4', 'C-5', 'C5', 'C#5', 'D-5', 'D5', 'D#5', 'E-5', 'E5', 'E#5', 'F-5', 'F5', 'F#5', 'G-5', 'G5', 'G#5', 'A-5', 'A5', 'A#5', 'B-5', 'B5', 'B#5', 'C-6', 'C6', 'C#6', 'D-6', 'D6', 'D#6', 'E-6', 'E6', 'E#6', 'F-6', 'F6', 'F#6', 'G-6', 'G6', 'G#6', 'A-6', 'A6', 'A#6', 'B-6', 'B6', 'B#6', 'C-7', 'C7', 'C#7', 'D-7', 'D7', 'D#7', 'E-7', 'E7', 'E#7', 'F-7', 'F7', 'F#7', 'G-7', 'G7', 'G#7', 'A-7', 'A7', 'A#7', 'B-7', 'B7', 'B#7']
     uniqueKeys = sortingArray.map(key => uniqueKeys.find(item => item === key))
-        .filter(item => item)
+        .filter(item => item);
 
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames)
+    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
 
     for (let i = 0; i < data.length; i++) {
         data[i] = data[i].map(function (v, idx) {
@@ -1021,11 +984,11 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
     }
     // draw the chart
     $(function () {
-        var options = {
+        const options = {
             seriesBarDistance: 100
         };
 
-        var responsiveOptions = [
+        const responsiveOptions = [
             ['screen and (max-width: 640px)', {
                 seriesBarDistance: 5,
                 axisX: {
@@ -1035,7 +998,7 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
                 }
             }]
         ];
-        var someDiv = document.getElementById('any-div-anywhere2');
+        let someDiv = document.getElementById('any-div-anywhere2');
         new Chartist.Bar('.ct-chart-pitch-octave-name', {
             labels: uniqueKeys,
             series: data,
@@ -1050,6 +1013,40 @@ function createPitchNameWithOctaveCountChart(analysisJson) {
             ]
         });
     });
+}
+
+function getGroupNames(analysisJson) {
+    let group_names = [];
+    let group_stats = analysisJson.per_group_stats;
+    for (let i = 0; i < group_stats.length; ++i) {
+        group_names.push(group_stats[i].group_name)
+    }
+    return group_names
+}
+
+function getRelevantSummaryStatsForChart(analysisJson, nameOfSummaryStatsNeeded, isDeletedWhenLessThanThree) {
+    let group_stats = analysisJson.per_group_stats;
+    let newGroup = [];
+    for (let i = 0; i < group_stats.length; ++i) {
+        let groupName = group_stats[i].group_name;
+        let relevant_value = group_stats[i][nameOfSummaryStatsNeeded];
+
+        if (isDeletedWhenLessThanThree) {
+            for (let group in relevant_value) {
+                if (relevant_value[group] < 3) {
+                    delete relevant_value[group]
+                }
+            }
+        }
+
+
+        newGroup[groupName] = group_stats[i][nameOfSummaryStatsNeeded];
+    }
+    return newGroup;
+}
+
+function getUniqueKeys(analysisJson, nameOfNecessaryAnalysis) {
+    return Object.keys(analysisJson.total_sum_stats[nameOfNecessaryAnalysis]);
 }
 
 
@@ -1081,6 +1078,7 @@ function getUniqueKeys(newGroup) {
     return uniqueKeys
 }
 
+
 function getMatchingVals(newGroup, uniqueKeys, groupNames) {
     // map the groups by the keys from the unique array so that the values are in the right order
     let matchingVals = [];
@@ -1089,7 +1087,7 @@ function getMatchingVals(newGroup, uniqueKeys, groupNames) {
         matchingVals[group] = uniqueKeys.map(key => toCheck[key])
     }
 
-    var data = [];
+    let data = [];
     for (groupName in groupNames) {
         let name = groupNames[groupName]
         data[groupName] = matchingVals[name]
@@ -1109,8 +1107,8 @@ function sumObjectsByKey(...objs) {
 }
 
 function drawBoxplots(analysisJson) {
-    var groupNames = []
-    var resultArray = []
+    let groupNames = [];
+    let resultArray = [];
     for (let group in analysisJson.per_group_stats) {
         if (analysisJson.per_group_stats[group].semitones_li != undefined) {
             groupNames[group] = analysisJson.per_group_stats[group].group_name;
