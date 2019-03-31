@@ -426,189 +426,35 @@ function getGroupNames(analysisJson) {
     return group_names
 }
 
-function getRelevantSummaryStatsForChart(analysisJson, nameOfSummaryStatsNeeded, isDeletedWhenLessThanThree) {
-    let group_stats = analysisJson.per_group_stats;
-    let newGroup = [];
-    for (let i = 0; i < group_stats.length; ++i) {
-        let groupName = group_stats[i].group_name;
-        let relevant_value = group_stats[i][nameOfSummaryStatsNeeded];
 
-        if (isDeletedWhenLessThanThree) {
-            for (let group in relevant_value) {
-                if (relevant_value[group] < 3) {
-                    delete relevant_value[group]
-                }
-            }
+function drawBoxplots(analysisJson, groupNames) {
+    let worker;
+    let workerSourcePath = 'http://127.0.0.1:8000/static/js/boxplot_worker.js';
+    if (typeof(Worker) !== "undefined") {
+        if (typeof(w) == "undefined") {
+            worker = new Worker(workerSourcePath);
         }
+        worker.onmessage = function (e) {
+            let myConfig = e.data.myConfig;
+            zingchart.render({
+                id: 'boxplots',
+                data: myConfig,
+                height: "100%",
+                width: "100%"
+            });
 
-
-        newGroup[groupName] = group_stats[i][nameOfSummaryStatsNeeded];
-    }
-    return newGroup;
-}
-
-function getUniqueKeys(analysisJson, nameOfNecessaryAnalysis) {
-    return Object.keys(analysisJson.total_sum_stats[nameOfNecessaryAnalysis]);
-}
-
-
-function getUniqueKeys(newGroup) {
-    // get only the keys of chord root count (e.g. A,C# etc.)
-    let allKeys = []
-    for (let group in newGroup) {
-        allKeys[group] = Object.keys(newGroup[group])
-    }
-
-    // throw all the keys together in one unique (every entry only once) array
-    var uniqueKeys = []
-    Array.prototype.unique = function () {
-        var a = this.concat();
-        for (var i = 0; i < a.length; ++i) {
-            for (var j = i + 1; j < a.length; ++j) {
-                if (a[i] === a[j])
-                    a.splice(j--, 1);
-            }
-        }
-
-        return a;
-    };
-    for (let groupOfKeys in allKeys) {
-        uniqueKeys = uniqueKeys.concat(allKeys[groupOfKeys])
-    }
-    uniqueKeys = uniqueKeys.unique()
-
-    return uniqueKeys
-}
-
-
-function getMatchingVals(newGroup, uniqueKeys, groupNames) {
-    // map the groups by the keys from the unique array so that the values are in the right order
-    let matchingVals = [];
-    for (let group in newGroup) {
-        let toCheck = newGroup[group]
-        matchingVals[group] = uniqueKeys.map(key => toCheck[key])
-    }
-
-    let data = [];
-    for (groupName in groupNames) {
-        let name = groupNames[groupName]
-        data[groupName] = matchingVals[name]
-    }
-    return data;
-}
-
-
-function sumObjectsByKey(...objs) {
-    return objs.reduce((a, b) => {
-        for (let k in b) {
-            if (b.hasOwnProperty(k))
-                a[k] = (a[k] || 0) + b[k];
-        }
-        return a;
-    }, {});
-}
-
-function drawBoxplots(analysisJson) {
-    let groupNames = [];
-    let resultArray = [];
-    for (let group in analysisJson.per_group_stats) {
-        if (analysisJson.per_group_stats[group].semitones_li != undefined) {
-            groupNames[group] = analysisJson.per_group_stats[group].group_name;
-            resultArray[group] = [analysisJson.per_group_stats[group].min_ambitus_semitones,
-                getPercentile(analysisJson.per_group_stats[group].semitones_li, 25),
-                analysisJson.per_group_stats[group].median_ambitus_semitones,
-                getPercentile(analysisJson.per_group_stats[group].semitones_li, 75),
-                analysisJson.per_group_stats[group].max_ambitus_semitones]
-        }
-    }
-    var myConfig = {
-        "graphset": [
-            {
-                "type": "boxplot",
-                "plotarea": {
-                    "margin": "100"
-                },
-                "scaleX": {
-                    "guide": {
-                        "visible": false
-                    },
-                    "label": {
-                        "text": "Group"
-                    },
-                    "values": groupNames,
-                    "item": {
-                        "wrapText": true
-                    }
-                },
-                "scaleY": {
-                    "minValue": "auto",
-                    "guide": {
-                        "lineStyle": "solid"
-                    },
-                    "label": {
-                        "text": "Number of semitones"
-                    },
-                    "item": {
-                        "wrapText": true
-                    }
-                },
-                "tooltip": {
-                    "fontSize": 11,
-                    "align": "left",
-                    "borderRadius": 7,
-                    "borderWidth": 1,
-                    "backgroundColor": "#fff",
-                    "alpha": 0.9,
-                    "padding": 10,
-                    "color": "#000"
-                },
-                "plot": {},
-                "options": {
-                    "box": {
-                        "barWidth": 0.5,
-                        "tooltip": {
-                            "text": "<span style=\"font-style:italic;\">Group %scale-key-text</span><br><b style=\"font-size:15px;color:%color3\">Number of semitones:</b><br><br>Maximum: <b>%data-max</b><br>Upper Quartile: <b>%data-upper-quartile</b><br>Median: <b>%data-median</b><br>Lower Quartile: <b>%data-lower-quartile</b><br>Minimum: <b>%data-min</b>"
-                        },
-                        "background-color": "#d70206",
-                        "border-color": "#d70206"
-                    },
-                    "outlier": {
-                        "tooltip": {
-                            "text": "<span style=\"font-style:italic;\">Group %scale-key-text</span><br><b style=\"font-size:15px;color:%color-7\">Number of semitones: %node-value</b>"
-                        },
-                        "marker": {
-                            "type": "circle"
-                        }
-                    }
-                },
-                "series": [
-                    {
-                        "dataBox": resultArray,
-                        "dataOutlier": []
-                    }
-                ]
-            }
-        ]
-    };
-    zingchart.render({
-        id: 'boxplots',
-        data: myConfig,
-        height: "100%",
-        width: "100%"
-    });
-}
-
-// we need Q1 and Q3 for the boxplots
-function getPercentile(data, percentile) {
-    var index = (percentile / 100) * data.length;
-    var result;
-    if (Math.floor(index) == index) {
-        result = (data[(index - 1)] + data[index]) / 2;
+        };
     } else {
-        result = data[Math.floor(index)];
+        console.log("Sorry! No Web Worker support.");
     }
-    return result;
+    let message = {
+        analysisJson: analysisJson,
+        groupNames: groupNames
+    };
+    worker.postMessage(message);
+
 }
+
 
 function drawAmbitusRangeChart(analysisJson) {
     var grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
