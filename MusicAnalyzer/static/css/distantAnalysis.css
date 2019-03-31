@@ -15,23 +15,8 @@ h2 {
     padding-bottom: 2em;
 }
 
-.ct-tooltip {
-    position: absolute;
-    display: inline-block;
-    min-width: 5em;
-    padding: 8px 10px;
-    background: #383838;
-    color: #fff;
-    text-align: center;
-    pointer-events: none;
-    z-index: 100;
-    transition: opacity .2s linear;
-
-
-}
-
 #stickyNav {
-    background-color: rgba(187,222,251,0.5)
+    background-color: rgba(187, 222, 251, 0.5)
 }
 
 .chart-container {
@@ -41,19 +26,128 @@ h2 {
     -moz-column-count: 1;
     column-count: 1;
 }
+
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
     font-weight: 500;
     text-decoration: none;
     color: black;
 }
 
+.ct-chart-pitch-octave-name {
+    width: 3000px;
+}
+
+.ct-chart-name {
+    width: 10000px;
+}
+
+.chartist-tooltip {
+    display: none;
+}
+
+
+
+.ct-legend .ct-series-5:before {
+    background-color: #59922b;
+    border-color: #59922b;
+}
+.ct-legend .ct-series-6:before {
+    background-color: #0544d3;
+    border-color: #0544d3;
+}
+
+
+.ct-legend .ct-series-7:before {
+    background-color: #6b0392;
+    border-color: #6b0392;
+}
+
+
+.ct-legend .ct-series-8:before {
+    background-color: #dda458;
+    border-color: #dda458;
+}
+
+.ct-legend .ct-series-9:before {
+    background-color: #eacf7d;
+    border-color: #eacf7d;
+}
+
+
+.ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
+  stroke: #86797d;
+}
+
+.ct-legend .ct-series-10:before {
+    background-color: #86797d;
+    border-color: #86797d;
+}
+
+
+.ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
+  stroke: #b2c326;
+}
+
+.ct-legend .ct-series-11:before {
+    background-color: #b2c326;
+    border-color: #b2c326;
+}
+
+.ct-chart .ct-series.ct-series-l .ct-point, .ct-chart .ct-series.ct-series-l .ct-line {
+  stroke: #6188e2;
+}
+
+.ct-legend .ct-series-12:before {
+    background-color: #6188e2;
+    border-color: #6188e2;
+}
+
+
+
+.tooltip-show{
+    position: absolute;
+    display: inline-block;
+    min-width: 5em;
+    padding: 8px 10px;
+    background: #F4C63D;
+    color: #453D3F;
+    text-align: center;
+    pointer-events: none;
+    z-index: 100;
+    transition: opacity .2s linear;
+}
+
+.tooltip-show:before {
+    position: absolute;
+    font-size: 300px;
+    bottom: -14px;
+    left: 50%;
+    border: solid transparent;
+    content: ' ';
+    height: 0;
+    width: 0;
+    pointer-events: none;
+    border-color: rgba(251, 249, 228, 0);
+    border-top-color: #F4C63D;
+    border-width: 7px;
+    margin-left: -8px;
+}
+
+#pitchOctaveName {
+    overflow: scroll;
+}
+
+#chordChartName {
+    overflow: scroll;
+}
+
 #masterNav {
     display: none;
 }
 
-#boxplots{
+#boxplots {
     width: -webkit-fill-available;
-    width: -moz-available !important;          /* WebKit-based browsers will ignore this. */
+    width: -moz-available !important; /* WebKit-based browsers will ignore this. */
     width: fill-available !important;
     overflow: inherit !important;
 }
@@ -78,10 +172,15 @@ h3 {
 }
 
 .ct-legend {
-    position: relative;
     z-index: 10;
+    padding: 5px;
     list-style: none;
     text-align: center;
+}
+
+.intro {
+    font-size: 1em;
+    padding-bottom: 2em;
 }
 
 .ct-legend li {

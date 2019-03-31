@@ -1,4 +1,3 @@
-
 import os
 import re
 import statistics
@@ -66,8 +65,6 @@ class Choice(View):
             if request.is_ajax():
                 return search_corpus(request, context)
         elif self.state == constants.State.select_for_analysis.value:
-            print("Post")
-            print(request.POST)
             music_choice_forms = self.musicChoiceFormset(request.POST,
                                                          form_kwargs={'session_key': request.session.session_key},
                                                          prefix=Prefix.choose_music_file.value)
@@ -139,7 +136,8 @@ class DistantHearingChoice(Choice):
         self.context_dict["type"] = constants.DISTANT_HEARING
         data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
         self.context_dict["data"] = data
-        self.context_dict["explanation"] = "You can perform distant hearing, also referred to as digital musicology or (TODO ANNI: gabs da nicht noch nen anderen fancy namen für, der auch oft benutzt wird?). It transfers the principles of distant reading to music. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. Then you have to define the groups by which you want to perform the analysis. This can be everything, that makes sense to you, e.g. the componist (Mozart or Beethoven) or the the type of music (symphony or folk songs) and so on. Before you click the ‚Analyse‘ button you should assign one of the predefined group to each music piece and check the ones you want to use for the anylsis."
+        self.context_dict[
+            "explanation"] = "You can perform distant hearing, also referred to as digital musicology or (TODO ANNI: gabs da nicht noch nen anderen fancy namen für, der auch oft benutzt wird?). It transfers the principles of distant reading to music. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. Then you have to define the groups by which you want to perform the analysis. This can be everything, that makes sense to you, e.g. the componist (Mozart or Beethoven) or the the type of music (symphony or folk songs) and so on. Before you click the ‚Analyse‘ button you should assign one of the predefined group to each music piece and check the ones you want to use for the anylsis."
         self.context_dict["groups"] = get_available_groups(request)
         return render(request, self.template_name, self.context_dict)
 
@@ -150,26 +148,31 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        context_dict = {"explanations": texts.distant_hearing_explanations}
-        music_pieces = access_music_choice_from_cookie(request)
-        overall_results = {}  # all the results
-
-        stats = get_summary_stats_for_individual_pieces(music_pieces)
-        per_piece_results_list = stats["per_piece"]
-        relevant_groups = stats["groups"]
-        counter_dict = getCounters(relevant_groups)
-        counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
-        summary_stats = get_group_and_overall_summary_stats(counter_dict)
-
-        overall_results["per_piece_stats"] = per_piece_results_list
-        overall_results["per_group_stats"] = summary_stats["group_sum_stats"]  # per_group_results_list
-        overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
-
-        context_dict["metadata"] = stats["metadata"]
-        context_dict["all_summary_stats"] = json.dumps(overall_results)
-
+        context_dict = {"explanations": texts.distant_hearing_explanations, "state":State.distant_hearing.value}
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
+    def post(self, request):
+        if request.is_ajax():
+            return get_distant_hearing_analysis_results(request)
+
+def get_distant_hearing_analysis_results(request):
+    music_pieces = access_music_choice_from_cookie(request)
+    overall_results = {}  # all the results
+
+    stats = get_summary_stats_for_individual_pieces(music_pieces)
+    per_piece_results_list = stats["per_piece"]
+    relevant_groups = stats["groups"]
+    counter_dict = getCounters(relevant_groups)
+    counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
+    summary_stats = get_group_and_overall_summary_stats(counter_dict)
+
+    overall_results["per_piece_stats"] = per_piece_results_list
+    overall_results["per_group_stats"] = summary_stats["group_sum_stats"]  # per_group_results_list
+    overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
+
+    context_dict = {"metadata":stats["metadata"], "all_summary_stats":overall_results}
+
+    return JsonResponse(context_dict)
 
 def get_results_from_counters(dictionary, accessor):
     result = {}
@@ -194,8 +197,8 @@ def get_summary_stats_for_individual_pieces(music_pieces):
             metadata_dict["group"] = group.name
             group_name = group.name
         else:
-            metadata_dict["group"] = ""
-            group_name = ""
+            metadata_dict["group"] = "No group defined"
+            group_name = "No group defined"
         relevant_groups.add(group_name)
         metadata_list.append(metadata_dict)
 
@@ -205,12 +208,20 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         chords_info.pop("chords",
                         None)  # chords are not json serializable and only in this dict, because the individual analysis method was reused
         ambitus_info = get_ambitus_for_distant_hearing(parsed_file)
+        key_info = get_key_for_distant_hearing(parsed_file)
+        pitch_info = get_pitches_for_distant_hearing(parsed_file)
+        durations_info = get_durations_for_distant_hearing(parsed_file)
+
         # pass stuff to results
         analysis_result_for_this_piece.update(metadata_dict)
         analysis_result_for_this_piece.update(chords_info)
         analysis_result_for_this_piece.update(ambitus_info)
+        analysis_result_for_this_piece.update(key_info)
+        analysis_result_for_this_piece.update(pitch_info)
+        analysis_result_for_this_piece.update(durations_info)
         print(analysis_result_for_this_piece)
         per_piece_results_list.append(analysis_result_for_this_piece)
+
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 
 
@@ -225,9 +236,30 @@ def getCounters(relevant_groups):
 # sum the values with same keys
 def get_group_and_total_counts(per_piece_results_list, counter_dict):
     for d in per_piece_results_list:
-
         group = d.get("group", "")
         print(counter_dict[group])
+        for key_info in d["key_information"]:
+            print("inside for")
+            print(key_info)
+            if key_info["order"] == 1:
+                counter_dict[group]["key_mode_counter"].update({key_info["key_mode"]: 1})
+                counter_dict["total"]["key_mode_counter"].update({key_info["key_mode"]: 1})
+                counter_dict[group]["key_name_counter"].update({key_info["key_name"]: 1})
+                counter_dict["total"]["key_name_counter"].update({key_info["key_name"]: 1})
+
+        counter_dict[group]["duration_length_in_quarters_notes_counter"].update(
+            d["duration_length_in_quarters_notes_count"])
+        counter_dict[group]["duration_length_in_quarters_rests_counter"].update(
+            d["duration_length_in_quarters_rests_count"])
+        counter_dict[group]["duration_type_notes_counter"].update(d["duration_type_notes_count"])
+        counter_dict[group]["duration_type_rests_counter"].update(d["duration_type_rests_count"])
+        counter_dict[group]["duration_fullname_notes_counter"].update(d["duration_fullname_notes_count"])
+        counter_dict[group]["duration_fullname_rests_counter"].update(d["duration_fullname_rests_count"])
+        counter_dict[group]["duration_length_in_quarters_notes_rests_counter"].update(
+            d["duration_length_in_quarters_notes_rests_count"])
+        counter_dict[group]["pitch_octave_counter"].update(d["pitch_octave_count"])
+        counter_dict[group]["pitch_name_counter"].update(d["pitch_name_count"])
+        counter_dict[group]["pitch_name_with_octave_counter"].update(d["pitch_name_with_octave_count"])
         counter_dict[group]["semitones_list"].append(d["num_semitones"])
         counter_dict[group]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
         counter_dict[group]["highest_pitch_counter"].update(d["highest_pitch_count"])
@@ -235,6 +267,19 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
         counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
 
+        counter_dict["total"]["duration_length_in_quarters_notes_counter"].update(
+            d["duration_length_in_quarters_notes_count"])
+        counter_dict["total"]["duration_length_in_quarters_rests_counter"].update(
+            d["duration_length_in_quarters_rests_count"])
+        counter_dict["total"]["duration_type_notes_counter"].update(d["duration_type_notes_count"])
+        counter_dict["total"]["duration_type_rests_counter"].update(d["duration_type_rests_count"])
+        counter_dict["total"]["duration_fullname_notes_counter"].update(d["duration_fullname_notes_count"])
+        counter_dict["total"]["duration_fullname_rests_counter"].update(d["duration_fullname_rests_count"])
+        counter_dict["total"]["duration_length_in_quarters_notes_rests_counter"].update(
+            d["duration_length_in_quarters_notes_rests_count"])
+        counter_dict["total"]["pitch_octave_counter"].update(d["pitch_octave_count"])
+        counter_dict["total"]["pitch_name_counter"].update(d["pitch_name_count"])
+        counter_dict["total"]["pitch_name_with_octave_counter"].update(d["pitch_name_with_octave_count"])
         counter_dict["total"]["semitones_list"].append(d["num_semitones"])
         counter_dict["total"]["lowest_pitch_counter"].update(d["lowest_pitch_count"])
         counter_dict["total"]["highest_pitch_counter"].update(d["highest_pitch_count"])
@@ -271,6 +316,30 @@ def get_group_and_overall_summary_stats(counter_dict):
     return {"total_sum_stats": total, "group_sum_stats": per_group_results_list}
 
 
+def get_dict_of_all_necessary_counters():
+    return {
+
+        "duration_length_in_quarters_notes_counter": collections.Counter(),
+        "duration_length_in_quarters_rests_counter": collections.Counter(),
+        "duration_type_notes_counter": collections.Counter(),
+        "duration_type_rests_counter": collections.Counter(),
+        "duration_fullname_notes_counter": collections.Counter(),
+        "duration_fullname_rests_counter": collections.Counter(),
+        "duration_length_in_quarters_notes_rests_counter": collections.Counter(),
+        "pitch_octave_counter": collections.Counter(),
+        "pitch_name_counter": collections.Counter(),
+        "pitch_name_with_octave_counter": collections.Counter(),
+        "key_mode_counter": collections.Counter(),
+        "key_name_counter": collections.Counter(),
+        "semitones_list": [],
+        "lowest_pitch_counter": collections.Counter(),
+        "highest_pitch_counter": collections.Counter(),
+        "chord_quality_counter": collections.Counter(),
+        "chord_name_counter": collections.Counter(),
+        "chord_root_counter": collections.Counter()
+    }
+
+
 def get_additional_semitones_sum_stats(results):
     semitones_list = results.get("semitones_li", None)
     if semitones_list is not None:
@@ -278,9 +347,10 @@ def get_additional_semitones_sum_stats(results):
         median = statistics.median(semitones_list)
         minimum = min(semitones_list)
         maximum = max(semitones_list)
-        return {"mean_ambitus_semitones": mean, "median_ambitus_semitones": median, "max_ambitus_semitones": maximum, "min_ambitus_semitones": minimum}
+        return {"mean_ambitus_semitones": mean, "median_ambitus_semitones": median, "max_ambitus_semitones": maximum,
+                "min_ambitus_semitones": minimum}
     else:
-        return{}
+        return {}
 
 
 class IndividualAnalysis(View):
@@ -363,10 +433,8 @@ class IndividualAnalysis(View):
                 parsed_file = self.gex.parse(parsed_file).decode('utf-8')
 
                 self.context_dict['music_piece'] = parsed_file
-                # print(self.context_dict)
-                # return JsonResponse(self.context_dict)
+
                 return render_to_response('MusicAnalyzer/Results.html', self.context_dict)
-                # return JsonResponse({"result": "success"})
             else:
                 print(analysis_form.errors)
         # return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
@@ -464,12 +532,109 @@ def transform_music_source_to_dict(path, number, file_source, group=None):
     return music_piece
 
 
+def get_durations_for_distant_hearing(stream):
+    duration_length_in_quarters_notes = {}
+    duration_type_notes = {}
+    duration_fullname_notes = {}
+    duration_length_in_quarters_rests = {}
+    duration_type_rests = {}
+    duration_fullname_rests = {}
+
+    duration_length_in_quarters_notes_and_rests_counter = collections.Counter()
+
+    for note in stream.flat.notesAndRests:
+        duration = note.duration
+        is_note = note.isNote
+        length_in_quarters = duration.quarterLength
+        type = duration.type
+        full_name = duration.fullName
+        if is_note:
+            if length_in_quarters in duration_length_in_quarters_notes:
+                duration_length_in_quarters_notes[length_in_quarters] += 1
+            else:
+                duration_length_in_quarters_notes[length_in_quarters] = 1
+
+            if type in duration_type_notes:
+                duration_type_notes[type] += 1
+            else:
+                duration_type_notes[type] = 1
+
+            if full_name in duration_fullname_notes:
+                duration_fullname_notes[full_name] += 1
+            else:
+                duration_fullname_notes[full_name] = 1
+        else:
+            if length_in_quarters in duration_length_in_quarters_rests:
+                duration_length_in_quarters_rests[length_in_quarters] += 1
+            else:
+                duration_length_in_quarters_rests[length_in_quarters] = 1
+
+            if type in duration_type_rests:
+                duration_type_rests[type] += 1
+            else:
+                duration_type_rests[type] = 1
+
+            if full_name in duration_fullname_rests:
+                duration_fullname_rests[full_name] += 1
+            else:
+                duration_fullname_rests[full_name] = 1
+    sum_note_duration = 0
+    sum_rest_duration = 0
+    for key, value in duration_length_in_quarters_notes.items():
+        sum_note_duration += key*value
+
+    for key, value in duration_length_in_quarters_rests.items():
+        sum_rest_duration += key*value
+
+    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
+    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
+    duration_length_in_quarters_notes_and_rests = dict(duration_length_in_quarters_notes_and_rests_counter)
+
+    return {
+        "duration_length_in_quarters_notes_count": duration_length_in_quarters_notes,
+        "duration_length_in_quarters_rests_count": duration_length_in_quarters_rests,
+        "duration_type_notes_count": duration_type_notes,
+        "duration_type_rests_count": duration_type_rests,
+        "duration_fullname_notes_count": duration_fullname_notes,
+        "duration_fullname_rests_count": duration_fullname_rests,
+        "duration_length_in_quarters_notes_rests_count": duration_length_in_quarters_notes_and_rests,
+        "duration_total_notes_vs_rests": {"notes":sum_note_duration, "rests":sum_rest_duration}
+    }
+
+
+def get_key_for_distant_hearing(parsed_file):
+    keys = get_key_possibilities(parsed_file)
+    key_list = []
+    counter = 1
+    for key in keys:
+        key_list.append({"key_name": get_better_key_name(key),
+                         "probability": key.correlationCoefficient,
+                         "order": counter,
+                         "key_mode": key.mode})
+        counter += 1
+    return {"key_information": key_list}
+
+
+def get_pitches_for_distant_hearing(stream):
+    octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'pitchClass'))
+    pitch_name_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'name'))
+    pitch_name_octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'nameWithOctave'))
+    # keep this a dictionary and not a list of numbers
+    octave_count = {str(key): val for key, val in octave_count.items()}
+    return {"pitch_octave_count": octave_count,
+            "pitch_name_count": pitch_name_count,
+            "pitch_name_with_octave_count": pitch_name_octave_count}
+
+
+# get ambitus and additional information for distant hearing
 def get_ambitus_for_distant_hearing(stream):
     ambitus = get_ambitus(stream)
     return {"lowest_pitch_count": {ambitus["pitches"][0].nameWithOctave: 1},
-            "highest_pitch_count": {ambitus["pitches"][1].nameWithOctave: 1}, "num_semitones": ambitus["interval"].semitones}
+            "highest_pitch_count": {ambitus["pitches"][1].nameWithOctave: 1},
+            "num_semitones": ambitus["interval"].semitones}
 
 
+# get musicxml which displays the ambitus
 def get_ambitus_for_display(stream, gex, context_dict):
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
@@ -478,11 +643,6 @@ def get_ambitus_for_display(stream, gex, context_dict):
     display_part.append(m21.note.Note(ambitus["pitches"][1]))
     display.append(display_part)
     display.insert(0, m21.metadata.Metadata())
-    # not necessary anymore because osmd provides the option to not display those, seemed cleaner that way.
-    # display_part.partName = " "
-    # display.metadata.title = ambitus["interval"].niceName
-    # display.metadata.alternativeTitle = ""
-    # display.metadata.movementName = str(ambitus["interval"].semitones) + " semitones"
     display.metadata.composer = " "
     context_dict["ambitus_interval"] = ambitus["interval"].niceName
     context_dict["semitones"] = str(ambitus["interval"].semitones) + " semitones"
@@ -578,14 +738,3 @@ def get_key_possibilities(parsed_file):
     key = parsed_file.analyze('key')
     key_list = [key, key.alternateInterpretations[0], key.alternateInterpretations[1], key.alternateInterpretations[2]]
     return key_list
-
-
-def get_dict_of_all_necessary_counters():
-    return {
-        "semitones_list":[],
-        "lowest_pitch_counter": collections.Counter(),
-        "highest_pitch_counter": collections.Counter(),
-        "chord_quality_counter": collections.Counter(),
-        "chord_name_counter": collections.Counter(),
-        "chord_root_counter": collections.Counter()
-    }
