@@ -1,3 +1,6 @@
+let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3};
+Object.freeze(sortTypeEnum);
+
 $(document).ready(function () {
     console.log("doc ready");
     UIkit.notification({
@@ -72,7 +75,7 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10,
     };
     worker.postMessage(message);
@@ -82,7 +85,7 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
 function startWorker(worker, workerSourcePath,
                      chartSelector, groupNames,
                      isLabelToDiv, labelToDiv,
-                     ) {
+) {
     if (typeof(Worker) !== "undefined") {
         if (typeof(w) == "undefined") {
             worker = new Worker(workerSourcePath);
@@ -91,7 +94,7 @@ function startWorker(worker, workerSourcePath,
             let data = e.data.data;
             let uniqueKeys = e.data.uniqueKeys;
             let options = e.data.options;
-            console.log(data);
+
 
             const responsiveOptions = [
                 ['screen and (max-width: 640px)', {
@@ -105,9 +108,9 @@ function startWorker(worker, workerSourcePath,
             ];
             let plugins = [];
             if (isLabelToDiv) {
-                console.log(labelToDiv);
+
                 let someDiv = document.getElementById(labelToDiv);
-                console.log(someDiv);
+
                 plugins = [
                     Chartist.plugins.legend({
                         position: someDiv, legendNames: groupNames
@@ -148,7 +151,7 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -160,13 +163,13 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupN
     worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js',
         '.ct-chart-duration-length-notes-rests-count', groupNames);
 
-    console.log(worker);
+
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -182,7 +185,7 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10,
     };
     worker.postMessage(message);
@@ -197,7 +200,7 @@ function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -212,7 +215,7 @@ function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -228,7 +231,7 @@ function createKeyNameCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -243,7 +246,7 @@ function createKeyModeCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -260,6 +263,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             worker = new Worker(workerSourcePath);
         }
         worker.onmessage = function (e) {
+            console.log("key prob message");
             let resultValues = e.data.resultValues;
             let musicPiecesResult = e.data.musicPiecesResult;
             let labels = e.data.labels;
@@ -316,7 +320,7 @@ function createChordNameCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: true,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -332,7 +336,8 @@ function createChordRootCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: true,
-        isSortableByRoot: true,
+        isSortable: true,
+        sortType: sortTypeEnum.root,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -348,7 +353,8 @@ function createPitchNameCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: true,
+        isSortable: true,
+        sortType: sortTypeEnum.root,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -364,7 +370,7 @@ function createPitchOctaveCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -387,114 +393,28 @@ function createChordQualityCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false,
+        isSortable: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-    uniqueKeys.pop(); // adds stringified function otherwise
-    //uniqueKeys = sortRootCount(uniqueKeys);
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-quality', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({appendToBody: true})
-            ]
-        });
-    });
-    */
 }
 
 function createPitchNameWithOctaveCountChart(analysisJson, groupNames) {
-    let stats_accessor = "pitch_name_with_octave_count";
+    let statsAccessor = "pitch_name_with_octave_count";
 
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-
-    let sortingArray = ['C-1', 'C1', 'C#1', 'D-1', 'D1', 'D#1', 'E-1', 'E1', 'E#1', 'F-1', 'F1', 'F#1', 'G-1', 'G1', 'G#1', 'A-1', 'A1', 'A#1', 'B-1', 'B1', 'B#1', 'C-2', 'C2', 'C#2', 'D-2', 'D2', 'D#2', 'E-2', 'E2', 'E#2', 'F-2', 'F2', 'F#2', 'G-2', 'G2', 'G#2', 'A-2', 'A2', 'A#2', 'B-2', 'B2', 'B#2', 'C-3', 'C3', 'C#3', 'D-3', 'D3', 'D#3', 'E-3', 'E3', 'E#3', 'F-3', 'F3', 'F#3', 'G-3', 'G3', 'G#3', 'A-3', 'A3', 'A#3', 'B-3', 'B3', 'B#3', 'C-4', 'C4', 'C#4', 'D-4', 'D4', 'D#4', 'E-4', 'E4', 'E#4', 'F-4', 'F4', 'F#4', 'G-4', 'G4', 'G#4', 'A-4', 'A4', 'A#4', 'B-4', 'B4', 'B#4', 'C-5', 'C5', 'C#5', 'D-5', 'D5', 'D#5', 'E-5', 'E5', 'E#5', 'F-5', 'F5', 'F#5', 'G-5', 'G5', 'G#5', 'A-5', 'A5', 'A#5', 'B-5', 'B5', 'B#5', 'C-6', 'C6', 'C#6', 'D-6', 'D6', 'D#6', 'E-6', 'E6', 'E#6', 'F-6', 'F6', 'F#6', 'G-6', 'G6', 'G#6', 'A-6', 'A6', 'A#6', 'B-6', 'B6', 'B#6', 'C-7', 'C7', 'C#7', 'D-7', 'D7', 'D#7', 'E-7', 'E7', 'E#7', 'F-7', 'F7', 'F#7', 'G-7', 'G7', 'G#7', 'A-7', 'A7', 'A#7', 'B-7', 'B7', 'B#7']
-    uniqueKeys = sortingArray.map(key => uniqueKeys.find(item => item === key))
-        .filter(item => item);
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 100
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-        let someDiv = document.getElementById('tooltip-div2');
-        new Chartist.Bar('.ct-chart-pitch-octave-name', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames, position: someDiv
-                }),
-                Chartist.plugins.tooltip({appendToBody: true})
-            ]
-        });
-    });
+    let worker;
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-pitch-octave-name', groupNames, true, 'tooltip-div2');
+    let message = {
+        analysisJson: analysisJson,
+        statsAccessor: statsAccessor,
+        groupNames: groupNames,
+        isDeletedWhenLessThanThree: false,
+        isSortable: true,
+        sortType: sortTypeEnum.rootAndOctave,
+        seriesBarDistance: 100
+    };
+    worker.postMessage(message);
 }
 
 function getGroupNames(analysisJson) {
