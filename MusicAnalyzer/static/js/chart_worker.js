@@ -23,7 +23,7 @@ this.onmessage = function (e) {
 
     //function started here
     const options = {
-        seriesBarDistance: 10
+        seriesBarDistance: input.seriesBarDistance
     };
 
     /*

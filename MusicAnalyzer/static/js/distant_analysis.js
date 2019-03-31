@@ -72,13 +72,17 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10,
     };
     worker.postMessage(message);
 
 }
 
-function startWorker(worker, workerSourcePath, chartSelector, groupNames, isLabelToDiv) {
+function startWorker(worker, workerSourcePath,
+                     chartSelector, groupNames,
+                     isLabelToDiv, labelToDiv,
+                     ) {
     if (typeof(Worker) !== "undefined") {
         if (typeof(w) == "undefined") {
             worker = new Worker(workerSourcePath);
@@ -101,7 +105,9 @@ function startWorker(worker, workerSourcePath, chartSelector, groupNames, isLabe
             ];
             let plugins = [];
             if (isLabelToDiv) {
-                let someDiv = document.getElementById('any-div-anywhere');
+                console.log(labelToDiv);
+                let someDiv = document.getElementById(labelToDiv);
+                console.log(someDiv);
                 plugins = [
                     Chartist.plugins.legend({
                         position: someDiv, legendNames: groupNames
@@ -142,7 +148,8 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
 }
@@ -159,62 +166,10 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupN
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    // group stats by metric and sum up values
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
-    // group stats by group
-
-    // sum all group names in one array
-    //let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-    // sum all group names in one array
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-duration-length-notes-rests-count', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-            ]
-        });
-    });
-    */
 }
 
 function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames) {
@@ -227,62 +182,10 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10,
     };
     worker.postMessage(message);
-    /*
-    // group stats by metric and sum up values
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, statsAccessor);
-    // group stats by group
-
-    // sum all group names in one array
-    //let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup, statsAccessor);
-    // sum all group names in one array
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-duration-length-notes-count', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-            ]
-        });
-    });
-    */
 }
 
 function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
@@ -294,60 +197,10 @@ function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    // group stats by metric and sum up values
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
-    // group stats by group
-
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-    // sum all group names in one array
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-duration-fullname-rests-count', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-            ]
-        });
-    });
-    */
 }
 
 function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
@@ -359,63 +212,11 @@ function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    // group stats by metric and sum up values
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
-    // group stats by group
 
-    // sum all group names in one array
-    //let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-    // sum all group names in one array
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-duration-fullname-notes-count', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-            ]
-        });
-    });
-
-*/
 }
 
 function createKeyNameCountChart(analysisJson, groupNames) {
@@ -427,52 +228,10 @@ function createKeyNameCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    // group stats by metric and sum up values
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
-    // group stats by group
-
-    // sum all group names in one array
-    //let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-    // sum all group names in one array
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-key-name', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                })
-            ]
-        });
-    });
-*/
 }
 
 function createKeyModeCountChart(analysisJson, groupNames) {
@@ -484,220 +243,84 @@ function createKeyModeCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    // group stats by metric and sum up values
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
-    // group stats by group
-
-    // sum all group names in one array
-    //let groupNames = Object.keys(newGroup)
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-    // sum all group names in one array
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-key-mode', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                })
-            ]
-        });
-    });
-    */
 }
 
-
-//TODO define web worker for key-probability line chart
-function createKeyProbabilityLineChart(analysisJson) {
-    let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(key => _.omit(key, 'group')));
-
-
-    let keyInformationObjectResult = [];
-    let musicPiecesResult = [];
-    for (group in grouped) {
-        let keyInformationObject = [];
-        let musicPieces = [];
-        let firstGroup = grouped[group];
-        for (let musicPiece in firstGroup) {
-            if (firstGroup[musicPiece].key_information !== undefined) {
-                keyInformationObject.push(firstGroup[musicPiece].key_information)
-            }
-            if (firstGroup[musicPiece].title !== undefined) {
-                musicPieces.push(firstGroup[musicPiece].title)
-            }
+function createKeyProbabilityLineChart(analysisJson, groupNames) {
+    //need: resultValues, musicPiecesResult, labels
+    let worker;
+    let workerSourcePath = 'http://127.0.0.1:8000/static/js/key_probability_chart_worker.js';
+    /*let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
+        clist => clist.map(key => _.omit(key, 'group')));*/
+    if (typeof(Worker) !== "undefined") {
+        if (typeof(worker) == "undefined") {
+            worker = new Worker(workerSourcePath);
         }
+        worker.onmessage = function (e) {
+            let resultValues = e.data.resultValues;
+            let musicPiecesResult = e.data.musicPiecesResult;
+            let labels = e.data.labels;
 
-        keyInformationObjectResult[group] = keyInformationObject;
+            for (let group in resultValues) {
+                if (group !== 'unique') {
+                    let newDiv = document.createElement('div');
+                    let newHeading = document.createElement('h4');
+                    newHeading.className = 'uk-text-center';
+                    newHeading.innerHTML = group;
+                    newDiv.className = 'ct-chart-key-probability-' + group;
+                    document.getElementById('probabilityCharts').appendChild(newHeading);
+                    document.getElementById('probabilityCharts').appendChild(newDiv);
 
-        musicPiecesResult[group] = musicPieces
-    }
 
-    let resultKeys = [];
-    let resultValues = [];
-
-    for (let group in keyInformationObjectResult) {
-        let values = [];
-        let keys = [];
-        let keyGroup = keyInformationObjectResult[group];
-
-        for (let y = 0; y < keyGroup.length; y++) {
-            let probabilitiesPerPiece = [];
-            let keysPerPiece = [];
-            if (keyGroup[y] !== undefined) {
-                for (let i = 0; i < keyGroup[y].length; i++) {
-                    probabilitiesPerPiece.push(keyGroup[y][i].probability);
-                    keysPerPiece.push(keyGroup[y][i].key_name)
+                    new Chartist.Line('.ct-chart-key-probability-' + group, {
+                            labels: labels,
+                            series: resultValues[group]
+                        },
+                        {
+                            plugins: [
+                                Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
+                                Chartist.plugins.tooltip({appendToBody: true})
+                            ]
+                        },
+                        {
+                            fullWidth: true,
+                            chartPadding: {
+                                right: 40
+                            }
+                        },
+                    );
                 }
             }
-            values[y] = probabilitiesPerPiece;
-            keys[y] = keysPerPiece
-        }
-        resultKeys[group] = keys;
-        resultValues[group] = values;
+        };
+    } else {
+        console.log("Sorry! No Web Worker support.");//TODO replace with UI-Kit message
     }
 
-    for (let group in resultValues) {
-        let value = resultValues[group];
-        let key = resultKeys[group];
-        for (let i = 0; i < value.length; i++) {
-            let object = value[i];
-            let keyObject = key[i];
-            for (let y = 0; y < object.length; y++) {
-                object[y] = {meta: keyObject[y], value: object[y]};
-            }
-        }
-    }
+    let message = {
+        analysisJson: analysisJson,
+        groupNames: groupNames
+    };
+    worker.postMessage(message);
 
-    let labels = [1, 2, 3, 4];
-
-    for (let group in resultValues) {
-        if (group !== 'unique') {
-            let newDiv = document.createElement('div');
-            let newHeading = document.createElement('h4');
-            newHeading.className = 'uk-text-center';
-            newHeading.innerHTML = group;
-            newDiv.className = 'ct-chart-key-probability-' + group;
-            document.getElementById('probabilityCharts').appendChild(newHeading);
-            document.getElementById('probabilityCharts').appendChild(newDiv);
-        }
-    }
-
-    for (let group in resultValues) {
-        if (group !== 'unique') {
-            new Chartist.Line('.ct-chart-key-probability-' + group, {
-                    labels: labels,
-                    series: resultValues[group]
-                },
-                {
-                    plugins: [
-                        Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
-                        Chartist.plugins.tooltip({appendToBody: true})
-                    ]
-                },
-                {
-                    fullWidth: true,
-                    chartPadding: {
-                        right: 40
-                    }
-                },
-            );
-        }
-    }
 }
 
 function createChordNameCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_name_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-name', groupNames, true);
+    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-name', groupNames, true, "tooltip-div1");
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: true,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
 
-    // group stats by metric and sum up values
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor, true);
-
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-    // sum all group names in one array
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5
-            }]
-        ];
-
-        for (let i = 0; i < data.length; i++) {
-            data[i] = data[i].map(function (v, idx) {
-                return {
-                    meta: uniqueKeys[idx], value: v
-                };
-
-            });
-        }
-        let someDiv = document.getElementById('any-div-anywhere');
-        Chartist.Bar('.ct-chart-name', {
-                labels: uniqueKeys,
-                series: data,
-                options,
-                responsiveOptions,
-            },
-
-            {
-                plugins: [
-                    Chartist.plugins.legend({
-                        position: someDiv, legendNames: groupNames
-                    }),
-                    Chartist.plugins.tooltip({appendToBody: true})
-                ]
-            },
-        );
-
-
-    });
-
-*/
 }
 
 function createChordRootCountChart(analysisJson, groupNames) {
@@ -709,58 +332,11 @@ function createChordRootCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: true,
-        isSortableByRoot: true
+        isSortableByRoot: true,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-
-    uniqueKeys = sortRootCount(uniqueKeys);
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-root', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-            ]
-        });
-    });
-*/
 }
 
 function createPitchNameCountChart(analysisJson, groupNames) {
@@ -772,59 +348,11 @@ function createPitchNameCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: true
+        isSortableByRoot: true,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
 
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-
-    uniqueKeys = sortRootCount(uniqueKeys);
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-pitch-name', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({appendToBody: true})
-            ]
-        });
-    });
-    */
 }
 
 function createPitchOctaveCountChart(analysisJson, groupNames) {
@@ -836,61 +364,14 @@ function createPitchOctaveCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
-    /*
-    let newGroup = getRelevantSummaryStatsForChart(analysisJson, stats_accessor);
-
-    let uniqueKeys = getUniqueKeys(newGroup, stats_accessor);
-
-    let data = getMatchingVals(newGroup, uniqueKeys, groupNames);
-
-    for (let i = 0; i < data.length; i++) {
-        data[i] = data[i].map(function (v, idx) {
-            return {
-                meta: uniqueKeys[idx], value: v
-            };
-
-        });
-    }
-
-    // draw the chart
-    $(function () {
-        const options = {
-            seriesBarDistance: 10
-        };
-
-        const responsiveOptions = [
-            ['screen and (max-width: 640px)', {
-                seriesBarDistance: 5,
-                axisX: {
-                    labelInterpolationFnc: function (value) {
-                        return value[0];
-                    }
-                }
-            }]
-        ];
-
-        new Chartist.Bar('.ct-chart-pitch-octave', {
-            labels: uniqueKeys,
-            series: data,
-            options,
-            responsiveOptions
-        }, {
-            plugins: [
-                Chartist.plugins.legend({
-                    legendNames: groupNames,
-                }),
-                Chartist.plugins.tooltip({appendToBody: true})
-            ]
-        });
-    });
-    */
 }
 
 function sortRootCount(arr) {
-    let sortingArray = ['C-', 'C', 'C#', 'D-', 'D', 'D#', 'E-', 'E', 'E#', 'F-', 'F', 'F#', 'G-', 'G', 'G#', 'A-', 'A', 'A#', 'B-', 'B', 'B#']
+    let sortingArray = ['C-', 'C', 'C#', 'D-', 'D', 'D#', 'E-', 'E', 'E#', 'F-', 'F', 'F#', 'G-', 'G', 'G#', 'A-', 'A', 'A#', 'B-', 'B', 'B#'];
     return sortingArray.map(key => arr.find(item => item === key))
         .filter(item => item)
 
@@ -906,7 +387,8 @@ function createChordQualityCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortableByRoot: false
+        isSortableByRoot: false,
+        seriesBarDistance: 10
     };
     worker.postMessage(message);
     /*
@@ -998,7 +480,7 @@ function createPitchNameWithOctaveCountChart(analysisJson, groupNames) {
                 }
             }]
         ];
-        let someDiv = document.getElementById('any-div-anywhere2');
+        let someDiv = document.getElementById('tooltip-div2');
         new Chartist.Bar('.ct-chart-pitch-octave-name', {
             labels: uniqueKeys,
             series: data,
