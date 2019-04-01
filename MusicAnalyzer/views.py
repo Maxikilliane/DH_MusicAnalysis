@@ -602,9 +602,9 @@ def get_durations_for_distant_hearing(stream):
         key_value = convert_number_string_to_numeral(key)
         sum_rest_duration += key_value * value
 
-    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
-    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
-    duration_length_in_quarters_notes_and_rests = dict(duration_length_in_quarters_notes_and_rests_counter)
+
+    duration_length_in_quarters_notes_and_rests = dict(
+        collections.Counter(duration_length_in_quarters_notes) + collections.Counter(duration_length_in_quarters_rests))
 
     return {
         "name_value_dict_notes": name_value_dict_notes,
