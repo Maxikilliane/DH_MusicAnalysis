@@ -269,17 +269,18 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             let labels = e.data.labels;
 
             for (let group in resultValues) {
+                let group_without_whitespace = replace_whitespace_in_string(group, "-");
                 if (group !== 'unique') {
                     let newDiv = document.createElement('div');
                     let newHeading = document.createElement('h4');
                     newHeading.className = 'uk-text-center';
                     newHeading.innerHTML = group;
-                    newDiv.className = 'ct-chart-key-probability-' + group;
+                    newDiv.className = 'ct-chart-key-probability-' + group_without_whitespace;
                     document.getElementById('probabilityCharts').appendChild(newHeading);
                     document.getElementById('probabilityCharts').appendChild(newDiv);
 
 
-                    new Chartist.Line('.ct-chart-key-probability-' + group, {
+                    new Chartist.Line('.ct-chart-key-probability-' + group_without_whitespace, {
                             labels: labels,
                             series: resultValues[group]
                         },
@@ -467,8 +468,6 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
             let realResult = e.data.realResult;
             let configs = e.data.configs;
 
-            console.log(realResult);
-            console.log(configs);
             // create divs for diagrams
             let counter = 0;
             for (result in realResult) {
@@ -476,22 +475,19 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
 
                 newDiv.id = 'ct-chart-ambitus-range-' + result;
                 document.getElementById('rangeCharts').appendChild(newDiv);
-                console.log(newDiv);
+
 
             }
-            
+
             //configs.splice(-1, 1);
 
 
             for (config in configs) {
                 if (config !== "unique") {
-                    console.log(config);
                     zingchart.render({
                         id: 'ct-chart-ambitus-range-' + config,
                         data: configs[config]
                     });
-                }else{
-                    console.log("config unique")
                 }
             }
 
@@ -509,6 +505,9 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
     };
     worker.postMessage(message);
 
+function replace_whitespace_in_string(str, replaceWith){
+    return str.replace(/\s/g, replaceWith);
+}
 
 
 }
