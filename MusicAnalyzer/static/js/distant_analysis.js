@@ -137,7 +137,7 @@ function startWorker(worker, workerSourcePath,
         };
         return worker;
     } else {
-        console.log("Sorry! No Web Worker support.");
+        displayNoWebworkerSupportMessage();
     }
 }
 
@@ -301,7 +301,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             }
         };
     } else {
-        console.log("Sorry! No Web Worker support.");//TODO replace with UI-Kit message
+        displayNoWebworkerSupportMessage();
     }
 
     let message = {
@@ -446,7 +446,7 @@ function drawBoxplots(analysisJson, groupNames) {
 
         };
     } else {
-        console.log("Sorry! No Web Worker support.");
+        displayNoWebworkerSupportMessage();
     }
     let message = {
         analysisJson: analysisJson,
@@ -494,7 +494,7 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
 
         };
     } else {
-        console.log("Sorry! No Web Worker support.");
+        displayNoWebworkerSupportMessage();
     }
     let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
         clist => clist.map(key => _.omit(key, 'group')));
@@ -504,10 +504,17 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
         groupNames: groupNames
     };
     worker.postMessage(message);
+}
 
 function replace_whitespace_in_string(str, replaceWith){
     return str.replace(/\s/g, replaceWith);
 }
 
-
+function displayNoWebworkerSupportMessage(){
+    UIkit.notification({
+        message: 'Your browser does not support a feature which is necessary for this application. Please use a newer browser, like Chroome 4.0 or Firefox 3.5.',
+        status: 'primary',
+        pos: 'bottom-center',
+        timeout: 5000
+    });
 }
