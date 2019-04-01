@@ -3,6 +3,7 @@ import re
 import statistics
 import random
 import string
+from fractions import Fraction
 from os.path import isfile, join
 from pathlib import WindowsPath, PosixPath
 import collections
@@ -155,6 +156,7 @@ class DistantAnalysis(View):
         if request.is_ajax():
             return get_distant_hearing_analysis_results(request)
 
+
 def get_distant_hearing_analysis_results(request):
     music_pieces = access_music_choice_from_cookie(request)
     overall_results = {}  # all the results
@@ -162,7 +164,7 @@ def get_distant_hearing_analysis_results(request):
     stats = get_summary_stats_for_individual_pieces(music_pieces)
     per_piece_results_list = stats["per_piece"]
     relevant_groups = stats["groups"]
-    counter_dict = getCounters(relevant_groups)
+    counter_dict = get_counters(relevant_groups)
     counter_dict = get_group_and_total_counts(per_piece_results_list, counter_dict)
     summary_stats = get_group_and_overall_summary_stats(counter_dict)
 
@@ -170,9 +172,9 @@ def get_distant_hearing_analysis_results(request):
     overall_results["per_group_stats"] = summary_stats["group_sum_stats"]  # per_group_results_list
     overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
 
-    context_dict = {"metadata":stats["metadata"], "all_summary_stats":overall_results}
-
+    context_dict = {"metadata":stats["metadata"], "all_summary_stats": overall_results}
     return JsonResponse(context_dict)
+
 
 def get_results_from_counters(dictionary, accessor):
     result = {}
@@ -219,13 +221,13 @@ def get_summary_stats_for_individual_pieces(music_pieces):
         analysis_result_for_this_piece.update(key_info)
         analysis_result_for_this_piece.update(pitch_info)
         analysis_result_for_this_piece.update(durations_info)
-        print(analysis_result_for_this_piece)
+
         per_piece_results_list.append(analysis_result_for_this_piece)
 
     return {"groups": relevant_groups, "metadata": metadata_list, "per_piece": per_piece_results_list}
 
 
-def getCounters(relevant_groups):
+def get_counters(relevant_groups):
     counter_dict = {}
     for group in relevant_groups:
         counter_dict[group] = get_dict_of_all_necessary_counters()
@@ -237,16 +239,16 @@ def getCounters(relevant_groups):
 def get_group_and_total_counts(per_piece_results_list, counter_dict):
     for d in per_piece_results_list:
         group = d.get("group", "")
-        print(counter_dict[group])
+
         for key_info in d["key_information"]:
-            print("inside for")
-            print(key_info)
+
             if key_info["order"] == 1:
                 counter_dict[group]["key_mode_counter"].update({key_info["key_mode"]: 1})
                 counter_dict["total"]["key_mode_counter"].update({key_info["key_mode"]: 1})
                 counter_dict[group]["key_name_counter"].update({key_info["key_name"]: 1})
                 counter_dict["total"]["key_name_counter"].update({key_info["key_name"]: 1})
 
+        counter_dict[group]["duration_total_notes_vs_rests_counter"].update(d["duration_total_notes_vs_rests_count"])
         counter_dict[group]["duration_length_in_quarters_notes_counter"].update(
             d["duration_length_in_quarters_notes_count"])
         counter_dict[group]["duration_length_in_quarters_rests_counter"].update(
@@ -267,6 +269,7 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
         counter_dict[group]["chord_name_counter"].update(d["chord_name_count"])
         counter_dict[group]["chord_root_counter"].update(d["chord_root_count"])
 
+        counter_dict["total"]["duration_total_notes_vs_rests_counter"].update(d["duration_total_notes_vs_rests_count"])
         counter_dict["total"]["duration_length_in_quarters_notes_counter"].update(
             d["duration_length_in_quarters_notes_count"])
         counter_dict["total"]["duration_length_in_quarters_rests_counter"].update(
@@ -318,7 +321,7 @@ def get_group_and_overall_summary_stats(counter_dict):
 
 def get_dict_of_all_necessary_counters():
     return {
-
+        "duration_total_notes_vs_rests_counter":collections.Counter(),
         "duration_length_in_quarters_notes_counter": collections.Counter(),
         "duration_length_in_quarters_rests_counter": collections.Counter(),
         "duration_type_notes_counter": collections.Counter(),
@@ -545,7 +548,7 @@ def get_durations_for_distant_hearing(stream):
     for note in stream.flat.notesAndRests:
         duration = note.duration
         is_note = note.isNote
-        length_in_quarters = duration.quarterLength
+        length_in_quarters = str(duration.quarterLength)
         type = duration.type
         full_name = duration.fullName
         if is_note:
@@ -581,10 +584,12 @@ def get_durations_for_distant_hearing(stream):
     sum_note_duration = 0
     sum_rest_duration = 0
     for key, value in duration_length_in_quarters_notes.items():
-        sum_note_duration += key*value
+        key_value = convert_number_string_to_numeral(key)
+        sum_note_duration += key_value*value
 
     for key, value in duration_length_in_quarters_rests.items():
-        sum_rest_duration += key*value
+        key_value = convert_number_string_to_numeral(key)
+        sum_rest_duration += key_value*value
 
     duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
     duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
@@ -598,8 +603,16 @@ def get_durations_for_distant_hearing(stream):
         "duration_fullname_notes_count": duration_fullname_notes,
         "duration_fullname_rests_count": duration_fullname_rests,
         "duration_length_in_quarters_notes_rests_count": duration_length_in_quarters_notes_and_rests,
-        "duration_total_notes_vs_rests": {"notes":sum_note_duration, "rests":sum_rest_duration}
+        "duration_total_notes_vs_rests_count": {"notes":sum_note_duration, "rests":sum_rest_duration}
     }
+
+
+def convert_number_string_to_numeral(key_string):
+    try:
+        key = float(key_string)
+    except ValueError as e:
+        key = Fraction(key_string)
+    return key
 
 
 def get_key_for_distant_hearing(parsed_file):

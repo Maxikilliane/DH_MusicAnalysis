@@ -20,6 +20,13 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
+    <script>
+    var path_to_chart_worker = "{% static "js/chart_worker.js" %}";
+    var path_to_boxplot_worker = "{% static "js/boxplot_worker.js" %}";
+    var path_to_key_probability_worker = "{% static "js/key_probability_chart_worker.js" %}";
+    var path_to_ambitus_chart_worker = "{% static "js/ambitus_chart_worker.js" %}"
+
+    </script>
 {% endblock %}
 
 {% block body_block %}
@@ -133,7 +140,7 @@
         <h2 class="uk-text-center">Chords</h2>
         <div class="chart-container" id="chartChordNames">
             <h3 class="uk-text-center">Chord name count</h3>
-            <div id="any-div-anywhere"></div>
+            <div id="tooltip-div1"></div>
             <div class="uk-width-1-1" id="chordChartName">
                 <div class="ct-chart-name"></div>
             </div>
@@ -161,7 +168,7 @@
 
         <div class="chart-container">
             <h3 class="uk-text-center">Pitch name with octave count</h3>
-            <div id="any-div-anywhere2"></div>
+            <div id="tooltip-div2"></div>
             <div class="uk-width-1-1" id="pitchOctaveName">
                 <div class="ct-chart-pitch-octave-name"></div>
             </div>
@@ -226,13 +233,13 @@
     </div>
 
     <div class="invisible">
-    <form id="start_distant_analysis_form" action="/MusicAnalyzer/distantAnalysis/"
-                      method="post"
-                      data-analysis-choice-url="/MusicAnalyzer/distantAnalysis/"
-                      class="uk-form-stacked">
-                    {% csrf_token %}
-                    <input type="text" name="state" value="{{ state }}">
+        <form id="start_distant_analysis_form" action="/MusicAnalyzer/distantAnalysis/"
+              method="post"
+              data-analysis-choice-url="/MusicAnalyzer/distantAnalysis/"
+              class="uk-form-stacked">
+            {% csrf_token %}
+            <input type="text" name="state" value="{{ state }}">
 
-                </form>
+        </form>
     </div>
 {% endblock %}
