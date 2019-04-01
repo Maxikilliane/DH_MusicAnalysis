@@ -35,7 +35,7 @@ function start_analysis(event) {
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
             UIkit.notification({
                 message: 'Your file is too large to be processed by our server. Try a smaller file.',
-                status: 'primary',
+                status: 'warning',
                 pos: 'bottom-center',
                 timeout: 10000 // basically endless time, gets closed on success or error
             });

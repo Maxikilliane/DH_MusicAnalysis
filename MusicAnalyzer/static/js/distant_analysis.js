@@ -26,7 +26,7 @@ $(document).ready(function () {
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
              UIkit.notification({
                 message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
-                status: 'primary',
+                status: 'warning',
                 pos: 'bottom-center',
                 timeout: 10000 // basically endless time, gets closed on success or error
             });

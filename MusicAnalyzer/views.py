@@ -107,7 +107,7 @@ class Choice(View):
             print("add_new_group")
             if request.is_ajax():
                 print("ajax")
-                return add_group(request, context)
+                return add_group(request)
         else:
             return upload_files(self, request, context)
 
