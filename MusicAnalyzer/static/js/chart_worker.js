@@ -17,20 +17,21 @@ let rootEnum = {
     }
 };
 
+let signEnum = {
+    flat: 1,
+    none: 2,
+    sharp: 3,
+    properties: {
+        1: {name: "-", value: 1},
+        2: {name: "", value: 2},
+        3: {name: "#", value: 3}
+    }
+
+};
+
 this.onmessage = function (e) {
-    let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3};
+    let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4};
 
-    let signEnum = {
-        flat: 1,
-        none: 2,
-        sharp: 3,
-        properties: {
-            1: {name: "-", value: 1},
-            2: {name: "", value: 2},
-            3: {name: "#", value: 3}
-        }
-
-    };
 
     if (Object.freeze) {
         Object.freeze(sortTypeEnum);
@@ -53,6 +54,8 @@ this.onmessage = function (e) {
             uniqueKeys = sortRootAndOctave(uniqueKeys);
         } else if (input.sortType === sortTypeEnum.number) {
             uniqueKeys = sortNumber(uniqueKeys);
+        } else if (input.sortType === sortTypeEnum.duration) {
+            uniqueKeys = sortByDurationName(uniqueKeys, input.analysisJson, input.isForNotes );
         }
     }
 
@@ -137,13 +140,18 @@ function sortRootAndOctave(arr) {
 
 
 function sortNumber(arr) {
-    return arr.sort(function (a, b) {
-        let a_number = parseFloat(a);
+    return arr.sort(function(a, b){
+        return compareByNumber(a, b);
+    });
+}
+
+function compareByNumber(a, b){
+    let a_number = parseFloat(a);
         if (a.indexOf('/') > -1) {
             let parts = a.split("/");
             let numerator = parts[0];
             let denominator = parts[1];
-            a_number = parseInt(numerator)/parseInt(denominator);
+            a_number = parseInt(numerator) / parseInt(denominator);
         } else {
             a_number = parseFloat(a);
         }
@@ -152,10 +160,21 @@ function sortNumber(arr) {
             let parts = b.split("/");
             let numerator = parts[0];
             let denominator = parts[1];
-            b_number = parseInt(numerator)/parseInt(denominator);
+            b_number = parseInt(numerator) / parseInt(denominator);
         } else {
             b_number = parseFloat(b);
         }
         return a_number - b_number;
+}
+
+function sortByDurationName(arr, analysisJson, isForNotes) {
+    let sort_dict = {};
+    if (isForNotes) {
+        sort_dict = analysisJson.total_sum_stats.duration_name_value_dict_not;
+    } else {
+        sort_dict = analysisJson.total_sum_stats.duration_name_value_dict_res;
+    }
+    return arr.sort(function (a, b) {
+        return compareByNumber(sort_dict[a], sort_dict[b])
     });
 }

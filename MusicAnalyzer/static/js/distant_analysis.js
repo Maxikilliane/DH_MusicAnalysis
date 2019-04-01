@@ -1,4 +1,4 @@
-let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3};
+let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration":4};
 Object.freeze(sortTypeEnum);
 
 $(document).ready(function () {
@@ -151,7 +151,9 @@ function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.duration,
+        isForNotes: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -166,7 +168,9 @@ function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.duration,
+        isForNotes: true,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -470,7 +474,7 @@ function displayNoWebworkerSupportMessage(){
 
 function startWorker(worker, workerSourcePath,
                      chartSelector, groupNames,
-                     isLabelToDiv, labelToDiv,
+                     isLabelToDiv, labelToDiv
 ) {
     if (typeof(Worker) !== "undefined") {
         if (typeof(w) == "undefined") {
