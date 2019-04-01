@@ -69,7 +69,7 @@ function distantAnalysis(analysisJson) {
 function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
     let statsAccessor = "duration_total_notes_vs_rests_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-sound_silence_ratio', groupNames);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-sound_silence_ratio', groupNames);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -144,7 +144,7 @@ function startWorker(worker, workerSourcePath,
 function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames) {
     let statsAccessor = "duration_length_in_quarters_rests_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-length-rests-count', groupNames);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-duration-length-rests-count', groupNames);
 
     let message = {
         analysisJson: analysisJson,
@@ -160,7 +160,7 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames)
 function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupNames) {
     let statsAccessor = "duration_length_in_quarters_notes_rests_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js',
+    worker = startWorker(worker, path_to_chart_worker,
         '.ct-chart-duration-length-notes-rests-count', groupNames);
 
 
@@ -178,7 +178,7 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupN
 function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames) {
     let statsAccessor = "duration_length_in_quarters_notes_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-length-notes-count', groupNames);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-duration-length-notes-count', groupNames);
 
     let message = {
         analysisJson: analysisJson,
@@ -194,7 +194,7 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames)
 function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
     let statsAccessor = "duration_fullname_rests_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-fullname-rests-count', groupNames);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-duration-fullname-rests-count', groupNames);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -209,7 +209,7 @@ function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
 function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
     let statsAccessor = "duration_fullname_notes_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-duration-fullname-notes-count', groupNames);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-duration-fullname-notes-count', groupNames);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -225,7 +225,7 @@ function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
 function createKeyNameCountChart(analysisJson, groupNames) {
     let statsAccessor = "key_name_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-key-name', groupNames);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-key-name', groupNames);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -240,7 +240,7 @@ function createKeyNameCountChart(analysisJson, groupNames) {
 function createKeyModeCountChart(analysisJson, groupNames) {
     let statsAccessor = "key_mode_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-key-mode', groupNames);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-key-mode', groupNames);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -255,7 +255,7 @@ function createKeyModeCountChart(analysisJson, groupNames) {
 function createKeyProbabilityLineChart(analysisJson, groupNames) {
     //need: resultValues, musicPiecesResult, labels
     let worker;
-    let workerSourcePath = 'http://127.0.0.1:8000/static/js/key_probability_chart_worker.js';
+    let workerSourcePath = path_to_key_probability_worker;
     /*let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
         clist => clist.map(key => _.omit(key, 'group')));*/
     if (typeof(Worker) !== "undefined") {
@@ -315,7 +315,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
 function createChordNameCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_name_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-name', groupNames, true, "tooltip-div1");
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-name', groupNames, true, "tooltip-div1");
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -331,7 +331,7 @@ function createChordNameCountChart(analysisJson, groupNames) {
 function createChordRootCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_root_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-root', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-root', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -348,7 +348,7 @@ function createChordRootCountChart(analysisJson, groupNames) {
 function createPitchNameCountChart(analysisJson, groupNames) {
     let statsAccessor = "pitch_name_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-pitch-name', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-pitch-name', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -365,7 +365,7 @@ function createPitchNameCountChart(analysisJson, groupNames) {
 function createPitchOctaveCountChart(analysisJson, groupNames) {
     let statsAccessor = "pitch_octave_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-pitch-octave', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-pitch-octave', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -388,7 +388,7 @@ function sortRootCount(arr) {
 function createChordQualityCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_quality_count";
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-quality', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-quality', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -405,7 +405,7 @@ function createPitchNameWithOctaveCountChart(analysisJson, groupNames) {
     let statsAccessor = "pitch_name_with_octave_count";
 
     let worker;
-    worker = startWorker(worker, 'http://127.0.0.1:8000/static/js/chart_worker.js', '.ct-chart-pitch-octave-name', groupNames, true, 'tooltip-div2');
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-pitch-octave-name', groupNames, true, 'tooltip-div2');
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -430,7 +430,7 @@ function getGroupNames(analysisJson) {
 
 function drawBoxplots(analysisJson, groupNames) {
     let worker;
-    let workerSourcePath = 'http://127.0.0.1:8000/static/js/boxplot_worker.js';
+    let workerSourcePath = path_to_boxplot_worker;
     if (typeof(Worker) !== "undefined") {
         if (typeof(w) == "undefined") {
             worker = new Worker(workerSourcePath);
@@ -459,7 +459,7 @@ function drawBoxplots(analysisJson, groupNames) {
 
 function drawAmbitusRangeChart(analysisJson, groupNames) {
     let worker;
-    let workerSourcePath = 'http://127.0.0.1:8000/static/js/ambitus_chart_worker.js';
+    let workerSourcePath = path_to_ambitus_chart_worker;
     if (typeof(Worker) !== "undefined") {
         if (typeof(w) == "undefined") {
             worker = new Worker(workerSourcePath);
@@ -496,8 +496,6 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
     } else {
         displayNoWebworkerSupportMessage();
     }
-    let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(key => _.omit(key, 'group')));
 
     let message = {
         analysisJson: analysisJson,

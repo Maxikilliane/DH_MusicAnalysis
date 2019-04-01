@@ -20,6 +20,13 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
+    <script>
+    var path_to_chart_worker = "{% static "js/chart_worker.js" %}";
+    var path_to_boxplot_worker = "{% static "js/boxplot_worker.js" %}";
+    var path_to_key_probability_worker = "{% static "js/key_probability_chart_worker.js" %}";
+    var path_to_ambitus_chart_worker = "{% static "js/ambitus_chart_worker.js" %}"
+
+    </script>
 {% endblock %}
 
 {% block body_block %}
@@ -226,13 +233,13 @@
     </div>
 
     <div class="invisible">
-    <form id="start_distant_analysis_form" action="/MusicAnalyzer/distantAnalysis/"
-                      method="post"
-                      data-analysis-choice-url="/MusicAnalyzer/distantAnalysis/"
-                      class="uk-form-stacked">
-                    {% csrf_token %}
-                    <input type="text" name="state" value="{{ state }}">
+        <form id="start_distant_analysis_form" action="/MusicAnalyzer/distantAnalysis/"
+              method="post"
+              data-analysis-choice-url="/MusicAnalyzer/distantAnalysis/"
+              class="uk-form-stacked">
+            {% csrf_token %}
+            <input type="text" name="state" value="{{ state }}">
 
-                </form>
+        </form>
     </div>
 {% endblock %}
