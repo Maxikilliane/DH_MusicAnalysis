@@ -709,7 +709,7 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
         else:
             chords_qualities[chord.quality] = 1
 
-        chord_name_roman = m21.roman.romanNumeralFromChord(chord, key).figure
+        chord_name_roman = m21.roman.romanNumeralFromChord(chord, key).romanNumeral
         if chord_name_roman in chords_names:
             chords_names[chord_name_roman] += 1
         else:

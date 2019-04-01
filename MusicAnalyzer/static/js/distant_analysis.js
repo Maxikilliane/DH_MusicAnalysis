@@ -1,4 +1,4 @@
-let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration":4};
+let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration":4, "roman":5};
 Object.freeze(sortTypeEnum);
 
 $(document).ready(function () {
@@ -274,8 +274,10 @@ function createChordNameCountChart(analysisJson, groupNames) {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
         groupNames: groupNames,
-        isDeletedWhenLessThanThree: true,
-        isSortable: false,
+        isDeletedWhenLessThanThree: false
+        ,
+        isSortable: true,
+        sortType: sortTypeEnum.roman,
         seriesBarDistance: 10
     };
     worker.postMessage(message);

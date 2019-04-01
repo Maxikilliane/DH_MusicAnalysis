@@ -30,7 +30,7 @@ let signEnum = {
 };
 
 this.onmessage = function (e) {
-    let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4};
+    let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "roman":5};
 
 
     if (Object.freeze) {
@@ -56,6 +56,8 @@ this.onmessage = function (e) {
             uniqueKeys = sortNumber(uniqueKeys);
         } else if (input.sortType === sortTypeEnum.duration) {
             uniqueKeys = sortByDurationName(uniqueKeys, input.analysisJson, input.isForNotes );
+        } else if (input.sortType === sortTypeEnum.roman){
+            uniqueKeys = sortByRoman(uniqueKeys)
         }
     }
 
@@ -177,4 +179,15 @@ function sortByDurationName(arr, analysisJson, isForNotes) {
     return arr.sort(function (a, b) {
         return compareByNumber(sort_dict[a], sort_dict[b])
     });
+}
+
+function sortByRoman(arr){
+    let sortingArray = ["-I", "I", "#I", "-II", "II", "#II", "-III", "III", "#III", "-IV", "IV", "#IV", "-V", "V", "#V", "-VI", "VI", "#VI", "-VII", "VII", "#VII", "-i", "i", "#i", "-ii", "ii", "#ii", "-iii", "iii", "#iii", "-iv", "iv", "#iv", "-v", "v", "#v", "-vi", "vi", "#vi", "-vii", "vii", "#vii"];
+    for (let i = 0; i < arr.length; ++i){
+        if (sortingArray.indexOf(arr[i]) === -1){
+            sortingArray.push(arr[i]);
+        }
+    }
+    return sortingArray.map(key => arr.find(item => item === key))
+        .filter(item => item);
 }
