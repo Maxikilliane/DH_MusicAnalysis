@@ -66,8 +66,6 @@ this.onmessage = function (event) {
     message["resultValues"] = resultValues;
     message["musicPiecesResult"] = musicPiecesResult;
     message["labels"] = labels;
-    console.log("prob message");
-    console.log(message);
     this.postMessage(message);
     this.close();
 

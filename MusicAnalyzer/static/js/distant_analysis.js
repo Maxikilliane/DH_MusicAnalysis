@@ -88,64 +88,6 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
 
 }
 
-function startWorker(worker, workerSourcePath,
-                     chartSelector, groupNames,
-                     isLabelToDiv, labelToDiv,
-) {
-    if (typeof(Worker) !== "undefined") {
-        if (typeof(w) == "undefined") {
-            worker = new Worker(workerSourcePath);
-        }
-        worker.onmessage = function (e) {
-            let data = e.data.data;
-            let uniqueKeys = e.data.uniqueKeys;
-            let options = e.data.options;
-
-
-            const responsiveOptions = [
-                ['screen and (max-width: 640px)', {
-                    seriesBarDistance: 5,
-                    axisX: {
-                        labelInterpolationFnc: function (value) {
-                            return value[0];
-                        }
-                    }
-                }]
-            ];
-            let plugins = [];
-            if (isLabelToDiv) {
-
-                let someDiv = document.getElementById(labelToDiv);
-
-                plugins = [
-                    Chartist.plugins.legend({
-                        position: someDiv, legendNames: groupNames
-                    }),
-                    Chartist.plugins.tooltip({appendToBody: true})
-                ];
-            } else {
-                plugins = [
-                    Chartist.plugins.legend({
-                        legendNames: groupNames,
-                    }),
-                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-                ];
-
-            }
-            new Chartist.Bar(chartSelector, {
-                labels: uniqueKeys,
-                series: data,
-                options,
-                responsiveOptions
-            }, {
-                plugins: plugins
-            });
-        };
-        return worker;
-    } else {
-        displayNoWebworkerSupportMessage();
-    }
-}
 
 function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames) {
     let statsAccessor = "duration_length_in_quarters_rests_count";
@@ -157,7 +99,8 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.number,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -175,7 +118,8 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupN
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.number,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -191,7 +135,8 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.number,
         seriesBarDistance: 10,
     };
     worker.postMessage(message);
@@ -269,7 +214,6 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             worker = new Worker(workerSourcePath);
         }
         worker.onmessage = function (e) {
-            console.log("key prob message");
             let resultValues = e.data.resultValues;
             let musicPiecesResult = e.data.musicPiecesResult;
             let labels = e.data.labels;
@@ -521,4 +465,64 @@ function displayNoWebworkerSupportMessage(){
         pos: 'bottom-center',
         timeout: 5000
     });
+}
+
+
+function startWorker(worker, workerSourcePath,
+                     chartSelector, groupNames,
+                     isLabelToDiv, labelToDiv,
+) {
+    if (typeof(Worker) !== "undefined") {
+        if (typeof(w) == "undefined") {
+            worker = new Worker(workerSourcePath);
+        }
+        worker.onmessage = function (e) {
+            let data = e.data.data;
+            let uniqueKeys = e.data.uniqueKeys;
+            let options = e.data.options;
+
+
+            const responsiveOptions = [
+                ['screen and (max-width: 640px)', {
+                    seriesBarDistance: 5,
+                    axisX: {
+                        labelInterpolationFnc: function (value) {
+                            return value[0];
+                        }
+                    }
+                }]
+            ];
+            let plugins = [];
+            if (isLabelToDiv) {
+
+                let someDiv = document.getElementById(labelToDiv);
+
+                plugins = [
+                    Chartist.plugins.legend({
+                        position: someDiv, legendNames: groupNames
+                    }),
+                    Chartist.plugins.tooltip({appendToBody: true})
+                ];
+            } else {
+                plugins = [
+                    Chartist.plugins.legend({
+                        legendNames: groupNames,
+                    }),
+                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+                ];
+
+            }
+            new Chartist.Bar(chartSelector, {
+                labels: uniqueKeys,
+                series: data,
+                options,
+                responsiveOptions
+            }, {
+                plugins: plugins
+            });
+        };
+        return worker;
+    } else {
+        displayNoWebworkerSupportMessage();
+    }
 }
