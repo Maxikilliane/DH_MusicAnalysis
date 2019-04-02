@@ -24,7 +24,7 @@ $(document).ready(function () {
             UIkit.notification.closeAll();
             console.log("error");
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-             UIkit.notification({
+            UIkit.notification({
                 message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
                 status: 'warning',
                 pos: 'bottom-center',
@@ -132,7 +132,7 @@ function startWorker(worker, workerSourcePath,
                 ];
 
             }
-            new Chartist.Bar(chartSelector, {
+            let chart = new Chartist.Bar(chartSelector, {
                 labels: uniqueKeys,
                 series: data,
                 options,
@@ -140,7 +140,12 @@ function startWorker(worker, workerSourcePath,
             }, {
                 plugins: plugins
             });
+
+            chart.on('created', function (data) {
+                inlineCSStoSVG(chartSelector);
+            });
         };
+
         return worker;
     } else {
         displayNoWebworkerSupportMessage();
@@ -510,15 +515,38 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
     worker.postMessage(message);
 }
 
-function replace_whitespace_in_string(str, replaceWith){
+function replace_whitespace_in_string(str, replaceWith) {
     return str.replace(/\s/g, replaceWith);
 }
 
-function displayNoWebworkerSupportMessage(){
+function displayNoWebworkerSupportMessage() {
     UIkit.notification({
         message: 'Your browser does not support a feature which is necessary for this application. Please use a newer browser, like Chroome 4.0 or Firefox 3.5.',
         status: 'primary',
         pos: 'bottom-center',
         timeout: 5000
     });
+}
+
+//for downloading charts (taken from https://gist.github.com/cyrilmesvayn/981767e80ee6fa23fc5611697426ef8c)
+// slightly adjusted
+function inlineCSStoSVG(id) {
+    console.log("inline css to svg");
+    let nodes = document.querySelectorAll(id + " *");
+    for (var i = 0; i < nodes.length; ++i) {
+        var elemCSS = window.getComputedStyle(nodes[i], null);
+        nodes[i].removeAttribute('xmlns');
+        nodes[i].style.fill = elemCSS.fill;
+        nodes[i].style.fillOpacity = elemCSS.fillOpacity;
+        nodes[i].style.stroke = elemCSS.stroke;
+        nodes[i].style.strokeLinecap = elemCSS.strokeLinecap;
+        nodes[i].style.strokeDasharray = elemCSS.strokeDasharray;
+        nodes[i].style.strokeWidth = elemCSS.strokeWidth;
+        nodes[i].style.fontSize = elemCSS.fontSize;
+        nodes[i].style.fontFamily = elemCSS.fontFamily;
+        //Solution to embbed HTML in foreignObject https://stackoverflow.com/a/37124551
+        if (nodes[i].nodeName === "SPAN") {
+            nodes[i].setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+        }
+    }
 }
