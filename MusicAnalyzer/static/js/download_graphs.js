@@ -345,8 +345,10 @@
                     height: image.height
                 }));
                 image.onerror = () => {
+                    console.log(image);
+                    console.log(uri);
                     reject(`There was an error loading the data URI as an image on the following SVG\n${window.atob(uri.slice(26))}Open the following link to see browser's diagnosis\n${uri}`);
-                }
+                };
                 image.src = uri;
             })
         });
@@ -404,22 +406,7 @@ $(document).ready(function () {
 
 function addEventListenersToDownloadButtons() {
     let downloadButtons = $(".chart-container button");
-    //let parents = downloadButtons.parent();
-    //let svgs = parents.find("div[class^='ct-chart-'] svg");
     downloadButtons.click(function(){
-        console.log(this);
-        console.log($(this).parent().find("div[class^='ct-chart-'] svg"), "summary_stats.png");
         saveSvgAsPng($(this).parent().find("div[class^='ct-chart-'] svg")[0], "summary_stats.png");
     });
-    /*
-    for (let i = 0; i < downloadButtons.length; ++i) {
-        let downloadButton = downloadButtons[i];
-        //let chartContainer = downloadButton.parent();
-        let svg = chartContainer.find("div[class^='ct-chart-'] svg");
-
-        downloadButton.click(function () {
-            saveSvgAsPng(svg, "summary_stats.png");
-        });
-       console.log(downloadButton);
-    }*/
 }

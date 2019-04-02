@@ -223,18 +223,29 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             let labels = e.data.labels;
 
             for (let group in resultValues) {
-                let group_without_whitespace = replace_whitespace_in_string(group, "-");
+                let groupWithoutWhitespace = replace_whitespace_in_string(group, "-");
+                let chartSelector = 'ct-chart-key-probability-' + groupWithoutWhitespace;
                 if (group !== 'unique') {
                     let newDiv = document.createElement('div');
                     let newHeading = document.createElement('h4');
                     newHeading.className = 'uk-text-center';
                     newHeading.innerHTML = group;
-                    newDiv.className = 'ct-chart-key-probability-' + group_without_whitespace;
+                    newDiv.className = chartSelector;
+                    let newButton = document.createElement('button');
+                    newButton.textContent = "Download this chart";
+                    newButton.type = "button";
+                    newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                    newButton.addEventListener("click", function () {
+                        console.log("download started");
+                        console.log(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0]);
+                        saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "chartKeyProbability-"+groupWithoutWhitespace+".png");
+                    });
+                    let probabilityCharts = document.getElementById('probabilityCharts');
                     document.getElementById('probabilityCharts').appendChild(newHeading);
                     document.getElementById('probabilityCharts').appendChild(newDiv);
+                    document.getElementById('probabilityCharts').appendChild(newButton);
 
-
-                    new Chartist.Line('.ct-chart-key-probability-' + group_without_whitespace, {
+                    let chart = new Chartist.Line('.ct-chart-key-probability-' + groupWithoutWhitespace, {
                             labels: labels,
                             series: resultValues[group]
                         },
@@ -251,6 +262,9 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                             }
                         },
                     );
+                    chart.on('created', function (data) {
+                        inlineCSStoSVG(chartSelector);
+                    });
                 }
             }
         };
@@ -490,6 +504,12 @@ function inlineCSStoSVG(id) {
         nodes[i].style.strokeWidth = elemCSS.strokeWidth;
         nodes[i].style.fontSize = elemCSS.fontSize;
         nodes[i].style.fontFamily = elemCSS.fontFamily;
+        nodes[i].style.textAlign = elemCSS.textAlign;
+        nodes[i].style.justifyContent = elemCSS.justifyContent;
+        nodes[i].style.alignItems = elemCSS.alignItems;
+        nodes[i].style.textAnchor = elemCSS.textAnchor;
+        nodes[i].style.display = elemCSS.display;
+
         //Solution to embbed HTML in foreignObject https://stackoverflow.com/a/37124551
         if (nodes[i].nodeName === "SPAN") {
             nodes[i].setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
