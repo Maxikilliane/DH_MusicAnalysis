@@ -235,24 +235,25 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     newButton.textContent = "Download this chart";
                     newButton.type = "button";
                     newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
-                    newButton.addEventListener("click", function () {
-                        console.log("download started");
-                        console.log(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0]);
-                        saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "chartKeyProbability-"+groupWithoutWhitespace+".png");
-                    });
-                    let probabilityCharts = document.getElementById('probabilityCharts');
                     document.getElementById('probabilityCharts').appendChild(newHeading);
                     document.getElementById('probabilityCharts').appendChild(newDiv);
                     document.getElementById('probabilityCharts').appendChild(newButton);
 
+                    function SuppressForeignObjectPlugin(chart) {
+                        chart.supportsForeignObject = false;
+                    }
+
                     let chart = new Chartist.Line('.ct-chart-key-probability-' + groupWithoutWhitespace, {
-                            labels: labels,
+                            //labels: labels,
                             series: resultValues[group]
                         },
                         {
                             plugins: [
+                                SuppressForeignObjectPlugin,
                                 Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
-                                Chartist.plugins.tooltip({appendToBody: true})
+                                Chartist.plugins.tooltip({appendToBody: true}),
+
+
                             ]
                         },
                         {
@@ -264,7 +265,16 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     );
                     chart.on('created', function (data) {
                         inlineCSStoSVG(chartSelector);
+                        document.getElementById("probabilityCharts").getElementsByTagName("button")[0].addEventListener("click", function () {
+                            console.log("download started");
+                            console.log(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0]);
+                            /*svgAsPngUri(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], {}, function (uri) {
+                                console.log(uri);
+                            });*/
+                            saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "summarystats.png");
+                        });
                     });
+
                 }
             }
         };
@@ -491,7 +501,6 @@ function displayNoWebworkerSupportMessage() {
 //for downloading charts (taken from https://gist.github.com/cyrilmesvayn/981767e80ee6fa23fc5611697426ef8c)
 // slightly adjusted
 function inlineCSStoSVG(id) {
-    console.log("inline css to svg");
     let nodes = document.querySelectorAll(id + " *");
     for (var i = 0; i < nodes.length; ++i) {
         var elemCSS = window.getComputedStyle(nodes[i], null);

@@ -26,9 +26,9 @@
     };
     const requireDomNodePromise = el =>
         new Promise((resolve, reject) => {
-            if (isElement(el)) resolve(el)
+            if (isElement(el)) resolve(el);
             else reject(new Error(`an HTMLElement or SVGElement is required; got ${el}`));
-        })
+        });
     const isExternal = url => url && url.lastIndexOf('http', 0) === 0 && url.lastIndexOf(window.location.host) === -1;
 
     const getFontMimeTypeFromUrl = fontUrl => {
@@ -45,7 +45,7 @@
         const bytes = new Uint8Array(buffer);
         for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
         return window.btoa(binary);
-    }
+    };
 
     const getDimension = (el, clone, dim) => {
         const v =
@@ -333,7 +333,7 @@
             }
             if (typeof done === 'function') done(png, canvas.width, canvas.height);
             return Promise.resolve(png);
-        }
+        };
 
         if (canvg) return out$.prepareSvg(el, options).then(convertToPng);
         else return out$.svgAsDataUri(el, options).then(uri => {
