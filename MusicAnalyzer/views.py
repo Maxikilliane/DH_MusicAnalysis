@@ -149,7 +149,7 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        context_dict = {"explanations": texts.distant_hearing_explanations, "state":State.distant_hearing.value}
+        context_dict = {"explanations": texts.distant_hearing_explanations, "state": State.distant_hearing.value}
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
     def post(self, request):
@@ -172,7 +172,7 @@ def get_distant_hearing_analysis_results(request):
     overall_results["per_group_stats"] = summary_stats["group_sum_stats"]  # per_group_results_list
     overall_results["total_sum_stats"] = summary_stats["total_sum_stats"]
 
-    context_dict = {"metadata":stats["metadata"], "all_summary_stats": overall_results}
+    context_dict = {"metadata": stats["metadata"], "all_summary_stats": overall_results}
     return JsonResponse(context_dict)
 
 
@@ -237,11 +237,14 @@ def get_counters(relevant_groups):
 
 # sum the values with same keys
 def get_group_and_total_counts(per_piece_results_list, counter_dict):
+    duration_name_value_dict_notes = {}
+    duration_name_value_dict_rests = {}
     for d in per_piece_results_list:
         group = d.get("group", "")
+        counter_dict["total"]["duration_name_value_dict_notes"].update(d.get("name_value_dict_notes", {}))
+        counter_dict["total"]["duration_name_value_dict_rests"].update(d.get("name_value_dict_rests", {}))
 
         for key_info in d["key_information"]:
-
             if key_info["order"] == 1:
                 counter_dict[group]["key_mode_counter"].update({key_info["key_mode"]: 1})
                 counter_dict["total"]["key_mode_counter"].update({key_info["key_mode"]: 1})
@@ -321,7 +324,9 @@ def get_group_and_overall_summary_stats(counter_dict):
 
 def get_dict_of_all_necessary_counters():
     return {
-        "duration_total_notes_vs_rests_counter":collections.Counter(),
+        "duration_name_value_dict_notes": {},
+        "duration_name_value_dict_rests": {},
+        "duration_total_notes_vs_rests_counter": collections.Counter(),
         "duration_length_in_quarters_notes_counter": collections.Counter(),
         "duration_length_in_quarters_rests_counter": collections.Counter(),
         "duration_type_notes_counter": collections.Counter(),
@@ -543,6 +548,9 @@ def get_durations_for_distant_hearing(stream):
     duration_type_rests = {}
     duration_fullname_rests = {}
 
+    name_value_dict_notes = {}
+    name_value_dict_rests = {}
+
     duration_length_in_quarters_notes_and_rests_counter = collections.Counter()
 
     for note in stream.flat.notesAndRests:
@@ -551,6 +559,7 @@ def get_durations_for_distant_hearing(stream):
         length_in_quarters = str(duration.quarterLength)
         type = duration.type
         full_name = duration.fullName
+
         if is_note:
             if length_in_quarters in duration_length_in_quarters_notes:
                 duration_length_in_quarters_notes[length_in_quarters] += 1
@@ -566,6 +575,7 @@ def get_durations_for_distant_hearing(stream):
                 duration_fullname_notes[full_name] += 1
             else:
                 duration_fullname_notes[full_name] = 1
+                name_value_dict_notes[full_name] = length_in_quarters
         else:
             if length_in_quarters in duration_length_in_quarters_rests:
                 duration_length_in_quarters_rests[length_in_quarters] += 1
@@ -581,21 +591,24 @@ def get_durations_for_distant_hearing(stream):
                 duration_fullname_rests[full_name] += 1
             else:
                 duration_fullname_rests[full_name] = 1
+                name_value_dict_rests[full_name] = length_in_quarters
     sum_note_duration = 0
     sum_rest_duration = 0
     for key, value in duration_length_in_quarters_notes.items():
         key_value = convert_number_string_to_numeral(key)
-        sum_note_duration += key_value*value
+        sum_note_duration += key_value * value
 
     for key, value in duration_length_in_quarters_rests.items():
         key_value = convert_number_string_to_numeral(key)
-        sum_rest_duration += key_value*value
+        sum_rest_duration += key_value * value
 
-    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_notes)
-    duration_length_in_quarters_notes_and_rests_counter.update(duration_length_in_quarters_rests)
-    duration_length_in_quarters_notes_and_rests = dict(duration_length_in_quarters_notes_and_rests_counter)
+
+    duration_length_in_quarters_notes_and_rests = dict(
+        collections.Counter(duration_length_in_quarters_notes) + collections.Counter(duration_length_in_quarters_rests))
 
     return {
+        "name_value_dict_notes": name_value_dict_notes,
+        "name_value_dict_rests": name_value_dict_rests,
         "duration_length_in_quarters_notes_count": duration_length_in_quarters_notes,
         "duration_length_in_quarters_rests_count": duration_length_in_quarters_rests,
         "duration_type_notes_count": duration_type_notes,
@@ -603,7 +616,7 @@ def get_durations_for_distant_hearing(stream):
         "duration_fullname_notes_count": duration_fullname_notes,
         "duration_fullname_rests_count": duration_fullname_rests,
         "duration_length_in_quarters_notes_rests_count": duration_length_in_quarters_notes_and_rests,
-        "duration_total_notes_vs_rests_count": {"notes":sum_note_duration, "rests":sum_rest_duration}
+        "duration_total_notes_vs_rests_count": {"notes": sum_note_duration, "rests": sum_rest_duration}
     }
 
 
@@ -696,10 +709,11 @@ def get_chord_information(parsed_file, key, type_of_representation=constants.Cho
         else:
             chords_qualities[chord.quality] = 1
 
-        if chord.pitchedCommonName in chords_names:
-            chords_names[chord.pitchedCommonName] += 1
+        chord_name_roman = m21.roman.romanNumeralFromChord(chord, key).romanNumeral
+        if chord_name_roman in chords_names:
+            chords_names[chord_name_roman] += 1
         else:
-            chords_names[chord.pitchedCommonName] = 1
+            chords_names[chord_name_roman] = 1
         lyric_parts = get_chord_representation(chord, key, type_of_representation)
         for part in lyric_parts:
             chord.addLyric(part)
