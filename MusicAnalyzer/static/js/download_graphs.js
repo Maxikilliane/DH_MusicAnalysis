@@ -405,8 +405,9 @@ $(document).ready(function () {
 });
 
 function addEventListenersToDownloadButtons() {
-    let downloadButtons = $(".chart-container button");
+    let downloadButtons = $(".chart-container button.downloadButton");
     downloadButtons.click(function(){
+
         saveSvgAsPng($(this).parent().find("div[class^='ct-chart-'] svg")[0], "summary_stats.png");
     });
 }

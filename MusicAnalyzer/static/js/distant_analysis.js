@@ -221,7 +221,6 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             let resultValues = e.data.resultValues;
             let musicPiecesResult = e.data.musicPiecesResult;
             let labels = e.data.labels;
-
             for (let group in resultValues) {
                 let groupWithoutWhitespace = replace_whitespace_in_string(group, "-");
                 let chartSelector = 'ct-chart-key-probability-' + groupWithoutWhitespace;
@@ -235,6 +234,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     newButton.textContent = "Download this chart";
                     newButton.type = "button";
                     newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                    newButton.id = "button"+groupWithoutWhitespace;
                     document.getElementById('probabilityCharts').appendChild(newHeading);
                     document.getElementById('probabilityCharts').appendChild(newDiv);
                     document.getElementById('probabilityCharts').appendChild(newButton);
@@ -244,7 +244,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     }
 
                     let chart = new Chartist.Line('.ct-chart-key-probability-' + groupWithoutWhitespace, {
-                            //labels: labels,
+                            labels: labels,
                             series: resultValues[group]
                         },
                         {
@@ -264,13 +264,8 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                         },
                     );
                     chart.on('created', function (data) {
-                        inlineCSStoSVG(chartSelector);
-                        document.getElementById("probabilityCharts").getElementsByTagName("button")[0].addEventListener("click", function () {
-                            console.log("download started");
-                            console.log(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0]);
-                            /*svgAsPngUri(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], {}, function (uri) {
-                                console.log(uri);
-                            });*/
+                        inlineCSStoSVGForKey(chartSelector);
+                        document.getElementById("button"+groupWithoutWhitespace).addEventListener("click", function () {
                             saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "summarystats.png");
                         });
                     });
@@ -449,7 +444,6 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
             let configs = e.data.configs;
 
             // create divs for diagrams
-            let counter = 0;
             for (result in realResult) {
                 let newDiv = document.createElement('div');
 
@@ -501,7 +495,35 @@ function displayNoWebworkerSupportMessage() {
 //for downloading charts (taken from https://gist.github.com/cyrilmesvayn/981767e80ee6fa23fc5611697426ef8c)
 // slightly adjusted
 function inlineCSStoSVG(id) {
+    console.log(id);
     let nodes = document.querySelectorAll(id + " *");
+    for (var i = 0; i < nodes.length; ++i) {
+        var elemCSS = window.getComputedStyle(nodes[i], null);
+
+        nodes[i].removeAttribute('xmlns');
+        nodes[i].style.fill = elemCSS.fill;
+        nodes[i].style.fillOpacity = elemCSS.fillOpacity;
+        nodes[i].style.stroke = elemCSS.stroke;
+        nodes[i].style.strokeLinecap = elemCSS.strokeLinecap;
+        nodes[i].style.strokeDasharray = elemCSS.strokeDasharray;
+        nodes[i].style.strokeWidth = elemCSS.strokeWidth;
+        nodes[i].style.fontSize = elemCSS.fontSize;
+        nodes[i].style.fontFamily = elemCSS.fontFamily;
+        nodes[i].style.textAlign = elemCSS.textAlign;
+        nodes[i].style.justifyContent = elemCSS.justifyContent;
+        nodes[i].style.alignItems = elemCSS.alignItems;
+        nodes[i].style.textAnchor = elemCSS.textAnchor;
+        nodes[i].style.display = elemCSS.display;
+
+        //Solution to embbed HTML in foreignObject https://stackoverflow.com/a/37124551
+        if (nodes[i].nodeName === "SPAN") {
+            nodes[i].setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+        }
+    }
+}
+
+function inlineCSStoSVGForKey(id) {
+    let nodes = document.querySelectorAll("." + id + " *");
     for (var i = 0; i < nodes.length; ++i) {
         var elemCSS = window.getComputedStyle(nodes[i], null);
         nodes[i].removeAttribute('xmlns');
