@@ -1,4 +1,4 @@
-let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3};
+let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration":4, "roman":5};
 Object.freeze(sortTypeEnum);
 
 $(document).ready(function () {
@@ -88,69 +88,6 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
 
 }
 
-function startWorker(worker, workerSourcePath,
-                     chartSelector, groupNames,
-                     isLabelToDiv, labelToDiv,
-) {
-    if (typeof(Worker) !== "undefined") {
-        if (typeof(w) == "undefined") {
-            worker = new Worker(workerSourcePath);
-        }
-        worker.onmessage = function (e) {
-            let data = e.data.data;
-            let uniqueKeys = e.data.uniqueKeys;
-            let options = e.data.options;
-
-
-            const responsiveOptions = [
-                ['screen and (max-width: 640px)', {
-                    seriesBarDistance: 5,
-                    axisX: {
-                        labelInterpolationFnc: function (value) {
-                            return value[0];
-                        }
-                    }
-                }]
-            ];
-            let plugins = [];
-            if (isLabelToDiv) {
-
-                let someDiv = document.getElementById(labelToDiv);
-
-                plugins = [
-                    Chartist.plugins.legend({
-                        position: someDiv, legendNames: groupNames
-                    }),
-                    Chartist.plugins.tooltip({appendToBody: true})
-                ];
-            } else {
-                plugins = [
-                    Chartist.plugins.legend({
-                        legendNames: groupNames,
-                    }),
-                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
-                ];
-
-            }
-            let chart = new Chartist.Bar(chartSelector, {
-                labels: uniqueKeys,
-                series: data,
-                options,
-                responsiveOptions
-            }, {
-                plugins: plugins
-            });
-
-            chart.on('created', function (data) {
-                inlineCSStoSVG(chartSelector);
-            });
-        };
-
-        return worker;
-    } else {
-        displayNoWebworkerSupportMessage();
-    }
-}
 
 function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames) {
     let statsAccessor = "duration_length_in_quarters_rests_count";
@@ -162,7 +99,8 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.number,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -180,7 +118,8 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupN
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.number,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -196,7 +135,8 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames)
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.number,
         seriesBarDistance: 10,
     };
     worker.postMessage(message);
@@ -211,7 +151,9 @@ function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.duration,
+        isForNotes: false,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -226,7 +168,9 @@ function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
         statsAccessor: statsAccessor,
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
-        isSortable: false,
+        isSortable: true,
+        sortType: sortTypeEnum.duration,
+        isForNotes: true,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -274,7 +218,6 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             worker = new Worker(workerSourcePath);
         }
         worker.onmessage = function (e) {
-            console.log("key prob message");
             let resultValues = e.data.resultValues;
             let musicPiecesResult = e.data.musicPiecesResult;
             let labels = e.data.labels;
@@ -331,8 +274,10 @@ function createChordNameCountChart(analysisJson, groupNames) {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
         groupNames: groupNames,
-        isDeletedWhenLessThanThree: true,
-        isSortable: false,
+        isDeletedWhenLessThanThree: false
+        ,
+        isSortable: true,
+        sortType: sortTypeEnum.roman,
         seriesBarDistance: 10
     };
     worker.postMessage(message);
@@ -528,6 +473,7 @@ function displayNoWebworkerSupportMessage() {
     });
 }
 
+
 //for downloading charts (taken from https://gist.github.com/cyrilmesvayn/981767e80ee6fa23fc5611697426ef8c)
 // slightly adjusted
 function inlineCSStoSVG(id) {
@@ -548,5 +494,65 @@ function inlineCSStoSVG(id) {
         if (nodes[i].nodeName === "SPAN") {
             nodes[i].setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
         }
+    }
+}
+
+function startWorker(worker, workerSourcePath,
+                     chartSelector, groupNames,
+                     isLabelToDiv, labelToDiv
+) {
+    if (typeof(Worker) !== "undefined") {
+        if (typeof(w) == "undefined") {
+            worker = new Worker(workerSourcePath);
+        }
+        worker.onmessage = function (e) {
+            let data = e.data.data;
+            let uniqueKeys = e.data.uniqueKeys;
+            let options = e.data.options;
+
+
+            const responsiveOptions = [
+                ['screen and (max-width: 640px)', {
+                    seriesBarDistance: 5,
+                    axisX: {
+                        labelInterpolationFnc: function (value) {
+                            return value[0];
+                        }
+                    }
+                }]
+            ];
+            let plugins = [];
+            if (isLabelToDiv) {
+
+                let someDiv = document.getElementById(labelToDiv);
+
+                plugins = [
+                    Chartist.plugins.legend({
+                        position: someDiv, legendNames: groupNames
+                    }),
+                    Chartist.plugins.tooltip({appendToBody: true})
+                ];
+            } else {
+                plugins = [
+                    Chartist.plugins.legend({
+                        legendNames: groupNames,
+                    }),
+                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+                ];
+
+            }
+            new Chartist.Bar(chartSelector, {
+                labels: uniqueKeys,
+                series: data,
+                options,
+                responsiveOptions
+            }, {
+                plugins: plugins
+            });
+        };
+        return worker;
+    } else {
+        displayNoWebworkerSupportMessage();
+
     }
 }
