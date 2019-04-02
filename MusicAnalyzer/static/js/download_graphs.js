@@ -390,3 +390,36 @@
             .then(uri => out$.download(name, uri));
     };
 })();
+
+
+/*
+* from here own code
+ */
+
+$(document).ready(function () {
+    console.log("doc ready");
+    addEventListenersToDownloadButtons();
+
+});
+
+function addEventListenersToDownloadButtons() {
+    let downloadButtons = $(".chart-container button");
+    //let parents = downloadButtons.parent();
+    //let svgs = parents.find("div[class^='ct-chart-'] svg");
+    downloadButtons.click(function(){
+        console.log(this);
+        console.log($(this).parent().find("div[class^='ct-chart-'] svg"), "summary_stats.png");
+        saveSvgAsPng($(this).parent().find("div[class^='ct-chart-'] svg")[0], "summary_stats.png");
+    });
+    /*
+    for (let i = 0; i < downloadButtons.length; ++i) {
+        let downloadButton = downloadButtons[i];
+        //let chartContainer = downloadButton.parent();
+        let svg = chartContainer.find("div[class^='ct-chart-'] svg");
+
+        downloadButton.click(function () {
+            saveSvgAsPng(svg, "summary_stats.png");
+        });
+       console.log(downloadButton);
+    }*/
+}
