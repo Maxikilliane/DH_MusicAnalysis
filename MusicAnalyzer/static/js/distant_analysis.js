@@ -1,4 +1,4 @@
-let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration":4, "roman":5};
+let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "roman": 5};
 Object.freeze(sortTypeEnum);
 
 $(document).ready(function () {
@@ -541,13 +541,17 @@ function startWorker(worker, workerSourcePath,
                 ];
 
             }
-            new Chartist.Bar(chartSelector, {
+            let chart = new Chartist.Bar(chartSelector, {
                 labels: uniqueKeys,
                 series: data,
                 options,
                 responsiveOptions
             }, {
                 plugins: plugins
+            });
+
+            chart.on('created', function (data) {
+                inlineCSStoSVG(chartSelector);
             });
         };
         return worker;
