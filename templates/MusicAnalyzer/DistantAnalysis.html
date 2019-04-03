@@ -17,7 +17,7 @@
     <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
-
+    <script src="{% static "js/html2canvas.min.js" %}"></script>
     <script src="{% static "js/download_graphs.js" %}"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
@@ -150,6 +150,8 @@
             </div>
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
             </button>
 
         </div>

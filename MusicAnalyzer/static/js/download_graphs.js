@@ -405,9 +405,31 @@ $(document).ready(function () {
 });
 
 function addEventListenersToDownloadButtons() {
-    let downloadButtons = $(".chart-container button.downloadButton");
-    downloadButtons.click(function(){
-
-        saveSvgAsPng($(this).parent().find("div[class^='ct-chart-'] svg")[0], "summary_stats.png");
+    let downloadChartButtons = $(".chart-container button.downloadButton");
+    downloadChartButtons.click(function () {
+        let fileName = $(this).parent().find("div[class^='ct-chart-']").attr('class');
+        saveSvgAsPng($(this).parent().find("div[class^='ct-chart-'] svg")[0], fileName+".png");
     });
+
+    let downloadLegendButtons = $(".chart-container button.downloadLegendButton");
+    downloadLegendButtons.click(function () {
+        let fileName = $(this).parent().find("div[class^='ct-chart-']").attr('class');
+        let element = $(this).parent().find(".ct-legend")[0]; // global variable
+
+        html2canvas(element).then(function (canvas) {
+            let imageData = canvas.toDataURL("image/png");
+            let downloadLink = document.createElement('a');
+            downloadLink.setAttribute('href', imageData);
+            downloadLink.setAttribute('download', "legend-"+fileName+".png");
+            downloadLink.id = "clickMeNow";
+            downloadLink.style.display = "none";
+            document.body.appendChild(downloadLink);
+            document.getElementById("clickMeNow").click();
+            document.body.removeChild(downloadLink);
+        });
+
+    });
+
 }
+
+
