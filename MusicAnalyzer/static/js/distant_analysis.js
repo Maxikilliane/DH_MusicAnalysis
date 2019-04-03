@@ -235,9 +235,15 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     newButton.type = "button";
                     newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
                     newButton.id = "button" + groupWithoutWhitespace;
+                    let newLegendButton = document.createElement('button');
+                    newLegendButton.textContent = "Download legend";
+                    newLegendButton.type = "button";
+                    newLegendButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                    newLegendButton.id = "button_legend_" + groupWithoutWhitespace;
                     document.getElementById('probabilityCharts').appendChild(newHeading);
                     document.getElementById('probabilityCharts').appendChild(newDiv);
                     document.getElementById('probabilityCharts').appendChild(newButton);
+                    document.getElementById('probabilityCharts').appendChild(newLegendButton);
 
                     function SuppressForeignObjectPlugin(chart) {
                         chart.supportsForeignObject = false;
@@ -266,7 +272,24 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     chart.on('created', function (data) {
                         inlineCSStoSVGForKey(chartSelector);
                         document.getElementById("button" + groupWithoutWhitespace).addEventListener("click", function () {
-                            saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "summarystats.png");
+                            saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "key-probability-" + groupWithoutWhitespace + ".png");
+                        });
+                        document.getElementById("button_legend_" + groupWithoutWhitespace).addEventListener("click", function () {
+                            let fileName = $(this).parent().find("div[class^='ct-chart-']").attr('class');
+                            let element = $(this).parent().find(".ct-legend")[0]; // global variable
+
+                            html2canvas(element).then(function (canvas) {
+                                let imageData = canvas.toDataURL("image/png");
+                                let downloadLink = document.createElement('a');
+                                downloadLink.setAttribute('href', imageData);
+                                downloadLink.setAttribute('download', "legend-" + fileName + ".png");
+                                downloadLink.id = "clickMeNow";
+                                downloadLink.style.display = "none";
+                                document.body.appendChild(downloadLink);
+                                document.getElementById("clickMeNow").click();
+                                document.body.removeChild(downloadLink);
+                            });
+
                         });
                     });
 
