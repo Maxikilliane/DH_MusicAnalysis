@@ -412,12 +412,27 @@ function drawBoxplots(analysisJson, groupNames) {
         }
         worker.onmessage = function (e) {
             let myConfig = e.data.myConfig;
-            zingchart.render({
-                id: 'boxplots',
+            let newDivId = 'boxplots';
+            let chart = zingchart.render({
+                id: newDivId,
                 data: myConfig,
                 height: "100%",
                 width: "100%"
             });
+            let buttonId = "button_" + newDivId;
+            let newButton = document.createElement('button');
+            newButton.textContent = "Download this chart";
+            newButton.type = "button";
+            newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+            newButton.id = buttonId;
+            document.getElementById(newDivId).parentElement.appendChild(newButton);
+            document.getElementById(buttonId).addEventListener("click", function () {
+                saveSvgAsPng(document.getElementById(newDivId + "-svg"), newDivId + ".png");
+            });
+            zingchart.bind(newDivId, 'load', function () {
+                document.getElementById("boxplots-top").style.position = "relative";
+            });
+
 
         };
     } else {
@@ -445,17 +460,9 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
 
             // create divs for diagrams
             for (result in realResult) {
-                let newDivId = 'ct-chart-ambitus-range-' + result;
                 let newDiv = document.createElement('div');
-                /*let newButton = document.createElement('button');
-                newButton.textContent = "Download this chart";
-                newButton.type = "button";
-                newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
-                newButton.id = "button" + newDivId;*/
-                newDiv.id = newDivId;
-                //newDiv.appendChild(newButton);
+                newDiv.id = 'ct-chart-ambitus-range-' + result;
                 document.getElementById('rangeCharts').appendChild(newDiv);
-
             }
 
             //configs.splice(-1, 1);
@@ -476,7 +483,7 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
                     newButton.id = buttonId;
                     document.getElementById(newDivId).insertAdjacentElement("afterend", newButton);
                     document.getElementById(buttonId).addEventListener("click", function () {
-                        saveSvgAsPng(document.getElementById(newDivId+"-svg"), newDivId+".png");
+                        saveSvgAsPng(document.getElementById(newDivId + "-svg"), newDivId + ".png");
                     });
 
                 }
