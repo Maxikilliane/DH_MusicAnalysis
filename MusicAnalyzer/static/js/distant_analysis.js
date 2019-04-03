@@ -234,7 +234,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     newButton.textContent = "Download this chart";
                     newButton.type = "button";
                     newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
-                    newButton.id = "button"+groupWithoutWhitespace;
+                    newButton.id = "button" + groupWithoutWhitespace;
                     document.getElementById('probabilityCharts').appendChild(newHeading);
                     document.getElementById('probabilityCharts').appendChild(newDiv);
                     document.getElementById('probabilityCharts').appendChild(newButton);
@@ -265,7 +265,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     );
                     chart.on('created', function (data) {
                         inlineCSStoSVGForKey(chartSelector);
-                        document.getElementById("button"+groupWithoutWhitespace).addEventListener("click", function () {
+                        document.getElementById("button" + groupWithoutWhitespace).addEventListener("click", function () {
                             saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "summarystats.png");
                         });
                     });
@@ -445,11 +445,16 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
 
             // create divs for diagrams
             for (result in realResult) {
+                let newDivId = 'ct-chart-ambitus-range-' + result;
                 let newDiv = document.createElement('div');
-
-                newDiv.id = 'ct-chart-ambitus-range-' + result;
+                /*let newButton = document.createElement('button');
+                newButton.textContent = "Download this chart";
+                newButton.type = "button";
+                newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                newButton.id = "button" + newDivId;*/
+                newDiv.id = newDivId;
+                //newDiv.appendChild(newButton);
                 document.getElementById('rangeCharts').appendChild(newDiv);
-
 
             }
 
@@ -462,6 +467,18 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
                         id: 'ct-chart-ambitus-range-' + config,
                         data: configs[config]
                     });
+                    let newDivId = 'ct-chart-ambitus-range-' + config;
+                    let buttonId = "button_" + newDivId;
+                    let newButton = document.createElement('button');
+                    newButton.textContent = "Download this chart";
+                    newButton.type = "button";
+                    newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                    newButton.id = buttonId;
+                    document.getElementById(newDivId).insertAdjacentElement("afterend", newButton);
+                    document.getElementById(buttonId).addEventListener("click", function () {
+                        saveSvgAsPng(document.getElementById(newDivId+"-svg"), newDivId+".png");
+                    });
+
                 }
             }
 
@@ -495,7 +512,6 @@ function displayNoWebworkerSupportMessage() {
 //for downloading charts (taken from https://gist.github.com/cyrilmesvayn/981767e80ee6fa23fc5611697426ef8c)
 // slightly adjusted
 function inlineCSStoSVG(id) {
-    console.log(id);
     let nodes = document.querySelectorAll(id + " *");
     for (var i = 0; i < nodes.length; ++i) {
         var elemCSS = window.getComputedStyle(nodes[i], null);
