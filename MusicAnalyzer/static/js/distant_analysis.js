@@ -311,7 +311,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
 function createChordNameCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_name_count";
     let worker;
-    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-name', groupNames, true, "tooltip-div1");
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-chord-name', groupNames, true, "tooltip-div1");
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -329,7 +329,7 @@ function createChordNameCountChart(analysisJson, groupNames) {
 function createChordRootCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_root_count";
     let worker;
-    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-root', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-chord-root', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -386,7 +386,7 @@ function sortRootCount(arr) {
 function createChordQualityCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_quality_count";
     let worker;
-    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-quality', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-chord-quality', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -484,7 +484,7 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
             // create divs for diagrams
             for (result in realResult) {
                 let newDiv = document.createElement('div');
-                newDiv.id = 'ct-chart-ambitus-range-' + result;
+                newDiv.id = 'ct-chart-ambitus-range-' + groupNames[result];
                 document.getElementById('rangeCharts').appendChild(newDiv);
             }
 
@@ -493,11 +493,13 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
 
             for (config in configs) {
                 if (config !== "unique") {
+
+                    let newDivId = 'ct-chart-ambitus-range-' + groupNames[config];
                     zingchart.render({
-                        id: 'ct-chart-ambitus-range-' + config,
+                        id: newDivId,
                         data: configs[config]
                     });
-                    let newDivId = 'ct-chart-ambitus-range-' + config;
+
                     let buttonId = "button_" + newDivId;
                     let newButton = document.createElement('button');
                     newButton.textContent = "Download this chart";
