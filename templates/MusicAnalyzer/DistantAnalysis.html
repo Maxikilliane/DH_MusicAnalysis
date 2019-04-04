@@ -10,21 +10,24 @@
     {# fontawesome for icons #}
     <link rel="stylesheet" type="text/css" href="{% static "/css/distantAnalysis.css" %}"/>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="{% static "js/SVG2Bitmap.min.js" %}"></script>
     <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-legend@0.6.2/chartist-plugin-legend.min.js"></script>
     <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
     <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
+    <script src="{% static "js/html2canvas.min.js" %}"></script>
+    <script src="{% static "js/download_graphs.js" %}"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{% static 'js/distant_analysis.js' %}"></script>
     <script>
-    var path_to_chart_worker = "{% static "js/chart_worker.js" %}";
-    var path_to_boxplot_worker = "{% static "js/boxplot_worker.js" %}";
-    var path_to_key_probability_worker = "{% static "js/key_probability_chart_worker.js" %}";
-    var path_to_ambitus_chart_worker = "{% static "js/ambitus_chart_worker.js" %}"
+        var path_to_chart_worker = "{% static "js/chart_worker.js" %}";
+        var path_to_boxplot_worker = "{% static "js/boxplot_worker.js" %}";
+        var path_to_key_probability_worker = "{% static "js/key_probability_chart_worker.js" %}";
+        var path_to_ambitus_chart_worker = "{% static "js/ambitus_chart_worker.js" %}"
 
     </script>
 {% endblock %}
@@ -142,16 +145,36 @@
             <h3 class="uk-text-center">Roman numeral chord count</h3>
             <div id="tooltip-div1"></div>
             <div class="uk-width-1-1" id="chordChartName">
-                <div class="ct-chart-name"></div>
+                <div class="ct-chart-chord-name"></div>
+
             </div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
+            </button>
+
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Chord root count</h3>
-            <div class="ct-chart-root"></div>
+            <div class="ct-chart-chord-root"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Chord quality count</h3>
-            <div class="ct-chart-quality"></div>
+            <div class="ct-chart-chord-quality"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
+            </button>
         </div>
     </div>
     <hr class="uk-divider-icon">
@@ -160,10 +183,22 @@
         <div class="chart-container">
             <h3 class="uk-text-center">Pitch name count</h3>
             <div class="ct-chart-pitch-name"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Pitch octave count</h3>
             <div class="ct-chart-pitch-octave"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
+            </button>
         </div>
 
         <div class="chart-container">
@@ -171,6 +206,11 @@
             <div id="tooltip-div2"></div>
             <div class="uk-width-1-1" id="pitchOctaveName">
                 <div class="ct-chart-pitch-octave-name"></div>
+                <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                    chart
+                </button>
+                <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
             </div>
         </div>
 
@@ -181,26 +221,56 @@
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of notes - count by name</h3>
             <div class="ct-chart-duration-fullname-notes-count"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of rests - count by name</h3>
             <div class="ct-chart-duration-fullname-rests-count"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of notes - count by value [length in quarters]</h3>
             <div class="ct-chart-duration-length-notes-count"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of rests - count by value [length in quarters]</h3>
             <div class="ct-chart-duration-length-rests-count"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of rests and notes - count by value [length in quarters]</h3>
             <div class="ct-chart-duration-length-notes-rests-count"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Sound to silence ratio</h3>
             <div class="ct-chart-sound_silence_ratio"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
     </div>
 
@@ -210,14 +280,25 @@
         <div class="chart-container">
             <h3 class="uk-text-center">Key name count</h3>
             <div class="ct-chart-key-name"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
         <div class="chart-container">
             <h3 class="uk-text-center">Key mode count</h3>
             <div class="ct-chart-key-mode"></div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            </button>
         </div>
         <div class="chart-container" id="probabilityCharts">
             <h3 class="uk-text-center">Key probabilities per music piece and group</h3>
         </div>
+
     </div>
     <hr class="uk-divider-icon">
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">

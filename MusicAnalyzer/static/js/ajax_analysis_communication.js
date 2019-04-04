@@ -2,7 +2,6 @@ $(document).ready(function () {
     console.log("doc ready");
 
     triggerUpload();
-    //triggerUpload();
 });
 
 function start_analysis(event) {

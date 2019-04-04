@@ -1,4 +1,4 @@
-let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration":4, "roman":5};
+let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "roman": 5};
 Object.freeze(sortTypeEnum);
 
 $(document).ready(function () {
@@ -24,7 +24,7 @@ $(document).ready(function () {
             UIkit.notification.closeAll();
             console.log("error");
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-             UIkit.notification({
+            UIkit.notification({
                 message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
                 status: 'warning',
                 pos: 'bottom-center',
@@ -221,27 +221,45 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
             let resultValues = e.data.resultValues;
             let musicPiecesResult = e.data.musicPiecesResult;
             let labels = e.data.labels;
-
             for (let group in resultValues) {
-                let group_without_whitespace = replace_whitespace_in_string(group, "-");
+                let groupWithoutWhitespace = replace_whitespace_in_string(group, "-");
+                let chartSelector = 'ct-chart-key-probability-' + groupWithoutWhitespace;
                 if (group !== 'unique') {
                     let newDiv = document.createElement('div');
                     let newHeading = document.createElement('h4');
                     newHeading.className = 'uk-text-center';
                     newHeading.innerHTML = group;
-                    newDiv.className = 'ct-chart-key-probability-' + group_without_whitespace;
+                    newDiv.className = chartSelector;
+                    let newButton = document.createElement('button');
+                    newButton.textContent = "Download this chart";
+                    newButton.type = "button";
+                    newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                    newButton.id = "button" + groupWithoutWhitespace;
+                    let newLegendButton = document.createElement('button');
+                    newLegendButton.textContent = "Download legend";
+                    newLegendButton.type = "button";
+                    newLegendButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                    newLegendButton.id = "button_legend_" + groupWithoutWhitespace;
                     document.getElementById('probabilityCharts').appendChild(newHeading);
                     document.getElementById('probabilityCharts').appendChild(newDiv);
+                    document.getElementById('probabilityCharts').appendChild(newButton);
+                    document.getElementById('probabilityCharts').appendChild(newLegendButton);
 
+                    function SuppressForeignObjectPlugin(chart) {
+                        chart.supportsForeignObject = false;
+                    }
 
-                    new Chartist.Line('.ct-chart-key-probability-' + group_without_whitespace, {
+                    let chart = new Chartist.Line('.ct-chart-key-probability-' + groupWithoutWhitespace, {
                             labels: labels,
                             series: resultValues[group]
                         },
                         {
                             plugins: [
+                                SuppressForeignObjectPlugin,
                                 Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
-                                Chartist.plugins.tooltip({appendToBody: true})
+                                Chartist.plugins.tooltip({appendToBody: true}),
+
+
                             ]
                         },
                         {
@@ -251,6 +269,30 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                             }
                         },
                     );
+                    chart.on('created', function (data) {
+                        inlineCSStoSVGForKey(chartSelector);
+                        document.getElementById("button" + groupWithoutWhitespace).addEventListener("click", function () {
+                            saveSvgAsPng(document.getElementsByClassName(chartSelector)[0].getElementsByTagName("svg")[0], "key-probability-" + groupWithoutWhitespace + ".png");
+                        });
+                        document.getElementById("button_legend_" + groupWithoutWhitespace).addEventListener("click", function () {
+                            let fileName = $(this).parent().find("div[class^='ct-chart-']").attr('class');
+                            let element = $(this).parent().find(".ct-legend")[0]; // global variable
+
+                            html2canvas(element).then(function (canvas) {
+                                let imageData = canvas.toDataURL("image/png");
+                                let downloadLink = document.createElement('a');
+                                downloadLink.setAttribute('href', imageData);
+                                downloadLink.setAttribute('download', "legend-" + fileName + ".png");
+                                downloadLink.id = "clickMeNow";
+                                downloadLink.style.display = "none";
+                                document.body.appendChild(downloadLink);
+                                document.getElementById("clickMeNow").click();
+                                document.body.removeChild(downloadLink);
+                            });
+
+                        });
+                    });
+
                 }
             }
         };
@@ -269,7 +311,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
 function createChordNameCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_name_count";
     let worker;
-    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-name', groupNames, true, "tooltip-div1");
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-chord-name', groupNames, true, "tooltip-div1");
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -287,7 +329,7 @@ function createChordNameCountChart(analysisJson, groupNames) {
 function createChordRootCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_root_count";
     let worker;
-    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-root', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-chord-root', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -344,7 +386,7 @@ function sortRootCount(arr) {
 function createChordQualityCountChart(analysisJson, groupNames) {
     let statsAccessor = "chord_quality_count";
     let worker;
-    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-quality', groupNames, false);
+    worker = startWorker(worker, path_to_chart_worker, '.ct-chart-chord-quality', groupNames, false);
     let message = {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
@@ -393,12 +435,27 @@ function drawBoxplots(analysisJson, groupNames) {
         }
         worker.onmessage = function (e) {
             let myConfig = e.data.myConfig;
-            zingchart.render({
-                id: 'boxplots',
+            let newDivId = 'boxplots';
+            let chart = zingchart.render({
+                id: newDivId,
                 data: myConfig,
                 height: "100%",
                 width: "100%"
             });
+            let buttonId = "button_" + newDivId;
+            let newButton = document.createElement('button');
+            newButton.textContent = "Download this chart";
+            newButton.type = "button";
+            newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+            newButton.id = buttonId;
+            document.getElementById(newDivId).parentElement.appendChild(newButton);
+            document.getElementById(buttonId).addEventListener("click", function () {
+                saveSvgAsPng(document.getElementById(newDivId + "-svg"), newDivId + ".png");
+            });
+            zingchart.bind(newDivId, 'load', function () {
+                document.getElementById("boxplots-top").style.position = "relative";
+            });
+
 
         };
     } else {
@@ -425,14 +482,10 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
             let configs = e.data.configs;
 
             // create divs for diagrams
-            let counter = 0;
             for (result in realResult) {
                 let newDiv = document.createElement('div');
-
-                newDiv.id = 'ct-chart-ambitus-range-' + result;
+                newDiv.id = 'ct-chart-ambitus-range-' + groupNames[result];
                 document.getElementById('rangeCharts').appendChild(newDiv);
-
-
             }
 
             //configs.splice(-1, 1);
@@ -440,10 +493,24 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
 
             for (config in configs) {
                 if (config !== "unique") {
+
+                    let newDivId = 'ct-chart-ambitus-range-' + groupNames[config];
                     zingchart.render({
-                        id: 'ct-chart-ambitus-range-' + config,
+                        id: newDivId,
                         data: configs[config]
                     });
+
+                    let buttonId = "button_" + newDivId;
+                    let newButton = document.createElement('button');
+                    newButton.textContent = "Download this chart";
+                    newButton.type = "button";
+                    newButton.classList.add("uk-button", "uk-button-default", "uk-align-center");
+                    newButton.id = buttonId;
+                    document.getElementById(newDivId).insertAdjacentElement("afterend", newButton);
+                    document.getElementById(buttonId).addEventListener("click", function () {
+                        saveSvgAsPng(document.getElementById(newDivId + "-svg"), newDivId + ".png");
+                    });
+
                 }
             }
 
@@ -460,11 +527,11 @@ function drawAmbitusRangeChart(analysisJson, groupNames) {
     worker.postMessage(message);
 }
 
-function replace_whitespace_in_string(str, replaceWith){
+function replace_whitespace_in_string(str, replaceWith) {
     return str.replace(/\s/g, replaceWith);
 }
 
-function displayNoWebworkerSupportMessage(){
+function displayNoWebworkerSupportMessage() {
     UIkit.notification({
         message: 'Your browser does not support a feature which is necessary for this application. Please use a newer browser, like Chroome 4.0 or Firefox 3.5.',
         status: 'primary',
@@ -473,6 +540,61 @@ function displayNoWebworkerSupportMessage(){
     });
 }
 
+
+//for downloading charts (taken from https://gist.github.com/cyrilmesvayn/981767e80ee6fa23fc5611697426ef8c)
+// slightly adjusted
+function inlineCSStoSVG(id) {
+    let nodes = document.querySelectorAll(id + " *");
+    for (var i = 0; i < nodes.length; ++i) {
+        var elemCSS = window.getComputedStyle(nodes[i], null);
+
+        nodes[i].removeAttribute('xmlns');
+        nodes[i].style.fill = elemCSS.fill;
+        nodes[i].style.fillOpacity = elemCSS.fillOpacity;
+        nodes[i].style.stroke = elemCSS.stroke;
+        nodes[i].style.strokeLinecap = elemCSS.strokeLinecap;
+        nodes[i].style.strokeDasharray = elemCSS.strokeDasharray;
+        nodes[i].style.strokeWidth = elemCSS.strokeWidth;
+        nodes[i].style.fontSize = elemCSS.fontSize;
+        nodes[i].style.fontFamily = elemCSS.fontFamily;
+        nodes[i].style.textAlign = elemCSS.textAlign;
+        nodes[i].style.justifyContent = elemCSS.justifyContent;
+        nodes[i].style.alignItems = elemCSS.alignItems;
+        nodes[i].style.textAnchor = elemCSS.textAnchor;
+        nodes[i].style.display = elemCSS.display;
+
+        //Solution to embbed HTML in foreignObject https://stackoverflow.com/a/37124551
+        if (nodes[i].nodeName === "SPAN") {
+            nodes[i].setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+        }
+    }
+}
+
+function inlineCSStoSVGForKey(id) {
+    let nodes = document.querySelectorAll("." + id + " *");
+    for (var i = 0; i < nodes.length; ++i) {
+        var elemCSS = window.getComputedStyle(nodes[i], null);
+        nodes[i].removeAttribute('xmlns');
+        nodes[i].style.fill = elemCSS.fill;
+        nodes[i].style.fillOpacity = elemCSS.fillOpacity;
+        nodes[i].style.stroke = elemCSS.stroke;
+        nodes[i].style.strokeLinecap = elemCSS.strokeLinecap;
+        nodes[i].style.strokeDasharray = elemCSS.strokeDasharray;
+        nodes[i].style.strokeWidth = elemCSS.strokeWidth;
+        nodes[i].style.fontSize = elemCSS.fontSize;
+        nodes[i].style.fontFamily = elemCSS.fontFamily;
+        nodes[i].style.textAlign = elemCSS.textAlign;
+        nodes[i].style.justifyContent = elemCSS.justifyContent;
+        nodes[i].style.alignItems = elemCSS.alignItems;
+        nodes[i].style.textAnchor = elemCSS.textAnchor;
+        nodes[i].style.display = elemCSS.display;
+
+        //Solution to embbed HTML in foreignObject https://stackoverflow.com/a/37124551
+        if (nodes[i].nodeName === "SPAN") {
+            nodes[i].setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+        }
+    }
+}
 
 function startWorker(worker, workerSourcePath,
                      chartSelector, groupNames,
@@ -518,7 +640,7 @@ function startWorker(worker, workerSourcePath,
                 ];
 
             }
-            new Chartist.Bar(chartSelector, {
+            let chart = new Chartist.Bar(chartSelector, {
                 labels: uniqueKeys,
                 series: data,
                 options,
@@ -526,9 +648,14 @@ function startWorker(worker, workerSourcePath,
             }, {
                 plugins: plugins
             });
+
+            chart.on('created', function (data) {
+                inlineCSStoSVG(chartSelector);
+            });
         };
         return worker;
     } else {
         displayNoWebworkerSupportMessage();
+
     }
 }
