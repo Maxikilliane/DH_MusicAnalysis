@@ -2,10 +2,6 @@ body {
     margin-top: 5em;
 }
 
-h2 {
-    margin-bottom: 1em;
-}
-
 .uk-navbar-right > li > a {
     color: black;
     padding-right: 1em;
@@ -25,6 +21,11 @@ h2 {
     -webkit-column-count: 1;
     -moz-column-count: 1;
     column-count: 1;
+}
+
+.analysisAspect {
+    background-color: rgba(156, 232, 252, 0.6);
+    padding:1em;
 }
 
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {

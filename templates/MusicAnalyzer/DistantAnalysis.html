@@ -32,8 +32,8 @@
 {% endblock %}
 {% block bread_crumb_block %}
 
-        <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
-        <li><span>Distant Hearing Analysis</span></li>
+    <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
+    <li><span>Distant Hearing Analysis</span></li>
 {% endblock %}
 {% block right_nav_block %}
     <li><a href="#overview">Overview</a></li>
@@ -127,8 +127,10 @@
 
     <hr class="uk-divider-icon">
 
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
+    <div class="analysisAspect">
         <h2 class="uk-text-center">Chords</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
         <div class="chart-container" id="chartChordNames">
             <h3 class="uk-text-center">Roman numeral chord count</h3>
             <div id="tooltip-div1"></div>
@@ -166,8 +168,10 @@
         </div>
     </div>
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="pitches">
+    <div class="analysisAspect">
         <h2 class="uk-text-center">Pitches</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="pitches">
         <div class="chart-container">
             <h3 class="uk-text-center">Pitch name count</h3>
             <div class="ct-chart-pitch-name"></div>
@@ -205,8 +209,10 @@
 
     </div>
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="durations">
+    <div class="analysisAspect">
         <h2 class="uk-text-center">Durations</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="durations">
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of notes - count by name</h3>
             <div class="ct-chart-duration-fullname-notes-count"></div>
@@ -270,8 +276,11 @@
     </div>
 
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="key">
+
+    <div class="analysisAspect">
         <h2 class="uk-text-center">Key</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="key">
         <div class="chart-container">
             <h3 class="uk-text-center">Key name count</h3>
             <div class="ct-chart-key-name"></div>
@@ -298,8 +307,10 @@
 
     </div>
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">
+    <div class="analysisAspect">
         <h2 class="uk-text-center">Ambitus</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">
         <div class="chart-container" id="rangeCharts">
             <h3 class="uk-text-center">Range between highest and lowest pitch by group</h3>
             <p class="uk-text-center">Please hover over the bars to view more detailed information.</p>
