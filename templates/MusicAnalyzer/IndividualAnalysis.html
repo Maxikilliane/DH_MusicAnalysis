@@ -5,7 +5,7 @@
 {% block head_block %}
     {# JQUERY FILE UPLOAD SCRIPTS #}
     <script src="{% static 'js/opensheetmusicdisplay.min.js' %}"></script>
-   <script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
+    <script src="{% static 'js/file_select_and_load_osmd.js' %}"></script>
     {# fontawesome for icons #}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -14,11 +14,14 @@
     <script src="{% static 'js/ui_kit_styling.js' %}"></script>
     <script src="{% static 'js/ajax_analysis_communication.js' %}"></script>
 {% endblock %}
-{% block body_block %}
-    <ul class="uk-breadcrumb">
-        <li><a href="{% url 'MusicAnalyzer:individual_choice' %}">Individual Choice</a></li>
+{% block bread_crumb_block %}
+
+    <li><a href="{% url 'MusicAnalyzer:individual_choice' %}">Individual Choice</a></li>
         <li><span>Individual Analysis</span></li>
-    </ul>
+
+{% endblock %}
+{% block body_block %}
+
 
     <div id="zoomBox" uk-sticky="bottom: #offset">
         <div class="uk-position-right inZoomBox">
@@ -48,7 +51,7 @@
                     </div>
 
                     {% if key_form %}
-                        <div class="question uk-text-center"  id="keyDependent">
+                        <div class="question uk-text-center" id="keyDependent">
                             {% for field in key_form.visible_fields %}
                                 {{ field.errors }}
                                 <h4 id="keyHeading">{{ field.label }}</h4>
