@@ -3,9 +3,71 @@
  see: https://simpleisbetterthancomplex.com/tutorial/2016/11/22/django-multiple-file-upload-using-ajax.html
  */
 
+
+// show the previously uploaded files in the table
+$(document).ready(function () {
+    Dropzone.options.fileUploadForm = {
+        init: function () {
+            console.log("test");
+            this.on("success", function (file, responseText) {
+                // Handle the responseText here. For example, add the text to the preview element:
+                console.log(responseText);
+
+                console.log(file);
+                // Handle the responseText here. For example, add the text to the preview element:
+                console.log("wuhu response text");
+                let data = responseText;
+                console.log(data);
+                if (data.is_valid) {
+                    let results = [];
+                    let meta = data.result;
+                    results.push(meta);
+                    let typeOfSelection = adjustToContextAndFileSource(results, data.context, "upload");
+                    addResultsToTable(results, typeOfSelection, "upload");
+                } else {
+                    UIkit.notification({
+                        message: data.error_message,
+                        status: 'warning',
+                        pos: 'bottom-center',
+                        timeout: 2000
+                    });
+                }
+                console.log("success!")
+            });
+            this.on("error", function (response) {
+                console.log("error");
+            });
+            this.on("complete", function () {
+                console.log("complete");
+            });
+            this.on("processing", function () {
+                console.log("processing");
+            });
+            this.on("canceled", function () {
+                console.log("canceled");
+            });
+            this.on("drop", function () {
+                console.log("dropped");
+            })
+        },
+        accept: function (file, done) {
+            console.log("accepted");
+        }
+    };
+    console.log("opotios set up");
+    console.log(Dropzone.options.fileUploadForm);
+
+
+    let json = JSON.parse(document.getElementById('already_uploaded').textContent);
+    if (json.results.length > 0) {
+        let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "upload");
+        addResultsToTable(json.results, typeOfSelection, "upload");
+    }
+    appendClickListeners();
+});
+
 $(function () {
     UIkit.upload('.js-upload', {
-
         url: '',
         multiple: true,
 
@@ -31,33 +93,43 @@ $(function () {
             }
         },
     });
+
+    // "myAwesomeDropzone" is the camelized version of the HTML element's ID
+
     /* open file explorer window*/
-    $(".upload_files").click(function () {
-        $("#fileupload").click();
-    });
+    /*
+        $(".upload_files").click(function () {
+            $("#fileupload").click();
+        });
 
-    /* init file upload component */
+        /* init file upload component */
     let bar = document.getElementById('js-progressbar');
-
-    $("#fileupload").fileupload({
-        dataType: 'json',
-        success: function (data) {  /* process server response */
-            if (data.is_valid) {
-                let results = [];
-                let meta = data.result;
-                results.push(meta);
-                let typeOfSelection = adjustToContextAndFileSource(results, data.context, "upload");
-                addResultsToTable(results, typeOfSelection, "upload");
-            } else {
-                UIkit.notification({
-                    message: data.error_message,
-                    status: 'warning',
-                    pos: 'bottom-center',
-                    timeout: 2000
-                });
+    /*
+        $("#fileupload").fileupload({
+            dataType: 'json',
+            success: function (data) {  /* process server response */
+    /*
+                if (data.is_valid) {
+                    let results = [];
+                    let meta = data.result;
+                    results.push(meta);
+                    let typeOfSelection = adjustToContextAndFileSource(results, data.context, "upload");
+                    addResultsToTable(results, typeOfSelection, "upload");
+                } else {
+                    UIkit.notification({
+                        message: data.error_message,
+                        status: 'warning',
+                        pos: 'bottom-center',
+                        timeout: 2000
+                    });
+                }
+            },
+            error: function (xhr, errmsg, err) {
+                UIkit.notification.closeAll();
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
             }
-        }
-    });
+        });
+    */
 });
 
 
@@ -148,22 +220,12 @@ function appendClickListeners() {
     }
 }
 
-// show the previously uploaded files in the table
-$(document).ready(function () {
-    let json = JSON.parse(document.getElementById('already_uploaded').textContent);
-    if (json.results.length > 0) {
-        let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "upload");
-        addResultsToTable(json.results, typeOfSelection, "upload");
-    }
-    appendClickListeners();
-});
 
-$('html').bind('keypress', function(e) {
-   if(e.keyCode === 13)
-   {
-      addGroup(e);
-      return false;
-   }
+$('html').bind('keypress', function (e) {
+    if (e.keyCode === 13) {
+        addGroup(e);
+        return false;
+    }
 });
 
 // adjust all the checkboxes to be in the same state (checked/unchecked) as the one in the table header

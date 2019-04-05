@@ -62,6 +62,8 @@ class Choice(View):
     # handle data getting back from view
     def post(self, request, context):
         self.state = request.POST.get("state", "")
+        print(self.state)
+        print(request.POST)
         if self.state == constants.STATE_SEARCH_CORPUS:
             if request.is_ajax():
                 return search_corpus(request, context)
@@ -109,6 +111,7 @@ class Choice(View):
                 print("ajax")
                 return add_group(request)
         else:
+            print("uploading files")
             return upload_files(self, request, context)
 
 

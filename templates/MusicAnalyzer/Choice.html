@@ -6,6 +6,7 @@
     <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'js/dropzone.js' %}"></script>
     {# fontawesome for icons #}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -28,25 +29,29 @@
     </div>
     <div class="uk-child-width-expand@s" uk-grid>
         <div class="uk-container">
-            <h3 class="uk-text-center">Select your own file <span class="uk-icon-button" uk-icon="question"
-                                                                  uk-tooltip="title: Valid file formats are: <br> ABC (.abc), Capella (.cap), ClercqTemperley, Humdrum (.krn), MEI (.mei), Midi (.midi), MuseData (.md), MusicXML (.musicxml/.mxl), Noteworthy (.nwc), NoteworthyBinary, RomanText (.rtf), Scala (.scl), TinyNotation and Volpiano.;">
-
-            </span></h3>
+            <h3 class="uk-text-center">Select your own file
+                <span class="uk-icon-button" uk-icon="question"
+                      uk-tooltip="title: Valid file formats are: <br> ABC (.abc), Capella (.cap), ClercqTemperley, Humdrum (.krn), MEI (.mei), Midi (.midi), MuseData (.md), MusicXML (.musicxml/.mxl), Noteworthy (.nwc), NoteworthyBinary, RomanText (.rtf), Scala (.scl), TinyNotation and Volpiano.;">
+                </span>
+            </h3>
 
             <div class="js-upload uk-placeholder uk-text-center upload_files_new">
                 <span uk-icon="icon: cloud-upload"></span>
-                <span class="uk-text-middle">Drop your file here to upload or</span>
-                <div uk-form-custom>
-                    <input id="fileupload" type="file" name="files"
-                            {% if type == "distant" %}
-                           multiple
-                           data-url="{% url 'MusicAnalyzer:distant_choice' %}"
-                            {% elif type == "individual" %}
-                           data-url="{% url 'MusicAnalyzer:individual_choice' %}"
-                            {% endif %}
-                           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
-                    <span class="uk-link upload_files">select from computer</span>
-                </div>
+                <!--<span class="uk-text-middle">Drop your file here to upload or</span>-->
+                <form id="file-upload-form" class="dropzone dz-clickable"
+                        {% if type == "distant" %}
+                    action="{% url 'MusicAnalyzer:distant_choice' %}"
+                {% elif type == "individual" %}
+                    action="{% url 'MusicAnalyzer:individual_choice' %}"
+                {% endif %}
+                 >
+                {% csrf_token %}
+                <div class="dz-default dz-message"><span>Drop your file here to upload or</span></div>
+                <span class="uk-link upload_files">select from computer</span>
+                <div id="previews" style="display:none;"></div>
+                </form>
+
+
             </div>
             <progress id="js-progressbar" class="uk-progress" value="0" max="100" hidden></progress>
 
@@ -83,7 +88,8 @@
 
     {% if type == "distant" %}
         <div class="uk-text-center space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="defineGroups">
-            <h3>Define groups <span class="uk-icon-button" uk-icon="question" uk-tooltip="title:The groups by which you want to perform the distant hearing. E.g. Mozart, Beethoven, Schumann,...">
+            <h3>Define groups <span class="uk-icon-button" uk-icon="question"
+                                    uk-tooltip="title:The groups by which you want to perform the distant hearing. E.g. Mozart, Beethoven, Schumann,...">
 
             </span></h3>
             <div id="inputMask">

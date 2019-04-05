@@ -118,38 +118,48 @@ def and_without_empty(result_list):
 
 
 def upload_files(self, request, context):
+    print("uploading")
     file_form = self.file_form_class(request.POST, request.FILES)
-
-    files = request.FILES.getlist('files')
-
+    print(file_form)
+    print(request.FILES)
+    print(request.POST)
+    file = request.FILES.get("file")
     if file_form.is_valid():
-        for f in files:
-            path = os.path.join(MEDIA_ROOT, request.session.session_key)
-            temp_path = os.path.join(path, os.path.join("temp", f.name))
-            final_path = os.path.join(path, f.name)
-            default_storage.save(temp_path, f)
-            if is_file_already_uploaded(path, temp_path):
-                os.remove(temp_path)
-                context_dict = {"is_valid": False, "error_message": "This file has already been uploaded"}
-                return JsonResponse(context_dict)
-            else:
-                default_storage.save(final_path, f)
-                try:
-                    data = get_metadata_from_uploaded_files(context, final_path, True)
-                except ConverterFileException:
-                    data = {"is_valid": False,
-                            "error_message": "This file format cannot be parsed. Please try a different one."}
+        print("is valid")
 
-                    os.remove(final_path)
+        path = os.path.join(MEDIA_ROOT, request.session.session_key)
+        temp_path = os.path.join(path, os.path.join("temp", file.name))
+        final_path = os.path.join(path, file.name)
+        default_storage.save(temp_path, file)
+        print(temp_path)
+        if is_file_already_uploaded(path, temp_path):
+            print("is already uploaded")
+            os.remove(temp_path)
+            context_dict = {"is_valid": False, "error_message": "This file has already been uploaded"}
+            print(context_dict)
+            return JsonResponse(context_dict)
+        else:
+            default_storage.save(final_path, file)
+            try:
+                data = get_metadata_from_uploaded_files(context, final_path, True)
+            except ConverterFileException:
+                data = {"is_valid": False,
+                        "error_message": "This file format cannot be parsed. Please try a different one."}
 
-                except ValueError:
-                    data = {"is_valid": False,
-                            "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
-                    os.remove(final_path)
-                return JsonResponse(data)
+                os.remove(final_path)
+
+            except ValueError:
+                data = {"is_valid": False,
+                        "error_message": "Something went wrong with the file upload. Perhaps your file is broken."}
+                os.remove(final_path)
+            print(data)
+            data = {'status': 'success'}
+            return JsonResponse(data)
+
     else:
-        self.context_dict.update({"message": "Form is not valid.", "file_form": file_form})
+        self.context_dict.update({"error_message": "Form is not valid.", "file_form": file_form})
         data = {'is_valid': False}
+        print(data)
         return JsonResponse(data)
 
 
