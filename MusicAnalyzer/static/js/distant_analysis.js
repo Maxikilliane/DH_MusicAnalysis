@@ -2,7 +2,6 @@ let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "
 Object.freeze(sortTypeEnum);
 
 $(document).ready(function () {
-    console.log("doc ready");
     UIkit.notification({
         message: 'processing analysis',
         status: 'primary',
@@ -22,14 +21,17 @@ $(document).ready(function () {
         },
         error: function (xhr, errmsg, err) {
             UIkit.notification.closeAll();
-            console.log("error");
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-            UIkit.notification({
-                message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
-                status: 'warning',
-                pos: 'bottom-center',
-                timeout: 10000 // basically endless time, gets closed on success or error
-            });
+            if (xhr.status == 0) {
+
+            } else if (xhr.status >= 500 || xhr.status < 600) {
+               UIkit.notification({
+                    message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
+                    status: 'warning',
+                    pos: 'bottom-center',
+                    timeout: 10000
+                });
+            }
         }
     });
 });
