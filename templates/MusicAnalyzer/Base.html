@@ -23,10 +23,11 @@
         <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
             <nav class="uk-navbar-container uk-navbar-default" id="stickyNav" uk-navbar>
                 <div class="uk-navbar-left">
-                    <ul class="uk-breadcrumb">
-                        <li><a href="{% url 'MusicAnalyzer:index' %}"><img style="padding-bottom: 2em;"
+                <li class="uk-breadcrumb"><a href="{% url 'MusicAnalyzer:index' %}"><img style="padding-bottom: 2em;"
                                                                            src="{% static "/images/logo.png" %}"
                                                                            alt="logo"></a></li>
+                    <ul class="uk-breadcrumb">
+
                         {% block bread_crumb_block %}
                         {% endblock %}
                     </ul>
