@@ -383,7 +383,7 @@ class IndividualAnalysis(View):
         self.context_dict.update(
             {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form,
              "key_form": key_form})
-        # return render(request, "MusicAnalyzer/Results.html", self.context_dict)
+        self.context_dict.pop('ambitus_display', None)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
