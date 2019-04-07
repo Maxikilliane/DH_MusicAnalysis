@@ -81,6 +81,8 @@ this.onmessage = function (e) {
     message["data"] = data;
     message["uniqueKeys"] = uniqueKeys;
     message["options"] = options;
+    message["yAxisTitle"] = "testY";
+    message["xAxisTitle"] = "testX";
     this.postMessage(message);
     this.close();
 };

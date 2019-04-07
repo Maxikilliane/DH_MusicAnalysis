@@ -608,6 +608,8 @@ function startWorker(worker, workerSourcePath,
             let data = e.data.data;
             let uniqueKeys = e.data.uniqueKeys;
             let options = e.data.options;
+            let xAxisTitle = e.data.xAxisTitle;
+            let yAxisTitle = e.data.yAxisTitle;
 
 
             const responsiveOptions = [
@@ -633,10 +635,31 @@ function startWorker(worker, workerSourcePath,
                 ];
             } else {
                 plugins = [
+                    Chartist.plugins.ctAxisTitle({
+                        axisX: {
+                            axisTitle: xAxisTitle,
+                            axisClass: 'ct-axis-title',
+                            offset: {
+                                x: -10,
+                                y: 30
+                            },
+                            textAnchor: 'middle'
+                        },
+                        axisY: {
+                            axisTitle: yAxisTitle,
+                            axisClass: 'ct-axis-title',
+                            offset: {
+                                x: 0,
+                                y: -10
+                            },
+                            textAnchor: 'middle',
+                            flipTitle: false,
+                        }
+                    }),
                     Chartist.plugins.legend({
                         legendNames: groupNames,
                     }),
-                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true}),
                 ];
 
             }
