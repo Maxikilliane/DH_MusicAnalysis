@@ -4,10 +4,17 @@
  */
 
 $(function () {
+     var bar = document.getElementById('js-progressbar');
+
     UIkit.upload('.js-upload', {
 
         url: '',
         multiple: true,
+        allow: "*.musicxml",
+        method: "POST",
+        beforeSend: function(e) {
+            e.headers = {'X-CSRFTOKEN': Cookies.get("csrftoken")}
+        },
 
         loadStart: function (e) {
             bar.removeAttribute('hidden');
@@ -23,41 +30,35 @@ $(function () {
         loadEnd: function (e) {
             bar.max = e.total;
             bar.value = e.loaded;
-            if (e.total && e.loaded) {
-                setTimeout(function () {
-                    bar.setAttribute('hidden', 'hidden');
-                }, 1000);
-
-            }
         },
-    });
-    /* open file explorer window*/
-    $(".upload_files").click(function () {
-        $("#fileupload").click();
-    });
 
-    /* init file upload component */
-    let bar = document.getElementById('js-progressbar');
+        completeAll: function (e) {
+            console.log(e);
 
-    $("#fileupload").fileupload({
-        dataType: 'json',
-        success: function (data) {  /* process server response */
+            data =  JSON.parse(e.response);
+
             if (data.is_valid) {
-                let results = [];
-                let meta = data.result;
-                results.push(meta);
-                let typeOfSelection = adjustToContextAndFileSource(results, data.context, "upload");
-                addResultsToTable(results, typeOfSelection, "upload");
-            } else {
-                UIkit.notification({
-                    message: data.error_message,
-                    status: 'warning',
-                    pos: 'bottom-center',
-                    timeout: 2000
-                });
-            }
+                     let results = [];
+                     let meta = data.result;
+                     results.push(meta);
+                     let typeOfSelection = adjustToContextAndFileSource(results, data.context, "upload");
+                     addResultsToTable(results, typeOfSelection, "upload");
+                 } else {
+                     UIkit.notification({
+                         message: data.error_message,
+                         status: 'warning',
+                         pos: 'bottom-center',
+                         timeout: 2000
+                     });
+                 }
+
+            setTimeout(function () {
+                bar.setAttribute('hidden', 'hidden');
+            }, 1000);
         }
+
     });
+
 });
 
 
