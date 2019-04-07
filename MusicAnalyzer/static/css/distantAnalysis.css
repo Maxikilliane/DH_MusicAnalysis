@@ -2,10 +2,6 @@ body {
     margin-top: 5em;
 }
 
-h2 {
-    margin-bottom: 1em;
-}
-
 .uk-navbar-right > li > a {
     color: black;
     padding-right: 1em;
@@ -16,7 +12,7 @@ h2 {
 }
 
 #stickyNav {
-    background-color: rgba(187, 222, 251, 0.5)
+    background-color: rgba(187, 222, 251)
 }
 
 .chart-container {
@@ -25,6 +21,11 @@ h2 {
     -webkit-column-count: 1;
     -moz-column-count: 1;
     column-count: 1;
+}
+
+.analysisAspect {
+    background-color: #DCF0F5;
+    padding:1em;
 }
 
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
@@ -141,9 +142,6 @@ h2 {
     overflow: scroll;
 }
 
-#masterNav {
-    display: none;
-}
 
 #boxplots {
     width: -webkit-fill-available;

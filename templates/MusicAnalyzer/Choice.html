@@ -14,7 +14,13 @@
     <script src="{% static 'js/handle_file_choice.js' %}"></script>
 
 {% endblock %}
-
+{% block bread_crumb_block %}
+    {% if type == "distant" %}
+        <li><span> / Distant Hearing Choice</span></li>
+    {% elif type == "individual" %}
+        <li><span>/ Individual Choice</span></li>
+    {% endif %}
+{% endblock %}
 {% block body_block %}
     <h2 class="uk-text-center">{{ heading }}</h2>
     {{ message }}

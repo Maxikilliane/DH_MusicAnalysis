@@ -642,7 +642,7 @@ def get_key_for_distant_hearing(parsed_file):
 
 
 def get_pitches_for_distant_hearing(stream):
-    octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'pitchClass'))
+    octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'octave'))
     pitch_name_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'name'))
     pitch_name_octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'nameWithOctave'))
     # keep this a dictionary and not a list of numbers
