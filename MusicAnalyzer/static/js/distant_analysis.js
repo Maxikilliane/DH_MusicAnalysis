@@ -25,7 +25,7 @@ $(document).ready(function () {
             if (xhr.status == 0) {
 
             } else if (xhr.status >= 500 || xhr.status < 600) {
-               UIkit.notification({
+                UIkit.notification({
                     message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
                     status: 'warning',
                     pos: 'bottom-center',
@@ -277,8 +277,27 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                                 SuppressForeignObjectPlugin,
                                 Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
                                 Chartist.plugins.tooltip({appendToBody: true}),
-
-
+                                Chartist.plugins.ctAxisTitle({
+                                    axisX: {
+                                        axisTitle: "order of probability of key",
+                                        axisClass: 'ct-x-axis-title',
+                                        offset: {
+                                            x: 0,
+                                            y: 30
+                                        },
+                                        textAnchor: 'middle'
+                                    },
+                                    axisY: {
+                                        axisTitle: "correlation coefficient",
+                                        axisClass: 'ct-y-axis-title',
+                                        offset: {
+                                            x: 0,
+                                            y: -15
+                                        },
+                                        textAnchor: 'middle',
+                                        flipTitle: false,
+                                    }
+                                }),
                             ]
                         },
                         {
@@ -667,7 +686,7 @@ function startWorker(worker, workerSourcePath,
                 plugins = [
                     Chartist.plugins.ctAxisTitle({
                         axisX: {
-                            axisTitle: xAxisTitle+" ",
+                            axisTitle: xAxisTitle + " ",
                             axisClass: 'ct-x-axis-title',
                             offset: {
                                 x: 0,
