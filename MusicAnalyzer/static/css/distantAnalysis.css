@@ -11,6 +11,10 @@ body {
     padding-bottom: 2em;
 }
 
+.ct-y-axis-title{
+    font-size: xx-small;
+}
+
 #stickyNav {
     background-color: rgba(187, 222, 251)
 }

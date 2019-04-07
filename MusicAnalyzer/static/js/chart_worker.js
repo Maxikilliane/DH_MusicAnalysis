@@ -31,20 +31,18 @@ let signEnum = {
 
 this.onmessage = function (e) {
     let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "roman":5};
-
-
     if (Object.freeze) {
         Object.freeze(sortTypeEnum);
         Object.freeze(rootEnum);
         Object.freeze(signEnum);
     }
-
     let input = e.data;
     let newGroup = getRelevantSummaryStatsForChart(input.analysisJson, input.statsAccessor, input.isDeletedWhenLessThanThree);
     // is dict of only the summary stats currently relevant for the chart as dict
-
     let uniqueKeys = getUniqueKeys(input.analysisJson, input.statsAccessor);
     // is list of keys relevant to the summary stats (like the individual chords names etc)
+    let xAxisTitle = input.xAxisTitle;
+    let yAxisTitle = input.yAxisTitle;
 
     if (input.isSortable) {
 
@@ -60,7 +58,6 @@ this.onmessage = function (e) {
             uniqueKeys = sortByRoman(uniqueKeys)
         }
     }
-
     let data = getMatchingVals(newGroup, uniqueKeys, input.groupNames);
 
     for (let i = 0; i < data.length; i++) {
@@ -81,8 +78,8 @@ this.onmessage = function (e) {
     message["data"] = data;
     message["uniqueKeys"] = uniqueKeys;
     message["options"] = options;
-    message["yAxisTitle"] = "testY";
-    message["xAxisTitle"] = "testX";
+    message["yAxisTitle"] = yAxisTitle;
+    message["xAxisTitle"] = xAxisTitle;
     this.postMessage(message);
     this.close();
 };

@@ -85,6 +85,8 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: false,
         isSortable: false,
         seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: "duration in quarter\n notes/rests"
     };
     worker.postMessage(message);
 
@@ -103,7 +105,9 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames)
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.number,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "duration in quarter rests",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -122,7 +126,9 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupN
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.number,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "duration in quarter notes/rests",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -140,6 +146,9 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames)
         isSortable: true,
         sortType: sortTypeEnum.number,
         seriesBarDistance: 10,
+        xAxisTitle: "duration in quarter notes",
+        yAxisTitle: ""
+
     };
     worker.postMessage(message);
 }
@@ -156,7 +165,9 @@ function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
         isSortable: true,
         sortType: sortTypeEnum.duration,
         isForNotes: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -173,7 +184,9 @@ function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
         isSortable: true,
         sortType: sortTypeEnum.duration,
         isForNotes: true,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -189,7 +202,9 @@ function createKeyNameCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -204,7 +219,9 @@ function createKeyModeCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -318,11 +335,12 @@ function createChordNameCountChart(analysisJson, groupNames) {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
         groupNames: groupNames,
-        isDeletedWhenLessThanThree: false
-        ,
+        isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.roman,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -339,7 +357,9 @@ function createChordRootCountChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: true,
         isSortable: true,
         sortType: sortTypeEnum.root,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -356,7 +376,9 @@ function createPitchNameCountChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.root,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -372,7 +394,9 @@ function createPitchOctaveCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -395,7 +419,9 @@ function createChordQualityCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -413,7 +439,9 @@ function createPitchNameWithOctaveCountChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.rootAndOctave,
-        seriesBarDistance: 100
+        seriesBarDistance: 100,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -639,20 +667,20 @@ function startWorker(worker, workerSourcePath,
                 plugins = [
                     Chartist.plugins.ctAxisTitle({
                         axisX: {
-                            axisTitle: xAxisTitle,
-                            axisClass: 'ct-axis-title',
+                            axisTitle: xAxisTitle+" ",
+                            axisClass: 'ct-x-axis-title',
                             offset: {
-                                x: -10,
+                                x: 0,
                                 y: 30
                             },
                             textAnchor: 'middle'
                         },
                         axisY: {
                             axisTitle: yAxisTitle,
-                            axisClass: 'ct-axis-title',
+                            axisClass: 'ct-y-axis-title',
                             offset: {
                                 x: 0,
-                                y: -10
+                                y: -20
                             },
                             textAnchor: 'middle',
                             flipTitle: false,
