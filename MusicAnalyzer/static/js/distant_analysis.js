@@ -16,7 +16,7 @@ $(document).ready(function () {
         type: "POST",
         dataType: 'json',
         success: function (json) {
-            var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+            let data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
             document.getElementById("download_json_button").href="data:"+data;
             distantAnalysis(json.all_summary_stats);
             addMetadata(json.metadata);
