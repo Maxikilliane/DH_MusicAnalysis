@@ -22,7 +22,6 @@ function displayMusic(containerId, fileId) {
 
 
 function triggerUpload() {
-    console.log("uploading file");
     let initialZoom = 0.6;
     let canvas = document.getElementById("osmdCanvas");
     let localFile = document.getElementById("musicPiece").value;

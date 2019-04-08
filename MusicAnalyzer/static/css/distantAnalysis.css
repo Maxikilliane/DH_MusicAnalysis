@@ -2,9 +2,7 @@ body {
     margin-top: 5em;
 }
 
-h2 {
-    margin-bottom: 1em;
-}
+
 
 .uk-navbar-right > li > a {
     color: black;
@@ -16,7 +14,7 @@ h2 {
 }
 
 #stickyNav {
-    background-color: rgba(187, 222, 251, 0.5)
+    background-color: rgba(187, 222, 251)
 }
 
 .chart-container {
@@ -25,6 +23,15 @@ h2 {
     -webkit-column-count: 1;
     -moz-column-count: 1;
     column-count: 1;
+}
+
+.analysisAspect {
+    background-color: #eff8ff;
+    padding: 1em;
+}
+
+.analysisAspect > h2 {
+    padding-top: 0.5em;
 }
 
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
@@ -46,11 +53,11 @@ h2 {
 }
 
 
-
 .ct-legend .ct-series-5:before {
     background-color: #59922b;
     border-color: #59922b;
 }
+
 .ct-legend .ct-series-6:before {
     background-color: #0544d3;
     border-color: #0544d3;
@@ -75,7 +82,7 @@ h2 {
 
 
 .ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
-  stroke: #86797d;
+    stroke: #86797d;
 }
 
 .ct-legend .ct-series-10:before {
@@ -85,7 +92,7 @@ h2 {
 
 
 .ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
-  stroke: #b2c326;
+    stroke: #b2c326;
 }
 
 .ct-legend .ct-series-11:before {
@@ -94,7 +101,7 @@ h2 {
 }
 
 .ct-chart .ct-series.ct-series-l .ct-point, .ct-chart .ct-series.ct-series-l .ct-line {
-  stroke: #6188e2;
+    stroke: #6188e2;
 }
 
 .ct-legend .ct-series-12:before {
@@ -103,8 +110,7 @@ h2 {
 }
 
 
-
-.tooltip-show{
+.tooltip-show {
     position: absolute;
     display: inline-block;
     min-width: 5em;
@@ -141,9 +147,6 @@ h2 {
     overflow: scroll;
 }
 
-#masterNav {
-    display: none;
-}
 
 #boxplots {
     width: -webkit-fill-available;
