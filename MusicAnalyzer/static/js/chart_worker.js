@@ -2,8 +2,6 @@ this.onmessage = function (e) {
     let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "roman": 5};
     if (Object.freeze) {
         Object.freeze(sortTypeEnum);
-        Object.freeze(rootEnum);
-        Object.freeze(signEnum);
     }
     let input = e.data;
     let newGroup = getRelevantSummaryStatsForChart(input.analysisJson, input.statsAccessor, input.isDeletedWhenLessThanThree);
