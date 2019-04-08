@@ -2,6 +2,8 @@ body {
     margin-top: 5em;
 }
 
+
+
 .uk-navbar-right > li > a {
     color: black;
     padding-right: 1em;
@@ -25,7 +27,7 @@ body {
 
 .analysisAspect {
     background-color: #DCF0F5;
-    padding:1em;
+    padding: 1em;
 }
 
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
@@ -47,11 +49,11 @@ body {
 }
 
 
-
 .ct-legend .ct-series-5:before {
     background-color: #59922b;
     border-color: #59922b;
 }
+
 .ct-legend .ct-series-6:before {
     background-color: #0544d3;
     border-color: #0544d3;
@@ -76,7 +78,7 @@ body {
 
 
 .ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
-  stroke: #86797d;
+    stroke: #86797d;
 }
 
 .ct-legend .ct-series-10:before {
@@ -86,7 +88,7 @@ body {
 
 
 .ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
-  stroke: #b2c326;
+    stroke: #b2c326;
 }
 
 .ct-legend .ct-series-11:before {
@@ -95,7 +97,7 @@ body {
 }
 
 .ct-chart .ct-series.ct-series-l .ct-point, .ct-chart .ct-series.ct-series-l .ct-line {
-  stroke: #6188e2;
+    stroke: #6188e2;
 }
 
 .ct-legend .ct-series-12:before {
@@ -104,8 +106,7 @@ body {
 }
 
 
-
-.tooltip-show{
+.tooltip-show {
     position: absolute;
     display: inline-block;
     min-width: 5em;

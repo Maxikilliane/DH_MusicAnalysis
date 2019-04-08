@@ -16,9 +16,11 @@
 {% endblock %}
 {% block bread_crumb_block %}
     {% if type == "distant" %}
-        <li><span> / Distant Hearing Choice</span></li>
+        <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+        <li class="breadcrumb"><span class="activeBreadcrumb">Distant Hearing Choice</span></li>
     {% elif type == "individual" %}
-        <li><span>/ Individual Choice</span></li>
+        <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+        <li class="breadcrumb"><span class="activeBreadcrumb">Individual Choice</span></li>
     {% endif %}
 {% endblock %}
 {% block body_block %}
@@ -89,7 +91,8 @@
 
     {% if type == "distant" %}
         <div class="uk-text-center space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="defineGroups">
-            <h3>Define groups <span class="uk-icon-button" uk-icon="question" uk-tooltip="title:The groups by which you want to perform the distant hearing. E.g. Mozart, Beethoven, Schumann,...">
+            <h3>Define groups <span class="uk-icon-button" uk-icon="question"
+                                    uk-tooltip="title:The groups by which you want to perform the distant hearing. E.g. Mozart, Beethoven, Schumann,...">
 
             </span></h3>
             <div id="inputMask">

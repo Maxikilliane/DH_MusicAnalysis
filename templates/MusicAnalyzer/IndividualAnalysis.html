@@ -15,10 +15,9 @@
     <script src="{% static 'js/ajax_analysis_communication.js' %}"></script>
 {% endblock %}
 {% block bread_crumb_block %}
-
-    <li><a href="{% url 'MusicAnalyzer:individual_choice' %}">/ Individual Choice</a></li>
-        <li><span>Individual Analysis</span></li>
-
+    <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+    <li class="breadcrumb"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:individual_choice' %}">Individual Choice</a></li>
+    <li class="breadcrumb"><span class="activeBreadcrumb">Individual Analysis</span></li>
 {% endblock %}
 {% block body_block %}
 

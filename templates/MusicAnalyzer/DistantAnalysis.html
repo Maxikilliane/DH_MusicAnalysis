@@ -31,9 +31,9 @@
     </script>
 {% endblock %}
 {% block bread_crumb_block %}
-
-    <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">/ Distant Hearing Choice</a></li>
-    <li><span>Distant Hearing Analysis</span></li>
+    <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+    <li class="breadcrumb"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
+    <li class="breadcrumb"><span class="activeBreadcrumb">Distant Hearing Analysis</span></li>
 {% endblock %}
 {% block right_nav_block %}
     <li><a href="#overview">Overview</a></li>
