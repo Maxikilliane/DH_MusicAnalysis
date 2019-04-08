@@ -2,6 +2,24 @@
     margin-top:0 !important;
 }
 
+.breadcrumbFirst {
+    padding-bottom: 1em;
+    padding-left: 2em;
+}
+
+.breadcrumb {
+    padding-bottom: 1em;
+}
+
+.activeBreadcrumb {
+    color: black !important;
+}
+
+.inactiveBreadcrumb {
+    color: #666 !important;
+}
+
+
 .bgcolor {
     background-color: rgb(118, 235, 190) !important;
 }

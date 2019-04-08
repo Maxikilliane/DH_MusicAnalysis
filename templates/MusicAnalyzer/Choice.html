@@ -16,9 +16,11 @@
 {% endblock %}
 {% block bread_crumb_block %}
     {% if type == "distant" %}
-        <li><span> / Distant Hearing Choice</span></li>
+        <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+        <li class="breadcrumb"><span class="activeBreadcrumb">Distant Hearing Choice</span></li>
     {% elif type == "individual" %}
-        <li><span>/ Individual Choice</span></li>
+        <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+        <li class="breadcrumb"><span class="activeBreadcrumb">Individual Choice</span></li>
     {% endif %}
 {% endblock %}
 {% block body_block %}
@@ -35,7 +37,7 @@
     <div class="uk-child-width-expand@s" uk-grid>
         <div class="uk-container">
             <h3 class="uk-text-center">Select your own file <span class="uk-icon-button" uk-icon="question"
-                                                                  uk-tooltip="title: Valid file formats are: <br> ABC (.abc), Capella (.cap), ClercqTemperley, Humdrum (.krn), MEI (.mei), Midi (.midi), MuseData (.md), MusicXML (.musicxml/.mxl), Noteworthy (.nwc), NoteworthyBinary, RomanText (.rtf), Scala (.scl), TinyNotation and Volpiano.;">
+                                                                  uk-tooltip="title: {{ tooltip_file_formats }};">
 
             </span></h3>
 
@@ -59,7 +61,7 @@
 
         </div>
         <div class="uk-container">
-            <h3 class="uk-text-center">Search file from corpus <a uk-tooltip="Click to explore contents of corpus"
+            <h3 class="uk-text-center">Search file from corpus <a uk-tooltip="{{ tooltip_corpus }}"
                                                                   target="_blank" rel="noopener noreferrer"
                                                                   href="https://github.com/cuthbertLab/music21/tree/master/music21/corpus"
                                                                   class="uk-icon-button" uk-icon="question"
@@ -89,7 +91,8 @@
 
     {% if type == "distant" %}
         <div class="uk-text-center space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="defineGroups">
-            <h3>Define groups <span class="uk-icon-button" uk-icon="question" uk-tooltip="title:The groups by which you want to perform the distant hearing. E.g. Mozart, Beethoven, Schumann,...">
+            <h3>Define groups <span class="uk-icon-button" uk-icon="question"
+                                    uk-tooltip="title:The groups by which you want to perform the distant hearing. E.g. Mozart, Beethoven, Schumann,...">
 
             </span></h3>
             <div id="inputMask">

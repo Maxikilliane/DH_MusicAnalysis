@@ -32,9 +32,9 @@
     </script>
 {% endblock %}
 {% block bread_crumb_block %}
-
-    <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">/ Distant Hearing Choice</a></li>
-    <li><span>Distant Hearing Analysis</span></li>
+    <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+    <li class="breadcrumb"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
+    <li class="breadcrumb"><span class="activeBreadcrumb">Distant Hearing Analysis</span></li>
 {% endblock %}
 {% block right_nav_block %}
     <li><a href="#overview">Overview</a></li>
@@ -122,10 +122,17 @@
             </li>
         </ul>
     </div>
+    <div class="space-m uk-align-center uk-text-center uk-width-1-1 uk-width-3-4@m">
+        <a href="" id="download_json_button" class="uk-button uk-button-default" download="analysis_results_data.json">Download
+            data as json</a>
+        <span class="uk-icon-button" uk-icon="question"
+              uk-tooltip="title: {{ tooltip_json_download }}; pos: right;">
+        </span>
+    </div>
 
     <hr class="uk-divider-icon">
 
-    <div class="analysisAspect">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Chords</h2>
     </div>
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
@@ -166,7 +173,7 @@
         </div>
     </div>
     <hr class="uk-divider-icon">
-    <div class="analysisAspect">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Pitches</h2>
     </div>
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="pitches">
@@ -196,18 +203,20 @@
             <div id="tooltip-div2"></div>
             <div class="uk-width-1-1" id="pitchOctaveName">
                 <div class="ct-chart-pitch-octave-name"></div>
+                <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                    legend
+                </button>
             </div>
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
             <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
                 legend
-            </button>
         </div>
 
     </div>
     <hr class="uk-divider-icon">
-    <div class="analysisAspect">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Durations</h2>
     </div>
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="durations">
@@ -275,7 +284,7 @@
 
     <hr class="uk-divider-icon">
 
-    <div class="analysisAspect">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Key</h2>
     </div>
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="key">
@@ -305,7 +314,7 @@
 
     </div>
     <hr class="uk-divider-icon">
-    <div class="analysisAspect">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Ambitus</h2>
     </div>
     <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">

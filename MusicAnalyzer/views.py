@@ -56,6 +56,8 @@ class Choice(View):
         self.context_dict["add_group_form"] = AddGroupForm(prefix=Prefix.add_group.value)
         self.context_dict["music_choice_form"] = self.musicChoiceFormset(
             form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
+        self.context_dict["tooltip_corpus"] = texts.tooltip_corpus
+        self.context_dict["tooltip_file_formats"] = texts.tooltip_file_formats
 
         # MusicChoiceForm(prefix=Prefix.choose_music_file.value, session_key=request.session.session_key)
 
@@ -149,7 +151,9 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        context_dict = {"explanations": texts.distant_hearing_explanations, "state": State.distant_hearing.value}
+        context_dict = {"explanations": texts.distant_hearing_explanations,
+                        "tooltip_json_download": texts.tooltip_json,
+                        "state": State.distant_hearing.value}
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
     def post(self, request):
@@ -383,7 +387,7 @@ class IndividualAnalysis(View):
         self.context_dict.update(
             {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form,
              "key_form": key_form})
-        # return render(request, "MusicAnalyzer/Results.html", self.context_dict)
+        self.context_dict.pop('ambitus_display', None)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):

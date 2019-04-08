@@ -2,6 +2,8 @@ body {
     margin-top: 5em;
 }
 
+
+
 .uk-navbar-right > li > a {
     color: black;
     padding-right: 1em;
@@ -45,8 +47,13 @@ div div.key-probability-chart{
 }
 
 .analysisAspect {
-    background-color: #DCF0F5;
     padding: 1em;
+    background-color: #eff8ff;
+    
+}
+
+.analysisAspect > h2 {
+    padding-top: 0.5em;
 }
 
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
