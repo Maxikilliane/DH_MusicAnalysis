@@ -26,8 +26,12 @@ body {
 }
 
 .analysisAspect {
-    background-color: #DCF0F5;
+    background-color: #eff8ff;
     padding: 1em;
+}
+
+.analysisAspect > h2 {
+    padding-top: 0.5em;
 }
 
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
