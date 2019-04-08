@@ -230,8 +230,6 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
     //need: resultValues, musicPiecesResult, labels
     let worker;
     let workerSourcePath = path_to_key_probability_worker;
-    /*let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(key => _.omit(key, 'group')));*/
     if (typeof(Worker) !== "undefined") {
         if (typeof(worker) == "undefined") {
             worker = new Worker(workerSourcePath);
@@ -249,6 +247,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     newHeading.className = 'uk-text-center';
                     newHeading.innerHTML = group;
                     newDiv.className = chartSelector;
+                    newDiv.className += " key-probability-chart";
                     let newButton = document.createElement('button');
                     newButton.textContent = "Download this chart";
                     newButton.type = "button";
@@ -270,9 +269,12 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
 
                     let chart = new Chartist.Line('.ct-chart-key-probability-' + groupWithoutWhitespace, {
                             labels: labels,
-                            series: resultValues[group]
+                            series: resultValues[group],
+
                         },
                         {
+                            axisY: {offset: 60},
+                            axisX: {offset: 40},
                             plugins: [
                                 SuppressForeignObjectPlugin,
                                 Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
@@ -283,7 +285,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                                         axisClass: 'ct-x-axis-title',
                                         offset: {
                                             x: 0,
-                                            y: 30
+                                            y: 40
                                         },
                                         textAnchor: 'middle'
                                     },
@@ -292,21 +294,25 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                                         axisClass: 'ct-y-axis-title',
                                         offset: {
                                             x: 0,
-                                            y: -15
+                                            y: -20
                                         },
                                         textAnchor: 'middle',
                                         flipTitle: false,
                                     }
                                 }),
                             ]
-                        },
+                        }
+                        ,
                         {
                             fullWidth: true,
-                            chartPadding: {
-                                right: 40
-                            }
-                        },
-                    );
+                            chartPadding:
+                                {
+                                    right: 40
+                                }
+                        }
+                        ,
+                        )
+                    ;
                     chart.on('created', function (data) {
                         inlineCSStoSVGForKey(chartSelector);
                         document.getElementById("button" + groupWithoutWhitespace).addEventListener("click", function () {
@@ -333,8 +339,10 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
 
                 }
             }
-        };
-    } else {
+        }
+        ;
+    }
+    else {
         displayNoWebworkerSupportMessage();
     }
 
@@ -690,16 +698,16 @@ function startWorker(worker, workerSourcePath,
                             axisClass: 'ct-x-axis-title',
                             offset: {
                                 x: 0,
-                                y: 30
+                                y: 35
                             },
-                            textAnchor: 'middle'
+                            textAnchor: 'middle',
                         },
                         axisY: {
                             axisTitle: yAxisTitle,
                             axisClass: 'ct-y-axis-title',
                             offset: {
                                 x: 0,
-                                y: -20
+                                y: -10
                             },
                             textAnchor: 'middle',
                             flipTitle: false,
