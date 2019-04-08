@@ -86,7 +86,7 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
         isSortable: false,
         seriesBarDistance: 10,
         xAxisTitle: "",
-        yAxisTitle: "duration in quarter\n notes/rests"
+        yAxisTitle: "duration in quarter notes/rests"
     };
     worker.postMessage(message);
 
@@ -720,21 +720,30 @@ function startWorker(worker, workerSourcePath,
                 ];
 
             }
+
             let chart = new Chartist.Bar(chartSelector, {
                 labels: uniqueKeys,
                 series: data,
                 options,
                 responsiveOptions
             }, {
+                axisY: {
+                    onlyInteger: true,
+                    offset: 45
+                },
+                axisX: {offset: 40},
                 plugins: plugins
             });
 
+            console.log(chart);
             chart.on('created', function (data) {
                 inlineCSStoSVG(chartSelector);
             });
-        };
+        }
+        ;
         return worker;
-    } else {
+    }
+    else {
         displayNoWebworkerSupportMessage();
 
     }

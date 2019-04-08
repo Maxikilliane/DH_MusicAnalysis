@@ -39,9 +39,6 @@ this.onmessage = function (e) {
     //function started here
     const options = {
         seriesBarDistance: input.seriesBarDistance,
-        axisY: {
-            onlyInteger: true
-        }
 
     };
 
