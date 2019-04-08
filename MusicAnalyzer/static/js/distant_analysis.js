@@ -734,8 +734,7 @@ function startWorker(worker, workerSourcePath,
                 axisX: {offset: 40},
                 plugins: plugins
             });
-
-            console.log(chart);
+            
             chart.on('created', function (data) {
                 inlineCSStoSVG(chartSelector);
             });
