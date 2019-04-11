@@ -1,7 +1,3 @@
-/*
- Code from tutorial on SimpleIsBetterThanComplex,
- see: https://simpleisbetterthancomplex.com/tutorial/2016/11/22/django-multiple-file-upload-using-ajax.html
- */
 
 $(function () {
      var bar = document.getElementById('js-progressbar');
@@ -10,7 +6,7 @@ $(function () {
 
         url: '',
         multiple: true,
-        allow: "*.musicxml",
+        //allow: "*.musicxml",
         method: "POST",
         beforeSend: function(e) {
             e.headers = {'X-CSRFTOKEN': Cookies.get("csrftoken")}
