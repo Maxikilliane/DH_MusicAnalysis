@@ -6,13 +6,13 @@
     <script src="{% static 'js/jquery-file-upload/vendor/jquery.ui.widget.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.iframe-transport.js' %}"></script>
     <script src="{% static 'js/jquery-file-upload/jquery.fileupload.js' %}"></script>
+    <script src="{% static 'js/js.cookie-2.2.0.min.js' %}"></script>
     {# fontawesome for icons #}
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
           integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     {# add static files here #}
     <link rel="stylesheet" type="text/css" href="{% static "/css/choice.css" %}"/>
     <script src="{% static 'js/handle_file_choice.js' %}"></script>
-
 {% endblock %}
 {% block bread_crumb_block %}
     {% if type == "distant" %}
@@ -45,14 +45,14 @@
                 <span uk-icon="icon: cloud-upload"></span>
                 <span class="uk-text-middle">Drop your file here to upload or</span>
                 <div uk-form-custom>
-                    <input id="fileupload" type="file" name="files"
-                            {% if type == "distant" %}
+                    <input type="file"
+                             {% if type == "distant" %}
                            multiple
                            data-url="{% url 'MusicAnalyzer:distant_choice' %}"
                             {% elif type == "individual" %}
                            data-url="{% url 'MusicAnalyzer:individual_choice' %}"
                             {% endif %}
-                           data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
+                    >
                     <span class="uk-link upload_files">select from computer</span>
                 </div>
             </div>

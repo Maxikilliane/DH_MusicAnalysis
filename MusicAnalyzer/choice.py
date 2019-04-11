@@ -119,8 +119,8 @@ def and_without_empty(result_list):
 
 def upload_files(self, request, context):
     file_form = self.file_form_class(request.POST, request.FILES)
+    files = request.FILES.getlist('files[]')
 
-    files = request.FILES.getlist('files')
 
     if file_form.is_valid():
         for f in files:
