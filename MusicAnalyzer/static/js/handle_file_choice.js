@@ -76,10 +76,8 @@ function search_corpus() {
             UIkit.notification.closeAll();
 
             if (json.error) {
-                console.log(json.error);
+                console.log(json.error)
             } else {
-                console.log("success");
-                console.log(json);
                 let typeOfSelection = adjustToContextAndFileSource(json.results, json.context, "search");
                 addResultsToTable(json.results, typeOfSelection, "search");
             }
@@ -100,26 +98,31 @@ function addGroup() {
         type: "POST",
         dataType: 'json',
         success: function (json) {
-            UIkit.notification({
-                message: 'Added new group: ' + String(json.name),
-                status: 'success',
-                pos: 'bottom-center',
-                timeout: 5000 // basically endless time, gets closed on success or error
-            });
-            console.log(json);
+            UIkit.notification.closeAll();
 
             if (json.error) {
                 console.log(json.error);
+                UIkit.notification({
+                    message: String(json.error),
+                    status: 'warning',
+                    pos: 'bottom-center',
+                    timeout: 5000
+                });
             } else {
-                console.log("success");
+                UIkit.notification({
+                    message: 'Added new group: ' + String(json.name),
+                    status: 'success',
+                    pos: 'bottom-center',
+                    timeout: 5000
+                });
                 let pk = json.id;
                 let new_group_option = '<option value="' + pk + '">' + String(json.name) + '</option>\n';
                 $("[id$=-group_choice]").append(new_group_option);
                 $("#group_options").append(new_group_option);
-
                 let newLabel = '<span class="uk-label">' + String(json.name) + '</span>\n';
                 $("#groupLabels").append(newLabel);
             }
+            $("#id_add_group-name").val('');
         },
         error: function (xhr, errmsg, err) {
 
@@ -155,12 +158,11 @@ $(document).ready(function () {
     appendClickListeners();
 });
 
-$('html').bind('keypress', function(e) {
-   if(e.keyCode === 13)
-   {
-      addGroup(e);
-      return false;
-   }
+$('html').bind('keypress', function (e) {
+    if (e.keyCode === 13) {
+        addGroup(e);
+        return false;
+    }
 });
 
 // adjust all the checkboxes to be in the same state (checked/unchecked) as the one in the table header
@@ -251,10 +253,7 @@ function addResultsToTable(results, typeOfSelection, fileSource) {
             '</td>';
 
         let group = "";
-        console.log("typeOfSelection:");
-        console.log(typeOfSelection);
         if (typeOfSelection === "checkbox") {
-            console.log("get group");
             let groupOptions = getGroupOptions();
             group += '<td>' +
                 '<select class="uk-select" name="choose_music_piece-' + formNum + '-group_choice" id="id_choose_music_piece-' + formNum + '-group_choice">\n' +

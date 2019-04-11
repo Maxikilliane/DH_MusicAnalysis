@@ -2,9 +2,7 @@ body {
     margin-top: 5em;
 }
 
-h2 {
-    margin-bottom: 1em;
-}
+
 
 .uk-navbar-right > li > a {
     color: black;
@@ -15,8 +13,29 @@ h2 {
     padding-bottom: 2em;
 }
 
+.ct-y-axis-title {
+    padding: 10px;
+    font-size: small;
+    fill: rgba(0, 0, 0, 0.4);
+}
+
+.ct-x-axis-title {
+    fill: rgba(0, 0, 0, 0.4);
+    font-size: small;
+}
+
+.ct-chart-sound_silence_ratio {
+    height: 15em;
+    padding-bottom: 3em;
+}
+
+div div.key-probability-chart{
+    height:20em;
+    padding-bottom: 3em;
+}
+
 #stickyNav {
-    background-color: rgba(187, 222, 251, 0.5)
+    background-color: rgba(187, 222, 251)
 }
 
 .chart-container {
@@ -25,6 +44,16 @@ h2 {
     -webkit-column-count: 1;
     -moz-column-count: 1;
     column-count: 1;
+}
+
+.analysisAspect {
+    padding: 1em;
+    background-color: #eff8ff;
+    
+}
+
+.analysisAspect > h2 {
+    padding-top: 0.5em;
 }
 
 .uk-navbar-right > li:hover > a, .uk-navbar-nav > li > a.uk-open, .uk-navbar-nav > li > a:focus {
@@ -45,23 +74,20 @@ h2 {
     display: none;
 }
 
-
-
 .ct-legend .ct-series-5:before {
     background-color: #59922b;
     border-color: #59922b;
 }
+
 .ct-legend .ct-series-6:before {
     background-color: #0544d3;
     border-color: #0544d3;
 }
 
-
 .ct-legend .ct-series-7:before {
     background-color: #6b0392;
     border-color: #6b0392;
 }
-
 
 .ct-legend .ct-series-8:before {
     background-color: #dda458;
@@ -73,9 +99,8 @@ h2 {
     border-color: #eacf7d;
 }
 
-
 .ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
-  stroke: #86797d;
+    stroke: #86797d;
 }
 
 .ct-legend .ct-series-10:before {
@@ -83,9 +108,8 @@ h2 {
     border-color: #86797d;
 }
 
-
 .ct-chart .ct-series.ct-series-k .ct-point, .ct-chart .ct-series.ct-series-k .ct-line {
-  stroke: #b2c326;
+    stroke: #b2c326;
 }
 
 .ct-legend .ct-series-11:before {
@@ -94,7 +118,7 @@ h2 {
 }
 
 .ct-chart .ct-series.ct-series-l .ct-point, .ct-chart .ct-series.ct-series-l .ct-line {
-  stroke: #6188e2;
+    stroke: #6188e2;
 }
 
 .ct-legend .ct-series-12:before {
@@ -102,9 +126,7 @@ h2 {
     border-color: #6188e2;
 }
 
-
-
-.tooltip-show{
+.tooltip-show {
     position: absolute;
     display: inline-block;
     min-width: 5em;
@@ -141,10 +163,6 @@ h2 {
     overflow: scroll;
 }
 
-#masterNav {
-    display: none;
-}
-
 #boxplots {
     width: -webkit-fill-available;
     width: -moz-available !important; /* WebKit-based browsers will ignore this. */
@@ -152,11 +170,9 @@ h2 {
     overflow: inherit !important;
 }
 
-
 p {
     padding: 1em;
 }
-
 
 .uk-navbar-right {
     list-style: none;

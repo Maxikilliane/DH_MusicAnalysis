@@ -56,6 +56,8 @@ class Choice(View):
         self.context_dict["add_group_form"] = AddGroupForm(prefix=Prefix.add_group.value)
         self.context_dict["music_choice_form"] = self.musicChoiceFormset(
             form_kwargs={'session_key': request.session.session_key}, prefix=Prefix.choose_music_file.value)
+        self.context_dict["tooltip_corpus"] = texts.tooltip_corpus
+        self.context_dict["tooltip_file_formats"] = texts.tooltip_file_formats
 
         # MusicChoiceForm(prefix=Prefix.choose_music_file.value, session_key=request.session.session_key)
 
@@ -83,7 +85,6 @@ class Choice(View):
                             path = data.get("path_to_source")
                             number = data.get("number")
                             group_choice = data.get("group_choice")
-                            print(group_choice)
                             if context == constants.INDIVIDUAL:
                                 print("individual")
                                 save_music_choice_to_cookie(request,
@@ -120,7 +121,7 @@ class IndividualChoice(Choice):
         data = get_already_uploaded_files(request, constants.INDIVIDUAL)
         self.context_dict["data"] = data
         self.context_dict[
-            "explanation"] = "You can analyze a single piece of music in different ways. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. By clicking the 'Analyze' Button the file gets rendered and you can choose which types of analysis you want to perform: Displaying chords, intervals, showing the ambitus or the key of the music piece."
+            "explanation"] = texts.individual_choice_explanation
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -138,7 +139,7 @@ class DistantHearingChoice(Choice):
         data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
         self.context_dict["data"] = data
         self.context_dict[
-            "explanation"] = "You can perform distant hearing, also referred to as digital musicology or (TODO ANNI: gabs da nicht noch nen anderen fancy namen für, der auch oft benutzt wird?). It transfers the principles of distant reading to music. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. Then you have to define the groups by which you want to perform the analysis. This can be everything, that makes sense to you, e.g. the componist (Mozart or Beethoven) or the the type of music (symphony or folk songs) and so on. Before you click the ‚Analyse‘ button you should assign one of the predefined group to each music piece and check the ones you want to use for the anylsis."
+            "explanation"] = texts.distant_choice_explanation
         self.context_dict["groups"] = get_available_groups(request)
         return render(request, self.template_name, self.context_dict)
 
@@ -149,7 +150,9 @@ class DistantHearingChoice(Choice):
 class DistantAnalysis(View):
 
     def get(self, request):
-        context_dict = {"explanations": texts.distant_hearing_explanations, "state": State.distant_hearing.value}
+        context_dict = {"explanations": texts.distant_hearing_explanations,
+                        "tooltip_json_download": texts.tooltip_json,
+                        "state": State.distant_hearing.value}
         return render(request, "MusicAnalyzer/DistantAnalysis.html", context_dict)
 
     def post(self, request):
@@ -298,7 +301,7 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
 def get_group_and_overall_summary_stats(counter_dict):
     per_group_results_list = []
     total = {}
-    print(counter_dict)
+
     for group, results_dict in counter_dict.items():
         group_results = {}
         for counter_name in results_dict.keys():
@@ -366,11 +369,11 @@ class IndividualAnalysis(View):
     gex = m21ToXml.GeneralObjectExporter()
 
     def get(self, request):
-        print("get")
+
         # parsed_file = access_save_parsed_file_from_cookie(request)
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
-        print(choice)
+
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         keys = get_key_possibilities(parsed_file)
         key_form = KeyForm(keys, prefix="key", initial={"key_choice": keys[0].tonicPitchNameWithCase})
@@ -383,11 +386,11 @@ class IndividualAnalysis(View):
         self.context_dict.update(
             {"music_piece": parsed_file, "analysis_form": analysis_form, "chords_form": chords_form,
              "key_form": key_form})
-        # return render(request, "MusicAnalyzer/Results.html", self.context_dict)
+        self.context_dict.pop('ambitus_display', None)
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
-        print("post")
+
         if request.is_ajax():
             analysis_form = IndividualAnalysisForm(request.POST, prefix=Prefix.individual_analysis.value)
             if analysis_form.is_valid():
@@ -428,7 +431,7 @@ class IndividualAnalysis(View):
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
                     ambitus = get_ambitus_for_display(parsed_file, self.gex, self.context_dict)
-                    print("ambitus")
+
                     self.context_dict["ambitus_display"] = ambitus
                 else:
                     if 'ambitus_display' in self.context_dict.keys():
@@ -642,7 +645,7 @@ def get_key_for_distant_hearing(parsed_file):
 
 
 def get_pitches_for_distant_hearing(stream):
-    octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'pitchClass'))
+    octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'octave'))
     pitch_name_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'name'))
     pitch_name_octave_count = dict(m21.analysis.pitchAnalysis.pitchAttributeCount(stream, 'nameWithOctave'))
     # keep this a dictionary and not a list of numbers
@@ -665,13 +668,17 @@ def get_ambitus_for_display(stream, gex, context_dict):
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
     display_part = m21.stream.Part()
-    display_part.append(m21.note.Note(ambitus["pitches"][0]))
-    display_part.append(m21.note.Note(ambitus["pitches"][1]))
+    highest_pitch = m21.note.Note(ambitus["pitches"][1])
+    lowest_pitch = m21.note.Note(ambitus["pitches"][0])
+    display_part.append(lowest_pitch)
+    display_part.append(highest_pitch)
     display.append(display_part)
     display.insert(0, m21.metadata.Metadata())
     display.metadata.composer = " "
     context_dict["ambitus_interval"] = ambitus["interval"].niceName
     context_dict["semitones"] = str(ambitus["interval"].semitones) + " semitones"
+    context_dict["highest_pitch"] = highest_pitch.nameWithOctave
+    context_dict["lowest_pitch"] = lowest_pitch.nameWithOctave
     ambitus_display = gex.parse(display).decode("utf-8")
     return ambitus_display
 
@@ -739,13 +746,24 @@ def get_chord_representation(chord, key, representation_type):
             symbol = chord.pitchedCommonName
         else:
             symbol = chord_figure[0]
-        symbol_parts = re.split("-|\s", symbol)  # symbol.split()
-        re.split("-|\s", symbol)
+
+        symbol_parts = re.split("\s", symbol)  # symbol.split()
+
         for symbol_part in symbol_parts:
-            chord_parts.append(symbol_part)
+            smaller_parts = re.split("-", symbol_part)
+
+            if len(smaller_parts) > 1:
+                for smaller_part in smaller_parts[:-1]:
+                    smaller_part += "- "
+                    chord_parts.append(smaller_part)
+                if smaller_parts[-1] != "":
+                    chord_parts.append(smaller_parts[-1])
+
+            else:
+                chord_parts.append(smaller_parts[0])
+
     elif representation_type == ChordRepresentation.roman.value:
         chord_parts.append(m21.roman.romanNumeralFromChord(chord, key).figure)
-
     return chord_parts
 
 

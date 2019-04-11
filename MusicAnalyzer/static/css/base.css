@@ -1,3 +1,29 @@
+.uk-breadcrumb {
+    margin-top:0 !important;
+}
+
+.uk-accordion-title::before {
+    border: 1px solid #999;
+}
+
+.breadcrumbFirst {
+    padding-bottom: 1em;
+    padding-left: 2em;
+}
+
+.breadcrumb {
+    padding-bottom: 1em;
+}
+
+.activeBreadcrumb {
+    color: black !important;
+}
+
+.inactiveBreadcrumb {
+    color: #666 !important;
+}
+
+
 .bgcolor {
     background-color: rgb(118, 235, 190) !important;
 }

@@ -1,50 +1,15 @@
-let rootEnum = {
-    c: 1,
-    d: 2,
-    e: 3,
-    f: 4,
-    g: 5,
-    a: 6,
-    b: 7,
-    properties: {
-        1: {name: "c", value: 1},
-        2: {name: "d", value: 2},
-        3: {name: "e", value: 3},
-        4: {name: "f", value: 4},
-        5: {name: "g", value: 5},
-        6: {name: "a", value: 6},
-        7: {name: "b", value: 7}
-    }
-};
-
-let signEnum = {
-    flat: 1,
-    none: 2,
-    sharp: 3,
-    properties: {
-        1: {name: "-", value: 1},
-        2: {name: "", value: 2},
-        3: {name: "#", value: 3}
-    }
-
-};
-
 this.onmessage = function (e) {
-    let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "roman":5};
-
-
+    let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "roman": 5};
     if (Object.freeze) {
         Object.freeze(sortTypeEnum);
-        Object.freeze(rootEnum);
-        Object.freeze(signEnum);
     }
-
     let input = e.data;
     let newGroup = getRelevantSummaryStatsForChart(input.analysisJson, input.statsAccessor, input.isDeletedWhenLessThanThree);
     // is dict of only the summary stats currently relevant for the chart as dict
-
     let uniqueKeys = getUniqueKeys(input.analysisJson, input.statsAccessor);
     // is list of keys relevant to the summary stats (like the individual chords names etc)
+    let xAxisTitle = input.xAxisTitle;
+    let yAxisTitle = input.yAxisTitle;
 
     if (input.isSortable) {
 
@@ -55,12 +20,11 @@ this.onmessage = function (e) {
         } else if (input.sortType === sortTypeEnum.number) {
             uniqueKeys = sortNumber(uniqueKeys);
         } else if (input.sortType === sortTypeEnum.duration) {
-            uniqueKeys = sortByDurationName(uniqueKeys, input.analysisJson, input.isForNotes );
-        } else if (input.sortType === sortTypeEnum.roman){
+            uniqueKeys = sortByDurationName(uniqueKeys, input.analysisJson, input.isForNotes);
+        } else if (input.sortType === sortTypeEnum.roman) {
             uniqueKeys = sortByRoman(uniqueKeys)
         }
     }
-
     let data = getMatchingVals(newGroup, uniqueKeys, input.groupNames);
 
     for (let i = 0; i < data.length; i++) {
@@ -74,13 +38,16 @@ this.onmessage = function (e) {
 
     //function started here
     const options = {
-        seriesBarDistance: input.seriesBarDistance
+        seriesBarDistance: input.seriesBarDistance,
+
     };
 
     let message = {};
     message["data"] = data;
     message["uniqueKeys"] = uniqueKeys;
     message["options"] = options;
+    message["yAxisTitle"] = yAxisTitle;
+    message["xAxisTitle"] = xAxisTitle;
     this.postMessage(message);
     this.close();
 };
@@ -142,31 +109,31 @@ function sortRootAndOctave(arr) {
 
 
 function sortNumber(arr) {
-    return arr.sort(function(a, b){
+    return arr.sort(function (a, b) {
         return compareByNumber(a, b);
     });
 }
 
-function compareByNumber(a, b){
+function compareByNumber(a, b) {
     let a_number = parseFloat(a);
-        if (a.indexOf('/') > -1) {
-            let parts = a.split("/");
-            let numerator = parts[0];
-            let denominator = parts[1];
-            a_number = parseInt(numerator) / parseInt(denominator);
-        } else {
-            a_number = parseFloat(a);
-        }
-        let b_number = parseFloat(b);
-        if (b.indexOf('/') > -1) {
-            let parts = b.split("/");
-            let numerator = parts[0];
-            let denominator = parts[1];
-            b_number = parseInt(numerator) / parseInt(denominator);
-        } else {
-            b_number = parseFloat(b);
-        }
-        return a_number - b_number;
+    if (a.indexOf('/') > -1) {
+        let parts = a.split("/");
+        let numerator = parts[0];
+        let denominator = parts[1];
+        a_number = parseInt(numerator) / parseInt(denominator);
+    } else {
+        a_number = parseFloat(a);
+    }
+    let b_number = parseFloat(b);
+    if (b.indexOf('/') > -1) {
+        let parts = b.split("/");
+        let numerator = parts[0];
+        let denominator = parts[1];
+        b_number = parseInt(numerator) / parseInt(denominator);
+    } else {
+        b_number = parseFloat(b);
+    }
+    return a_number - b_number;
 }
 
 function sortByDurationName(arr, analysisJson, isForNotes) {
@@ -181,10 +148,10 @@ function sortByDurationName(arr, analysisJson, isForNotes) {
     });
 }
 
-function sortByRoman(arr){
+function sortByRoman(arr) {
     let sortingArray = ["-I", "I", "#I", "-II", "II", "#II", "-III", "III", "#III", "-IV", "IV", "#IV", "-V", "V", "#V", "-VI", "VI", "#VI", "-VII", "VII", "#VII", "-i", "i", "#i", "-ii", "ii", "#ii", "-iii", "iii", "#iii", "-iv", "iv", "#iv", "-v", "v", "#v", "-vi", "vi", "#vi", "-vii", "vii", "#vii"];
-    for (let i = 0; i < arr.length; ++i){
-        if (sortingArray.indexOf(arr[i]) === -1){
+    for (let i = 0; i < arr.length; ++i) {
+        if (sortingArray.indexOf(arr[i]) === -1) {
             sortingArray.push(arr[i]);
         }
     }

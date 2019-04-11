@@ -10,12 +10,12 @@
     {# fontawesome for icons #}
     <link rel="stylesheet" type="text/css" href="{% static "/css/distantAnalysis.css" %}"/>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
-    <script src="{% static "js/SVG2Bitmap.min.js" %}"></script>
     <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-legend@0.6.2/chartist-plugin-legend.min.js"></script>
     <script src='https://cdn.jsdelivr.net/lodash/4.17.2/lodash.min.js'></script>
     <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-tooltips@0.0.17/dist/chartist-plugin-tooltip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-axistitle@0.0.4/dist/chartist-plugin-axistitle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.js"></script>
     <script src="{% static "js/html2canvas.min.js" %}"></script>
     <script src="{% static "js/download_graphs.js" %}"></script>
@@ -31,37 +31,23 @@
 
     </script>
 {% endblock %}
+{% block bread_crumb_block %}
+    <li class="breadcrumbFirst"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:index' %}">Home</a></li>
+    <li class="breadcrumb"><a class="inactiveBreadcrumb" href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
+    <li class="breadcrumb"><span class="activeBreadcrumb">Distant Hearing Analysis</span></li>
+{% endblock %}
+{% block right_nav_block %}
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#chords">Chords</a></li>
+    <li><a href="#pitches">Pitches</a></li>
+    <li><a href="#durations">Durations</a></li>
+    <li><a href="#key">Key</a></li>
+    <li><a href="#ambitus">Ambitus</a></li>
+{% endblock %}
 
 {% block body_block %}
-    <header>
-        <div class="uk-position-top">
-            <div uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
-                <nav class="uk-navbar-container uk-navbar-default" id="stickyNav" uk-navbar>
-                    <div class="uk-navbar-left">
-                        <ul class="uk-navbar-nav">
-                            <li><a href="{% url 'MusicAnalyzer:index' %}"><img
-                                    syle="padding-bottom: 2em;" src="{% static "/images/logo.png" %}" alt="logo"></a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="uk-navbar-right">
-                        <li><a href="#overview">Overview</a></li>
-                        <li><a href="#chords">Chords</a></li>
-                        <li><a href="#pitches">Pitches</a></li>
-                        <li><a href="#durations">Durations</a></li>
-                        <li><a href="#key">Key</a></li>
-                        <li><a href="#ambitus">Ambitus</a></li>
-                    </div>
-                </nav>
-            </div>
-        </div>
-    </header>
     <div class="column">
     </div>
-    <ul class="uk-breadcrumb">
-        <li><a href="{% url 'MusicAnalyzer:distant_choice' %}">Distant Hearing Choice</a></li>
-        <li><span>Distant Hearing Analysis</span></li>
-    </ul>
     <h2 class="uk-text-center">Distant Analysis</h2>
     <div id="overview">
         <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
@@ -74,7 +60,7 @@
                     <div class="uk-accordion-content">
                         {% if  explanations %}
 
-                            <div uk-grid>
+                            <div uk-grid class="uk-flex-center uk-text-center uk-grid-match">
                                 <div class="uk-width-1-3">
                                     <div class="uk-card uk-card-default uk-card-body">
                                         <h2 class="uk-card-title">Chords</h2>
@@ -136,11 +122,20 @@
             </li>
         </ul>
     </div>
+    <div class="space-m uk-align-center uk-text-center uk-width-1-1 uk-width-3-4@m">
+        <a href="" id="download_json_button" class="uk-button uk-button-default" download="analysis_results_data.json">Download
+            data as json</a>
+        <span class="uk-icon-button" uk-icon="question"
+              uk-tooltip="title: {{ tooltip_json_download }}; pos: right;">
+        </span>
+    </div>
 
     <hr class="uk-divider-icon">
 
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Chords</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="chords">
         <div class="chart-container" id="chartChordNames">
             <h3 class="uk-text-center">Roman numeral chord count</h3>
             <div id="tooltip-div1"></div>
@@ -178,8 +173,10 @@
         </div>
     </div>
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="pitches">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Pitches</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="pitches">
         <div class="chart-container">
             <h3 class="uk-text-center">Pitch name count</h3>
             <div class="ct-chart-pitch-name"></div>
@@ -206,25 +203,31 @@
             <div id="tooltip-div2"></div>
             <div class="uk-width-1-1" id="pitchOctaveName">
                 <div class="ct-chart-pitch-octave-name"></div>
-                <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
-                    chart
+                <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                    legend
                 </button>
-                <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
-            </button>
             </div>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
+                chart
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
         </div>
 
     </div>
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="durations">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Durations</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="durations">
         <div class="chart-container">
             <h3 class="uk-text-center">Duration of notes - count by name</h3>
             <div class="ct-chart-duration-fullname-notes-count"></div>
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
         <div class="chart-container">
@@ -233,7 +236,8 @@
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
         <div class="chart-container">
@@ -242,7 +246,8 @@
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
         <div class="chart-container">
@@ -251,7 +256,8 @@
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
         <div class="chart-container">
@@ -260,7 +266,8 @@
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
         <div class="chart-container">
@@ -269,21 +276,26 @@
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
     </div>
 
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="key">
+
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Key</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="key">
         <div class="chart-container">
             <h3 class="uk-text-center">Key name count</h3>
             <div class="ct-chart-key-name"></div>
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
         <div class="chart-container">
@@ -292,7 +304,8 @@
             <button type="button" class="uk-button uk-button-default uk-align-center downloadButton">Download this
                 chart
             </button>
-            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download legend
+            <button type="button" class="uk-button uk-button-default uk-align-center downloadLegendButton">Download
+                legend
             </button>
         </div>
         <div class="chart-container" id="probabilityCharts">
@@ -301,8 +314,10 @@
 
     </div>
     <hr class="uk-divider-icon">
-    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">
+    <div class="analysisAspect space-m uk-align-center uk-width-1-1 uk-width-3-4@m">
         <h2 class="uk-text-center">Ambitus</h2>
+    </div>
+    <div class="space-m uk-align-center uk-width-1-1 uk-width-3-4@m" id="ambitus">
         <div class="chart-container" id="rangeCharts">
             <h3 class="uk-text-center">Range between highest and lowest pitch by group</h3>
             <p class="uk-text-center">Please hover over the bars to view more detailed information.</p>

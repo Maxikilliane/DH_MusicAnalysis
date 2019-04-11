@@ -2,7 +2,6 @@ let sortTypeEnum = {"root": 1, "rootAndOctave": 2, "number": 3, "duration": 4, "
 Object.freeze(sortTypeEnum);
 
 $(document).ready(function () {
-    console.log("doc ready");
     UIkit.notification({
         message: 'processing analysis',
         status: 'primary',
@@ -16,20 +15,25 @@ $(document).ready(function () {
         type: "POST",
         dataType: 'json',
         success: function (json) {
+            let data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(json));
+            document.getElementById("download_json_button").href="data:"+data;
             distantAnalysis(json.all_summary_stats);
             addMetadata(json.metadata);
             UIkit.notification.closeAll();
         },
         error: function (xhr, errmsg, err) {
             UIkit.notification.closeAll();
-            console.log("error");
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-            UIkit.notification({
-                message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
-                status: 'warning',
-                pos: 'bottom-center',
-                timeout: 10000 // basically endless time, gets closed on success or error
-            });
+            if (xhr.status == 0) {
+
+            } else if (xhr.status >= 500 || xhr.status < 600) {
+                UIkit.notification({
+                    message: 'Your files are too large to be processed by our server. Try doing the analysis with fewer and/or smaller files.',
+                    status: 'warning',
+                    pos: 'bottom-center',
+                    timeout: 10000
+                });
+            }
         }
     });
 });
@@ -83,6 +87,8 @@ function createDurationSoundSilenceRatioChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: false,
         isSortable: false,
         seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: "duration in quarter notes/rests"
     };
     worker.postMessage(message);
 
@@ -101,7 +107,9 @@ function createDurationLengthInQuartersRestsCountChart(analysisJson, groupNames)
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.number,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "duration in quarter rests",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -120,7 +128,9 @@ function createDurationLengthInQuartersNotesRestsCountChart(analysisJson, groupN
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.number,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "duration in quarter notes/rests",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -138,6 +148,9 @@ function createDurationLengthInQuartersNotesCountChart(analysisJson, groupNames)
         isSortable: true,
         sortType: sortTypeEnum.number,
         seriesBarDistance: 10,
+        xAxisTitle: "duration in quarter notes",
+        yAxisTitle: ""
+
     };
     worker.postMessage(message);
 }
@@ -154,7 +167,9 @@ function createDurationFullNameRestsCountChart(analysisJson, groupNames) {
         isSortable: true,
         sortType: sortTypeEnum.duration,
         isForNotes: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -171,7 +186,9 @@ function createDurationFullNameNotesCountChart(analysisJson, groupNames) {
         isSortable: true,
         sortType: sortTypeEnum.duration,
         isForNotes: true,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -187,7 +204,9 @@ function createKeyNameCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -202,7 +221,9 @@ function createKeyModeCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -211,8 +232,6 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
     //need: resultValues, musicPiecesResult, labels
     let worker;
     let workerSourcePath = path_to_key_probability_worker;
-    /*let grouped = _.mapValues(_.groupBy(analysisJson.per_piece_stats, 'group'),
-        clist => clist.map(key => _.omit(key, 'group')));*/
     if (typeof(Worker) !== "undefined") {
         if (typeof(worker) == "undefined") {
             worker = new Worker(workerSourcePath);
@@ -230,6 +249,7 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
                     newHeading.className = 'uk-text-center';
                     newHeading.innerHTML = group;
                     newDiv.className = chartSelector;
+                    newDiv.className += " key-probability-chart";
                     let newButton = document.createElement('button');
                     newButton.textContent = "Download this chart";
                     newButton.type = "button";
@@ -251,24 +271,50 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
 
                     let chart = new Chartist.Line('.ct-chart-key-probability-' + groupWithoutWhitespace, {
                             labels: labels,
-                            series: resultValues[group]
+                            series: resultValues[group],
+
                         },
                         {
+                            axisY: {offset: 60},
+                            axisX: {offset: 40},
                             plugins: [
                                 SuppressForeignObjectPlugin,
                                 Chartist.plugins.legend({legendNames: musicPiecesResult[group]}),
                                 Chartist.plugins.tooltip({appendToBody: true}),
-
-
+                                Chartist.plugins.ctAxisTitle({
+                                    axisX: {
+                                        axisTitle: "order of probability of key",
+                                        axisClass: 'ct-x-axis-title',
+                                        offset: {
+                                            x: 0,
+                                            y: 40
+                                        },
+                                        textAnchor: 'middle'
+                                    },
+                                    axisY: {
+                                        axisTitle: "correlation coefficient",
+                                        axisClass: 'ct-y-axis-title',
+                                        offset: {
+                                            x: 0,
+                                            y: -20
+                                        },
+                                        textAnchor: 'middle',
+                                        flipTitle: false,
+                                    }
+                                }),
                             ]
-                        },
+                        }
+                        ,
                         {
                             fullWidth: true,
-                            chartPadding: {
-                                right: 40
-                            }
-                        },
-                    );
+                            chartPadding:
+                                {
+                                    right: 40
+                                }
+                        }
+                        ,
+                        )
+                    ;
                     chart.on('created', function (data) {
                         inlineCSStoSVGForKey(chartSelector);
                         document.getElementById("button" + groupWithoutWhitespace).addEventListener("click", function () {
@@ -295,8 +341,10 @@ function createKeyProbabilityLineChart(analysisJson, groupNames) {
 
                 }
             }
-        };
-    } else {
+        }
+        ;
+    }
+    else {
         displayNoWebworkerSupportMessage();
     }
 
@@ -316,11 +364,12 @@ function createChordNameCountChart(analysisJson, groupNames) {
         analysisJson: analysisJson,
         statsAccessor: statsAccessor,
         groupNames: groupNames,
-        isDeletedWhenLessThanThree: false
-        ,
+        isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.roman,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -337,7 +386,9 @@ function createChordRootCountChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: true,
         isSortable: true,
         sortType: sortTypeEnum.root,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -354,7 +405,9 @@ function createPitchNameCountChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.root,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -370,7 +423,9 @@ function createPitchOctaveCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -393,7 +448,9 @@ function createChordQualityCountChart(analysisJson, groupNames) {
         groupNames: groupNames,
         isDeletedWhenLessThanThree: false,
         isSortable: false,
-        seriesBarDistance: 10
+        seriesBarDistance: 10,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 
@@ -411,7 +468,9 @@ function createPitchNameWithOctaveCountChart(analysisJson, groupNames) {
         isDeletedWhenLessThanThree: false,
         isSortable: true,
         sortType: sortTypeEnum.rootAndOctave,
-        seriesBarDistance: 100
+        seriesBarDistance: 100,
+        xAxisTitle: "",
+        yAxisTitle: ""
     };
     worker.postMessage(message);
 }
@@ -608,6 +667,8 @@ function startWorker(worker, workerSourcePath,
             let data = e.data.data;
             let uniqueKeys = e.data.uniqueKeys;
             let options = e.data.options;
+            let xAxisTitle = e.data.xAxisTitle;
+            let yAxisTitle = e.data.yAxisTitle;
 
 
             const responsiveOptions = [
@@ -633,28 +694,57 @@ function startWorker(worker, workerSourcePath,
                 ];
             } else {
                 plugins = [
+                    Chartist.plugins.ctAxisTitle({
+                        axisX: {
+                            axisTitle: xAxisTitle + " ",
+                            axisClass: 'ct-x-axis-title',
+                            offset: {
+                                x: 0,
+                                y: 35
+                            },
+                            textAnchor: 'middle',
+                        },
+                        axisY: {
+                            axisTitle: yAxisTitle,
+                            axisClass: 'ct-y-axis-title',
+                            offset: {
+                                x: 0,
+                                y: -10
+                            },
+                            textAnchor: 'middle',
+                            flipTitle: false,
+                        }
+                    }),
                     Chartist.plugins.legend({
                         legendNames: groupNames,
                     }),
-                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true})
+                    Chartist.plugins.tooltip({class: 'uk-text-center', appendToBody: true}),
                 ];
 
             }
+
             let chart = new Chartist.Bar(chartSelector, {
                 labels: uniqueKeys,
                 series: data,
                 options,
                 responsiveOptions
             }, {
+                axisY: {
+                    onlyInteger: true,
+                    offset: 45
+                },
+                axisX: {offset: 40},
                 plugins: plugins
             });
-
+            
             chart.on('created', function (data) {
                 inlineCSStoSVG(chartSelector);
             });
-        };
+        }
+        ;
         return worker;
-    } else {
+    }
+    else {
         displayNoWebworkerSupportMessage();
 
     }
