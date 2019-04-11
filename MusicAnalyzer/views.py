@@ -669,13 +669,17 @@ def get_ambitus_for_display(stream, gex, context_dict):
     ambitus = get_ambitus(stream)
     display = m21.stream.Stream()
     display_part = m21.stream.Part()
-    display_part.append(m21.note.Note(ambitus["pitches"][0]))
-    display_part.append(m21.note.Note(ambitus["pitches"][1]))
+    highest_pitch = m21.note.Note(ambitus["pitches"][1])
+    lowest_pitch = m21.note.Note(ambitus["pitches"][0])
+    display_part.append(lowest_pitch)
+    display_part.append(highest_pitch)
     display.append(display_part)
     display.insert(0, m21.metadata.Metadata())
     display.metadata.composer = " "
     context_dict["ambitus_interval"] = ambitus["interval"].niceName
     context_dict["semitones"] = str(ambitus["interval"].semitones) + " semitones"
+    context_dict["highest_pitch"] = highest_pitch.nameWithOctave
+    context_dict["lowest_pitch"] = lowest_pitch.nameWithOctave
     ambitus_display = gex.parse(display).decode("utf-8")
     return ambitus_display
 
