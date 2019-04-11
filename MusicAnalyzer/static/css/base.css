@@ -2,6 +2,10 @@
     margin-top:0 !important;
 }
 
+.uk-accordion-title::before {
+    border: 1px solid #999;
+}
+
 .breadcrumbFirst {
     padding-bottom: 1em;
     padding-left: 2em;
