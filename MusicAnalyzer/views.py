@@ -121,7 +121,7 @@ class IndividualChoice(Choice):
         data = get_already_uploaded_files(request, constants.INDIVIDUAL)
         self.context_dict["data"] = data
         self.context_dict[
-            "explanation"] = "You can analyze a single piece of music in different ways. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. By clicking the 'Analyze' Button the file gets rendered and you can choose which types of analysis you want to perform: Displaying chords, intervals, showing the ambitus or the key of the music piece."
+            "explanation"] = texts.individual_choice_explanation
         return render(request, self.template_name, self.context_dict)
 
     def post(self, request):
@@ -139,7 +139,7 @@ class DistantHearingChoice(Choice):
         data = get_already_uploaded_files(request, constants.DISTANT_HEARING)
         self.context_dict["data"] = data
         self.context_dict[
-            "explanation"] = "You can perform distant hearing, also referred to as digital musicology or (TODO ANNI: gabs da nicht noch nen anderen fancy namen für, der auch oft benutzt wird?). It transfers the principles of distant reading to music. First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. Then you have to define the groups by which you want to perform the analysis. This can be everything, that makes sense to you, e.g. the componist (Mozart or Beethoven) or the the type of music (symphony or folk songs) and so on. Before you click the ‚Analyse‘ button you should assign one of the predefined group to each music piece and check the ones you want to use for the anylsis."
+            "explanation"] = texts.distant_choice_explanation
         self.context_dict["groups"] = get_available_groups(request)
         return render(request, self.template_name, self.context_dict)
 

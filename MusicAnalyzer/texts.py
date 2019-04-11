@@ -1,3 +1,18 @@
+# explanations for choice
+individual_choice_explanation = "You can analyze a single piece of music in different ways. \n" \
+                                "First you need to either upload a file (in one of the valid formats) or choose a music piece from the corpus. \n" \
+                                "By clicking the 'Analyze' Button the file gets rendered and you can choose which types of analysis you want to perform: Displaying chords, performing numeral analysis, showing the ambitus or the key of the music piece."
+
+distant_choice_explanation =  "You can perform distant hearing, also referred to as digital musicology or statistical musicology. " \
+                              "It transfers the principles of distant reading to music and uses quantitative methods to generate metrics from sheet music. " \
+                              "Some of these metrics are the number of chords with a certain root or roman numeral or quality for each group, and similiar metrics generated about pitches, keys, ambitus, durations of notes and rests.\n " \
+                              "First you need to either upload files (in one of the valid formats) or choose music pieces from the corpus or both in a combination.\n " \
+                              "Next you can define groups, which will be compared and contrasted in the analysis. " \
+                              "This can be everything that makes sense to you, for example comparing by composer (Mozart vs. Beethoven) or the the genre of music (symphony vs. folk songs) and so on. \n" \
+                              "Before you click the ‚Analyze‘ button you should assign one of the predefined groups to each music piece and select the music pieces you want to use for the analysis."
+
+
+
 # explanation for distant analysis
 general_explanation = "Analysis results can viewed for different aspects of music, such as chords, pitches, key or ambitus. In many of the graphs, the predefined groups can be differed by the different colors. By clicking on the legend, a group can be disabled and enabled again, which makes it possible to focus on subgroups. Just hover over the charts to view more detailed information like the exact numbers."
 chords_explanation = "Chords offers three different types of visualization, all displayed in a bar chart. There is the roman numeral chord count, which categorizes chords according to their function in roman numeral analysis, the chord root count, which shows the number of occurrences of each root and the chord quality count, which displays the number of occurrences of each quality of the underlying triad of a triad or seventh. The quality can either be major, minor, augmented or diminshed. In case a clear answer cannot be determined, the chord falls into the category 'other'."
