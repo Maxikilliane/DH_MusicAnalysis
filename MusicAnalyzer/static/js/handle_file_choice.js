@@ -101,17 +101,22 @@ function addGroup() {
         type: "POST",
         dataType: 'json',
         success: function (json) {
-            UIkit.notification({
-                message: 'Added new group: ' + String(json.name),
-                status: 'success',
-                pos: 'bottom-center',
-                timeout: 5000 // basically endless time, gets closed on success or error
-            });
-
 
             if (json.error) {
                 console.log(json.error);
+                 UIkit.notification({
+                message: String(json.error),
+                status: 'warning',
+                pos: 'bottom-center',
+                timeout: 5000
+            });
             } else {
+                 UIkit.notification({
+                message: 'Added new group: ' + String(json.name),
+                status: 'success',
+                pos: 'bottom-center',
+                timeout: 5000 
+            });
                 let pk = json.id;
                 let new_group_option = '<option value="' + pk + '">' + String(json.name) + '</option>\n';
                 $("[id$=-group_choice]").append(new_group_option);

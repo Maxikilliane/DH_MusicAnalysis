@@ -203,12 +203,22 @@ def add_group(request):
     add_group_form = AddGroupForm(request.POST, prefix=Prefix.add_group.value)
     if add_group_form.is_valid():
         name = add_group_form.cleaned_data.get("name", "")
-        # TODO check if group name unique for this session
-        new_group = DistantHearingGroup.objects.create(name=name, ref_django_session_id=request.session.session_key)
-        return JsonResponse({"result": "success", "name": name, "id": new_group.pk})
+        session_id = request.session.session_key
+        if is_unique_in_session(name, session_id):
+            new_group = DistantHearingGroup.objects.create(name=name, ref_django_session_id=session_id)
+            return JsonResponse({"result": "success", "name": name, "id": new_group.pk})
+        else:
+            return JsonResponse({"result": "error", "error": "This group already exists"})
     else:
         return JsonResponse({"result": "error", "error": "Form invalid!"})
 
+
+def is_unique_in_session(group_name, session_id):
+    list_groups = DistantHearingGroup.objects.filter(name=group_name, ref_django_session_id=session_id)
+    if len(list_groups) != 0:
+        return False
+    else:
+        return True
 
 def get_available_groups(request):
     groups = DistantHearingGroup.objects.filter(ref_django_session_id=request.session.session_key)
