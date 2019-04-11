@@ -208,7 +208,8 @@ def add_group(request):
             new_group = DistantHearingGroup.objects.create(name=name, ref_django_session_id=session_id)
             return JsonResponse({"result": "success", "name": name, "id": new_group.pk})
         else:
-            return JsonResponse({"result": "error", "error": "This group already exists"})
+            message = "The group "+name+" already exists!"
+            return JsonResponse({"result": "error", "error": message})
     else:
         return JsonResponse({"result": "error", "error": "Form invalid!"})
 
