@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 
 urlpatterns = [
+    path(r'', include('MusicAnalyzer.urls')),
     path('admin/', admin.site.urls),
     path('MusicAnalyzer/', include('MusicAnalyzer.urls')),
 ]
