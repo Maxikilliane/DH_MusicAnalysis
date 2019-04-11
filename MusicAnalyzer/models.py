@@ -40,8 +40,8 @@ class AuthGroup(models.Model):
 
 class AuthGroupPermissions(models.Model):
     id = models.IntegerField(primary_key=True)  # AutoField?
-    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
-    permission = models.ForeignKey('AuthPermission', models.DO_NOTHING)
+    group = models.ForeignKey(AuthGroup, models.CASCADE)
+    permission = models.ForeignKey('AuthPermission', models.CASCADE)
 
     class Meta:
         managed = False
@@ -51,7 +51,7 @@ class AuthGroupPermissions(models.Model):
 
 class AuthPermission(models.Model):
     id = models.IntegerField(primary_key=True)  # AutoField?
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING)
+    content_type = models.ForeignKey('DjangoContentType', models.CASCADE)
     codename = models.CharField(max_length=100)
     name = models.CharField(max_length=255)
 
@@ -81,8 +81,8 @@ class AuthUser(models.Model):
 
 class AuthUserGroups(models.Model):
     id = models.IntegerField(primary_key=True)  # AutoField?
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-    group = models.ForeignKey(AuthGroup, models.DO_NOTHING)
+    user = models.ForeignKey(AuthUser, models.CASCADE)
+    group = models.ForeignKey(AuthGroup, models.CASCADE)
 
     class Meta:
         managed = False
@@ -92,8 +92,8 @@ class AuthUserGroups(models.Model):
 
 class AuthUserUserPermissions(models.Model):
     id = models.IntegerField(primary_key=True)  # AutoField?
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-    permission = models.ForeignKey(AuthPermission, models.DO_NOTHING)
+    user = models.ForeignKey(AuthUser, models.CASCADE)
+    permission = models.ForeignKey(AuthPermission, models.CASCADE)
 
     class Meta:
         managed = False
@@ -107,8 +107,8 @@ class DjangoAdminLog(models.Model):
     object_id = models.TextField(blank=True, null=True)
     object_repr = models.CharField(max_length=200)
     change_message = models.TextField()
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
+    content_type = models.ForeignKey('DjangoContentType', models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(AuthUser, models.CASCADE)
     action_flag = models.PositiveSmallIntegerField()
 
     class Meta:
