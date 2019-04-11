@@ -85,7 +85,6 @@ class Choice(View):
                             path = data.get("path_to_source")
                             number = data.get("number")
                             group_choice = data.get("group_choice")
-                            print(group_choice)
                             if context == constants.INDIVIDUAL:
                                 print("individual")
                                 save_music_choice_to_cookie(request,
@@ -302,7 +301,7 @@ def get_group_and_total_counts(per_piece_results_list, counter_dict):
 def get_group_and_overall_summary_stats(counter_dict):
     per_group_results_list = []
     total = {}
-    print(counter_dict)
+
     for group, results_dict in counter_dict.items():
         group_results = {}
         for counter_name in results_dict.keys():
@@ -370,11 +369,11 @@ class IndividualAnalysis(View):
     gex = m21ToXml.GeneralObjectExporter()
 
     def get(self, request):
-        print("get")
+
         # parsed_file = access_save_parsed_file_from_cookie(request)
         # parsed_file = m21.converter.thaw(parsed_file)
         choice = access_music_choice_from_cookie(request)
-        print(choice)
+
         parsed_file = parse_file(choice.get("path", ""), choice.get("number", None), choice.get("file_source", None))
         keys = get_key_possibilities(parsed_file)
         key_form = KeyForm(keys, prefix="key", initial={"key_choice": keys[0].tonicPitchNameWithCase})
@@ -391,7 +390,7 @@ class IndividualAnalysis(View):
         return render(request, "MusicAnalyzer/IndividualAnalysis.html", self.context_dict)
 
     def post(self, request):
-        print("post")
+
         if request.is_ajax():
             analysis_form = IndividualAnalysisForm(request.POST, prefix=Prefix.individual_analysis.value)
             if analysis_form.is_valid():
@@ -432,7 +431,7 @@ class IndividualAnalysis(View):
                 if Analysis.ambitus.value in chosen:
                     print("analysing ambitus")
                     ambitus = get_ambitus_for_display(parsed_file, self.gex, self.context_dict)
-                    print("ambitus")
+
                     self.context_dict["ambitus_display"] = ambitus
                 else:
                     if 'ambitus_display' in self.context_dict.keys():
@@ -747,13 +746,24 @@ def get_chord_representation(chord, key, representation_type):
             symbol = chord.pitchedCommonName
         else:
             symbol = chord_figure[0]
-        symbol_parts = re.split("-|\s", symbol)  # symbol.split()
-        re.split("-|\s", symbol)
+
+        symbol_parts = re.split("\s", symbol)  # symbol.split()
+
         for symbol_part in symbol_parts:
-            chord_parts.append(symbol_part)
+            smaller_parts = re.split("-", symbol_part)
+
+            if len(smaller_parts) > 1:
+                for smaller_part in smaller_parts[:-1]:
+                    smaller_part += "- "
+                    chord_parts.append(smaller_part)
+                if smaller_parts[-1] != "":
+                    chord_parts.append(smaller_parts[-1])
+
+            else:
+                chord_parts.append(smaller_parts[0])
+
     elif representation_type == ChordRepresentation.roman.value:
         chord_parts.append(m21.roman.romanNumeralFromChord(chord, key).figure)
-
     return chord_parts
 
 
